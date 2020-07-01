@@ -15,7 +15,7 @@ defmodule InfolabLightGamesWeb.ScreenStream do
   def init(state) do
     # Now we are effectively inside the process that maintains the socket.
     send(self(), {:screen_full, Screen.latest()})
-    :ok = Phoenix.PubSub.subscribe(InfolabLightGames.PubSub, "screen")
+    :ok = Phoenix.PubSub.subscribe(InfolabLightGames.PubSub, "screen:diff")
     {:ok, state}
   end
 
@@ -38,7 +38,7 @@ defmodule InfolabLightGamesWeb.ScreenStream do
   end
 
   def terminate(_reason, _state) do
-    :ok = Phoenix.PubSub.unsubscribe(InfolabLightGames.PubSub, "screen")
+    :ok = Phoenix.PubSub.unsubscribe(InfolabLightGames.PubSub, "screen:diff")
     :ok
   end
 end

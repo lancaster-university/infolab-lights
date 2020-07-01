@@ -6,10 +6,6 @@ defmodule Screen do
   @dims Application.get_env(:infolab_light_games, Screen)[:dims]
   @name :screen_server
 
-  def topic do
-    "screen"
-  end
-
   @impl true
   def init({x, y}) do
     {:ok, Matrix.of_dims(x, y, Pixel.empty)}
@@ -35,7 +31,8 @@ defmodule Screen do
   @impl true
   def handle_cast({:update_frame, frame}, state) do
     diff = Matrix.diff(state, frame)
-    PubSub.broadcast(InfolabLightGames.PubSub, topic(), {:screen_diff, diff})
+    PubSub.broadcast(InfolabLightGames.PubSub, "screen:diff", {:screen_diff, diff})
+    PubSub.broadcast(InfolabLightGames.PubSub, "screen:full", {:screen_full, frame})
     {:noreply, frame}
   end
 end

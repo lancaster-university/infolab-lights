@@ -11,7 +11,7 @@ defmodule Matrix do
   defp diff_inner(x, a, b, acc) do
     Enum.reduce(a, acc, fn {y, val}, acc ->
       val2 = b[y]
-      if val != val2, do: [{{x, y}, {val, val2}} | acc], else: acc
+      if val != val2, do: [%{x: x, y: y, old: val, new: val2} | acc], else: acc
     end)
   end
 end
