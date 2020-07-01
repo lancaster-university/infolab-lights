@@ -20,7 +20,7 @@ defmodule InfolabLightGames.MixProject do
   def application do
     [
       mod: {InfolabLightGames.Application, []},
-      extra_applications: [:logger, :runtime_tools]
+      extra_applications: [:logger, :runtime_tools, :os_mon]
     ]
   end
 
@@ -42,7 +42,8 @@ defmodule InfolabLightGames.MixProject do
       {:telemetry_metrics, "~> 0.4"},
       {:telemetry_poller, "~> 0.4"},
       {:jason, "~> 1.0"},
-      {:plug_cowboy, "~> 2.0"}
+      {:plug_cowboy, "~> 2.0"},
+      {:typed_struct, "~> 0.2"}
     ]
   end
 

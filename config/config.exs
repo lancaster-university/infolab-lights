@@ -15,6 +15,9 @@ config :infolab_light_games, InfolabLightGamesWeb.Endpoint,
   pubsub_server: InfolabLightGames.PubSub,
   live_view: [signing_salt: "5fq+eAsl"]
 
+config :infolab_light_games, Screen,
+  dims: {10, 10}
+
 # Configures Elixir's Logger
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",

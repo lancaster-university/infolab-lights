@@ -7,6 +7,7 @@ defmodule InfolabLightGames.Application do
 
   def start(_type, _args) do
     children = [
+      Screen,
       # Start the Telemetry supervisor
       InfolabLightGamesWeb.Telemetry,
       # Start the PubSub system
