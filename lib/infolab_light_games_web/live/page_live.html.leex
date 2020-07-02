@@ -2,8 +2,30 @@
     <svg viewbox="0 0 <%= (@width + 1) * 4 %> <%= (@height + 1) * 4 %>">
         <rect width="<%= (@width + 1) * 4 %>" height="<%= (@height + 1) * 4 %>" fill="#000000" />
         <%= for {x, row} <- @screen,
-                {y, %Pixel{r: r, g: g, b: b}} <- row do %>
+        {y, %Pixel{r: r, g: g, b: b}} <- row do %>
             <rect width="4" height="4" fill="rgb(<%= r %>, <%= g %>, <%= b %>)" x="<%= x * 4 %>" y="<%= y * 4 %>" />
         <% end %>
     </svg>
+
+    <button phx-click="queue" phx-value-game-name="pong">
+        Queue game
+    </button>
+
+    <div class="current_game">
+        <%= if not is_nil(@coordinator_status.current_game) do %>
+            Current Game:
+            Name: <%= @coordinator_status.current_game.name %>
+            Players: <%= @coordinator_status.current_game.players %>
+            Max Players: <%= @coordinator_status.current_game.max_players %>
+        <% end %>
+    </div>
+
+    <div class="queue">
+        Queue:
+        <%= for game <- @coordinator_status.queue do %>
+            Name: <%= game.name %>
+            Players: <%= game.players %>
+            Max Players: <%= game.max_players %>
+        <% end %>
+    </div>
 </div>

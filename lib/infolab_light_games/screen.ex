@@ -4,23 +4,28 @@ defmodule Screen do
   alias Phoenix.PubSub
 
   @dims Application.get_env(:infolab_light_games, Screen)[:dims]
-  @name :screen_server
+
+  @blank Matrix.of_dims(elem(@dims, 0), elem(@dims, 1), Pixel.empty)
+
+  def blank do
+    @blank
+  end
 
   @impl true
-  def init({x, y}) do
-    {:ok, Matrix.of_dims(x, y, Pixel.empty)}
+  def init(_opts) do
+    {:ok, @blank}
   end
 
   def start_link(_opts) do
-    GenServer.start_link(__MODULE__, @dims, name: @name)
+    GenServer.start_link(__MODULE__, @dims, name: __MODULE__)
   end
 
   def update_frame(new_frame) do
-    GenServer.cast @name, {:update_frame, new_frame}
+    GenServer.cast __MODULE__, {:update_frame, new_frame}
   end
 
   def latest do
-    GenServer.call @name, :latest
+    GenServer.call __MODULE__, :latest
   end
 
   @impl true

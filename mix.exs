@@ -43,7 +43,8 @@ defmodule InfolabLightGames.MixProject do
       {:telemetry_poller, "~> 0.4"},
       {:jason, "~> 1.0"},
       {:plug_cowboy, "~> 2.0"},
-      {:typed_struct, "~> 0.2"}
+      {:typed_struct, "~> 0.2"},
+      {:qex, "~> 0.5"}
     ]
   end
 

@@ -8,6 +8,9 @@ defmodule InfolabLightGames.Application do
   def start(_type, _args) do
     children = [
       Screen,
+      Coordinator,
+      {Registry, keys: :unique, name: GameRegistry},
+      {DynamicSupervisor, strategy: :one_for_one, name: GameSupervisor},
       # Start the Telemetry supervisor
       InfolabLightGamesWeb.Telemetry,
       # Start the PubSub system
