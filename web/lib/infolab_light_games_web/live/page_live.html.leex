@@ -1,8 +1,8 @@
 <div class="container">
     <svg viewbox="0 0 <%= (@width + 1) * 4 %> <%= (@height + 1) * 4 %>">
         <rect width="<%= (@width + 1) * 4 %>" height="<%= (@height + 1) * 4 %>" fill="#000000" />
-        <%= for {x, row} <- @screen,
-        {y, %Pixel{r: r, g: g, b: b}} <- row do %>
+        <%= for {x, col} <- @screen,
+        {y, %Pixel{r: r, g: g, b: b}} <- col do %>
             <rect width="4" height="4" fill="rgb(<%= r %>, <%= g %>, <%= b %>)" x="<%= x * 4 %>" y="<%= y * 4 %>" />
         <% end %>
     </svg>

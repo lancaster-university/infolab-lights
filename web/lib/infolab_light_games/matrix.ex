@@ -1,11 +1,11 @@
 defmodule Matrix do
   def of_dims(x, y, init) do
-    row = Enum.map(0..x, fn i -> {i, init} end) |> Map.new()
-    Enum.map(0..y, fn i -> {i, row} end) |> Map.new()
+    col = Enum.map(0..y-1, fn i -> {i, init} end) |> Map.new()
+    Enum.map(0..x-1, fn i -> {i, col} end) |> Map.new()
   end
 
   def diff(a, b) do
-    Enum.reduce(a, [], fn {i, row}, acc -> diff_inner(i, row, b[i], acc) end)
+    Enum.reduce(a, [], fn {x, col}, acc -> diff_inner(x, col, b[x], acc) end)
   end
 
   defp diff_inner(x, a, b, acc) do
