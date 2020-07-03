@@ -7,6 +7,16 @@ defmodule Screen do
 
   @blank Matrix.of_dims(elem(@dims, 0), elem(@dims, 1), Pixel.empty)
 
+  def dims do
+    @dims
+  end
+
+  def centre_pos do
+    {x, y} = @dims
+
+    {Integer.floor_div(x, 2), Integer.floor_div(y, 2)}
+  end
+
   def blank do
     @blank
   end

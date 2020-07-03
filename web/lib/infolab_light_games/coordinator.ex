@@ -23,6 +23,7 @@ defmodule Coordinator do
 
   @impl true
   def handle_cast({:terminate, name}, state) do
+    GenServer.stop(via_tuple(name))
     state = if state.current_game == via_tuple(name) do
       %State{state | current_game: nil}
     else
