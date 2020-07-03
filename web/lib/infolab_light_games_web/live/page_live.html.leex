@@ -1,6 +1,6 @@
 <div class="container">
-    <svg viewbox="0 0 <%= (@width + 1) * 4 %> <%= (@height + 1) * 4 %>">
-        <rect width="<%= (@width + 1) * 4 %>" height="<%= (@height + 1) * 4 %>" fill="#000000" />
+    <svg viewbox="0 0 <%= @width * 4 %> <%= @height * 4 %>">
+        <rect width="<%= @width * 4 %>" height="<%= @height * 4 %>" fill="#000000" />
         <%= for {x, col} <- @screen,
         {y, %Pixel{r: r, g: g, b: b}} <- col do %>
             <rect width="4" height="4" fill="rgb(<%= r %>, <%= g %>, <%= b %>)" x="<%= x * 4 %>" y="<%= y * 4 %>" />
@@ -17,6 +17,11 @@
             Name: <%= @coordinator_status.current_game.name %>
             Players: <%= @coordinator_status.current_game.players %>
             Max Players: <%= @coordinator_status.current_game.max_players %>
+            <%= if not @coordinator_status.current_game.ready do %>
+                <button phx-click="join" phx-value-game-id="<%= @coordinator_status.current_game.id %>">
+                    Join game
+                </button>
+            <% end %>
         <% end %>
     </div>
 
@@ -26,6 +31,11 @@
             Name: <%= game.name %>
             Players: <%= game.players %>
             Max Players: <%= game.max_players %>
+            <%= if not game.ready do %>
+                <button phx-click="join" phx-value-game-id="<%= game.id %>">
+                    Join game
+                </button>
+            <% end %>
         <% end %>
     </div>
 </div>

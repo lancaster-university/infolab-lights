@@ -22,12 +22,13 @@ defmodule Coordinator do
   end
 
   @impl true
-  def handle_cast({:terminate, name}, state) do
-    GenServer.stop(via_tuple(name))
-    state = if state.current_game == via_tuple(name) do
+  def handle_cast({:terminate, id}, state) do
+    Phoenix.PubSub.broadcast(InfolabLightGames.PubSub, "coordinator:status", {:game_terminate, id})
+    GenServer.stop(via_tuple(id))
+    state = if state.current_game == via_tuple(id) do
       %State{state | current_game: nil}
     else
-      %State{state | queue: Qex.new(Enum.filter(state.queue, fn x -> x != via_tuple(name) end))}
+      %State{state | queue: Qex.new(Enum.filter(state.queue, fn x -> x != via_tuple(id) end))}
     end
 
     {:noreply, state, {:continue, :tick}}
@@ -42,24 +43,24 @@ defmodule Coordinator do
 
   @impl true
   def handle_call({:queue_game, game, initial_player}, _from, state) do
-    name =
+    id =
       ?a..?z
       |> Enum.take_random(6)
       |> List.to_string()
 
-    {:ok, _pid} = DynamicSupervisor.start_child(GameSupervisor, {game, game_name: name, name: via_tuple(name)})
-    :ok = GenServer.call(via_tuple(name), {:add_player, initial_player})
+    {:ok, _pid} = DynamicSupervisor.start_child(GameSupervisor, {game, game_id: id, name: via_tuple(id)})
+    :ok = GenServer.call(via_tuple(id), {:add_player, initial_player})
 
-    state = update_in(state.queue, &Qex.push(&1, via_tuple(name)))
+    state = update_in(state.queue, &Qex.push(&1, via_tuple(id)))
 
-    {:reply, name, state, {:continue, :tick}}
+    {:reply, id, state, {:continue, :tick}}
   end
 
   @impl true
-  def handle_call({:join_game, name, player}, _from, state) do
-    :ok = GenServer.call(via_tuple(name), {:add_player, player})
+  def handle_call({:join_game, id, player}, _from, state) do
+    :ok = GenServer.call(via_tuple(id), {:add_player, player})
 
-    {:reply, name, state, {:continue, :tick}}
+    {:reply, id, state, {:continue, :tick}}
   end
 
   @impl true
@@ -102,12 +103,12 @@ defmodule Coordinator do
     %CoordinatorStatus{current_game: current, queue: queue}
   end
 
-  defp via_tuple(name) do
-    {:via, Registry, {GameRegistry, name}}
+  defp via_tuple(id) do
+    {:via, Registry, {GameRegistry, id}}
   end
 
-  def terminate_game(name) do
-    GenServer.cast(__MODULE__, {:terminate, name})
+  def terminate_game(id) do
+    GenServer.cast(__MODULE__, {:terminate, id})
   end
 
   def route_input(player, input) do
@@ -116,6 +117,10 @@ defmodule Coordinator do
 
   def queue_game(game, initial_player) do
     GenServer.call(__MODULE__, {:queue_game, game, initial_player})
+  end
+
+  def join_game(id, player) do
+    GenServer.call(__MODULE__, {:join_game, id, player})
   end
 
   def status do

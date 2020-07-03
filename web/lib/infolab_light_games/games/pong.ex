@@ -5,7 +5,7 @@ defmodule Games.Pong do
     use TypedStruct
 
     typedstruct enforce: true do
-      field :name, String.t()
+      field :id, String.t()
       field :running, boolean(), default: false
       field :winner, :left | :right | none(), default: nil
       field :left_player, pid() | none(), default: nil
@@ -20,7 +20,7 @@ defmodule Games.Pong do
   @paddle_size 15
 
   def start_link(options) do
-    GenServer.start_link(__MODULE__, %State{name: Keyword.get(options, :game_name)}, options)
+    GenServer.start_link(__MODULE__, %State{id: Keyword.get(options, :game_id)}, options)
   end
 
   @impl true
@@ -77,9 +77,12 @@ defmodule Games.Pong do
 
   @impl true
   def handle_call(:get_status, _from, state) do
-    {:reply, %GameStatus{name: "Pong",
-                         players: Enum.count([state.left_player, state.right_player], &not(is_nil(&1))),
-                         max_players: 2
+    player_count = Enum.count([state.left_player, state.right_player], &not(is_nil(&1)))
+    {:reply, %GameStatus{id: state.id,
+                         name: "Pong",
+                         players: player_count,
+                         max_players: 2,
+                         ready: player_count == 2
                         },
      state}
   end
@@ -107,10 +110,14 @@ defmodule Games.Pong do
 
     render(state)
 
+    if not is_nil(state.winner) do
+      Phoenix.PubSub.broadcast(InfolabLightGames.PubSub, "coordinator:status", {:game_win, state.id, state.winner})
+    end
+
     if state.running do
       tick_request()
     else
-      Coordinator.terminate_game(state.name)
+      Coordinator.terminate_game(state.id)
     end
 
     {:noreply, state}
@@ -152,15 +159,30 @@ defmodule Games.Pong do
     Process.send_after(self(), :tick, Integer.floor_div(1000, 30))
   end
 
+  defp clamp(val, mn, mx) do
+    val
+    |> min(mx)
+    |> max(mn)
+    |> floor()
+  end
+
+  defp clamp_xy({x, y}) do
+    {screen_x, screen_y} = Screen.dims()
+    x = clamp(x, 0, screen_x)
+    y = clamp(y, 0, screen_y)
+    {x, y}
+  end
+
   defp draw_ball(screen, %State{ball_pos: {x, y}}) do
-    Matrix.draw_rect(screen, {x - 1, y - 1}, {x + 1, y + 1}, Pixel.white())
+    Matrix.draw_rect(screen, clamp_xy({x - 1, y - 1}), clamp_xy({x + 1, y + 1}), Pixel.white())
   end
 
   defp draw_paddles(screen, %State{left_paddle_pos: lp, right_paddle_pos: rp}) do
     {screen_x, _screen_y} = Screen.dims()
     half_paddle_size = @paddle_size / 2
-    screen |> Matrix.draw_rect({0, lp - half_paddle_size}, {2, lp + half_paddle_size}, Pixel.blue())
-           |> Matrix.draw_rect({screen_x - 3, rp - half_paddle_size}, {screen_x - 2, rp + half_paddle_size}, Pixel.red())
+    screen
+    |> Matrix.draw_rect(clamp_xy({0, lp - half_paddle_size}), clamp_xy({2, lp + half_paddle_size}), Pixel.blue())
+    |> Matrix.draw_rect(clamp_xy({screen_x - 2, rp - half_paddle_size}), clamp_xy({screen_x, rp + half_paddle_size}), Pixel.red())
   end
 
   defp render(state) do

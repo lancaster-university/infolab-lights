@@ -20,6 +20,7 @@ defmodule InfolabLightGamesWeb.PageLive do
     {:ok, socket}
   end
 
+
   @impl true
   def handle_info({:screen_full, frame}, socket) do
     {:noreply, assign(socket, screen: frame)}
@@ -31,7 +32,22 @@ defmodule InfolabLightGamesWeb.PageLive do
   end
 
   @impl true
-  def handle_event("queue", _game_name, %{assigns: %{name: _name}} = socket) do
+  def handle_info({:game_win, id, winner}, socket) do
+    {:noreply, put_flash(socket, :info, "Player '#{winner}' won the game: #{id}")}
+  end
+
+  @impl true
+  def handle_info({:game_terminate, id}, %{assigns: %{game_id: id}} = socket) do
+    {:noreply, unassigns(socket, :game_id)}
+  end
+
+  @impl true
+  def handle_info({:game_terminate, _id}, socket) do
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("queue", _params, %{assigns: %{game_id: _id}} = socket) do
     # already in a game
     {:noreply, put_flash(socket, :error, "You're already in a game")}
   end
@@ -44,11 +60,28 @@ defmodule InfolabLightGamesWeb.PageLive do
         _      -> {:error, :unknown_game}
       end
 
-    name = Coordinator.queue_game(game, self())
+    id = Coordinator.queue_game(game, self())
 
     socket = socket
-      |> assign(name: name)
-      |> put_flash(:info, "Joined game: #{game_name}")
+      |> assign(game_id: id)
+      |> put_flash(:info, "Joined game: #{id}")
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("join", _params, %{assigns: %{game_id: _id}} = socket) do
+    # already in a game
+    {:noreply, put_flash(socket, :error, "You're already in a game")}
+  end
+
+  @impl true
+  def handle_event("join", %{"game-id" => id}, socket) do
+    Coordinator.join_game(id, self())
+
+    socket = socket
+      |> assign(game_id: id)
+      |> put_flash(:info, "Joined game: #{id}")
 
     {:noreply, socket}
   end
@@ -56,9 +89,16 @@ defmodule InfolabLightGamesWeb.PageLive do
   @impl true
   def terminate(_reason, socket) do
     case socket do
-      %{assigns: %{name: name}} ->
-        Coordinator.terminate_game(name)
+      %{assigns: %{name_id: id}} ->
+        Coordinator.terminate_game(id)
       _ -> :ok
     end
+  end
+
+  defp unassigns(socket, key) do
+    %{socket |
+      assigns: Map.delete(socket.assigns, key),
+      changed: Map.put_new(socket.changed, key, true)
+    }
   end
 end
