@@ -6,7 +6,6 @@ defmodule InfolabLightGamesWeb.PageLive do
   @impl true
   def mount(_params, _session, socket) do
     if connected?(socket) do
-      Phoenix.PubSub.subscribe(InfolabLightGames.PubSub, "screen:full")
       Phoenix.PubSub.subscribe(InfolabLightGames.PubSub, "coordinator:status")
 
     end
@@ -17,13 +16,7 @@ defmodule InfolabLightGamesWeb.PageLive do
       |> assign(screen: Screen.latest, width: width, height: height)
       |> assign(coordinator_status: coordinator_status)
 
-    {:ok, socket}
-  end
-
-
-  @impl true
-  def handle_info({:screen_full, frame}, socket) do
-    {:noreply, assign(socket, screen: frame)}
+    {:ok, socket, temporary_assigns: [screen: nil]}
   end
 
   @impl true

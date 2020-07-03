@@ -46,7 +46,10 @@ defmodule Screen do
   @impl true
   def handle_cast({:update_frame, frame}, state) do
     diff = Matrix.diff(state, frame)
-    PubSub.broadcast(InfolabLightGames.PubSub, "screen:diff", {:screen_diff, diff})
+    if not Enum.empty?(diff) do
+      InfolabLightGamesWeb.Endpoint.broadcast("screen_diff", "diff", %{data: diff})
+      PubSub.broadcast(InfolabLightGames.PubSub, "screen:diff", {:screen_diff, diff})
+    end
     PubSub.broadcast(InfolabLightGames.PubSub, "screen:full", {:screen_full, frame})
     {:noreply, frame}
   end

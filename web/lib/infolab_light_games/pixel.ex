@@ -24,4 +24,8 @@ defmodule Pixel do
   def blue do
     %Pixel{r: 0, g: 0, b: 255}
   end
+
+  def render_rgb(%Pixel{r: r, g: g, b: b}) do
+    "rgb(#{r}, #{g}, #{b})"
+  end
 end

@@ -31,3 +31,18 @@ liveSocket.connect()
 // >> liveSocket.enableDebug()
 // >> liveSocket.enableLatencySim(1000)
 window.liveSocket = liveSocket
+
+let socket = new Socket("/socket", {params: {_csrf_token: csrfToken}})
+socket.connect()
+
+let screen_channel = socket.channel("screen_diff", {})
+screen_channel.on("diff", ({ data }) => {
+    for (const { new: {r, g, b}, x, y } of data) {
+        const pix = document.getElementById(`screen_pix_${x}_${y}`)
+        pix.setAttribute("fill", `rgb(${r}, ${g}, ${b})`)
+    }
+})
+
+screen_channel.join()
+  .receive("ok", resp => { console.log("Joined successfully", resp) })
+  .receive("error", resp => { console.log("Unable to join", resp) })

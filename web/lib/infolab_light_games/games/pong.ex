@@ -13,7 +13,7 @@ defmodule Games.Pong do
       field :left_paddle_pos, non_neg_integer(), default: 0
       field :right_paddle_pos, non_neg_integer(), default: 0
       field :ball_pos, {float(), float()}, default: Screen.centre_pos()
-      field :ball_vel, {float(), float()}, default: {1, 0}
+      field :ball_vel, {float(), float()}, default: {0.2, 0}
     end
   end
 
@@ -117,6 +117,7 @@ defmodule Games.Pong do
     if state.running do
       tick_request()
     else
+      Screen.update_frame(Screen.blank)
       Coordinator.terminate_game(state.id)
     end
 
