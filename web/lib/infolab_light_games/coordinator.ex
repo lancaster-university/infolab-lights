@@ -23,13 +23,15 @@ defmodule Coordinator do
 
   @impl true
   def handle_cast({:terminate, id}, state) do
-    Phoenix.PubSub.broadcast(InfolabLightGames.PubSub, "coordinator:status", {:game_terminate, id})
     GenServer.stop(via_tuple(id))
+
     state = if state.current_game == via_tuple(id) do
       %State{state | current_game: nil}
     else
       %State{state | queue: Qex.new(Enum.filter(state.queue, fn x -> x != via_tuple(id) end))}
     end
+
+    Phoenix.PubSub.broadcast(InfolabLightGames.PubSub, "coordinator:status", {:game_terminate, id})
 
     {:noreply, state, {:continue, :tick}}
   end
@@ -48,7 +50,10 @@ defmodule Coordinator do
       |> Enum.take_random(6)
       |> List.to_string()
 
-    {:ok, _pid} = DynamicSupervisor.start_child(GameSupervisor, {game, game_id: id, name: via_tuple(id)})
+    {:ok, _pid} = DynamicSupervisor.start_child(GameManager, {game, game_id: id,
+                                                              name: via_tuple(id)
+                                                             })
+
     :ok = GenServer.call(via_tuple(id), {:add_player, initial_player})
 
     state = update_in(state.queue, &Qex.push(&1, via_tuple(id)))
@@ -59,6 +64,13 @@ defmodule Coordinator do
   @impl true
   def handle_call({:join_game, id, player}, _from, state) do
     :ok = GenServer.call(via_tuple(id), {:add_player, player})
+
+    {:reply, id, state, {:continue, :tick}}
+  end
+
+  @impl true
+  def handle_call({:leave_game, id, player}, _from, state) do
+    :ok = GenServer.call(via_tuple(id), {:remove_player, player})
 
     {:reply, id, state, {:continue, :tick}}
   end
@@ -121,6 +133,10 @@ defmodule Coordinator do
 
   def join_game(id, player) do
     GenServer.call(__MODULE__, {:join_game, id, player})
+  end
+
+  def leave_game(id, player) do
+    GenServer.call(__MODULE__, {:leave_game, id, player})
   end
 
   def status do

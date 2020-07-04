@@ -1,5 +1,5 @@
 defmodule Games.Pong do
-  use GenServer
+  use GenServer, restart: :transient
 
   defmodule State do
     use TypedStruct
@@ -76,6 +76,30 @@ defmodule Games.Pong do
   end
 
   @impl true
+  def handle_call({:remove_player, player}, _from, %State{left_player: lp, right_player: rp} = state) when player in [lp, rp] do
+    state = cond do
+      state.left_player == player ->
+        %State{state | left_player: nil}
+
+      state.right_player == player ->
+        %State{state | right_player: nil}
+
+      true -> state
+    end
+
+    if state.running or Enum.all?([state.left_player, state.right_player], &is_nil/1) do
+      Coordinator.terminate_game(state.id)
+    end
+
+    {:reply, :ok, state}
+  end
+
+  @impl true
+  def handle_call({:remove_player, _player}, _from, state) do
+    {:reply, :ok, state}
+  end
+
+  @impl true
   def handle_call(:get_status, _from, state) do
     player_count = Enum.count([state.left_player, state.right_player], &not(is_nil(&1)))
     {:reply, %GameStatus{id: state.id,
@@ -93,7 +117,7 @@ defmodule Games.Pong do
       state.running ->
         {:reply, :running, state}
 
-      is_nil(state.left_player) or is_nil(state.right_player) ->
+      Enum.any?([state.left_player, state.right_player], &is_nil/1) ->
         {:reply, :not_ready, state}
 
       true ->

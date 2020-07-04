@@ -9,7 +9,7 @@
         <% end %>
     </svg>
 
-    <button phx-click="queue" phx-value-game-name="pong">
+    <button phx-click="queue" phx-value-game-name="pong" <%= if @game_id, do: "disabled" %>>
         Queue game
     </button>
 
@@ -36,6 +36,11 @@
             <%= if not game.ready do %>
                 <button phx-click="join" phx-value-game-id="<%= game.id %>">
                     Join game
+                </button>
+            <% end %>
+            <%= if game.id == @game_id do %>
+                <button class="button error" phx-click="leave" phx-value-game-id="<%= game.id %>">
+                    Leave game
                 </button>
             <% end %>
         <% end %>

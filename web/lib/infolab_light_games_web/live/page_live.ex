@@ -13,7 +13,7 @@ defmodule InfolabLightGamesWeb.PageLive do
     coordinator_status = Coordinator.status()
 
     socket = socket
-      |> assign(screen: Screen.latest, width: width, height: height)
+      |> assign(game_id: nil, screen: Screen.latest, width: width, height: height)
       |> assign(coordinator_status: coordinator_status)
 
     {:ok, socket, temporary_assigns: [screen: nil]}
@@ -31,7 +31,7 @@ defmodule InfolabLightGamesWeb.PageLive do
 
   @impl true
   def handle_info({:game_terminate, id}, %{assigns: %{game_id: id}} = socket) do
-    {:noreply, unassigns(socket, :game_id)}
+    {:noreply, assign(socket, game_id: nil)}
   end
 
   @impl true
@@ -40,13 +40,7 @@ defmodule InfolabLightGamesWeb.PageLive do
   end
 
   @impl true
-  def handle_event("queue", _params, %{assigns: %{game_id: _id}} = socket) do
-    # already in a game
-    {:noreply, put_flash(socket, :error, "You're already in a game")}
-  end
-
-  @impl true
-  def handle_event("queue", %{"game-name" => game_name}, socket) do
+  def handle_event("queue", %{"game-name" => game_name}, %{assigns: %{game_id: nil}} = socket) do
     {:ok, game} =
       case game_name do
         "pong" -> {:ok, Games.Pong}
@@ -63,13 +57,13 @@ defmodule InfolabLightGamesWeb.PageLive do
   end
 
   @impl true
-  def handle_event("join", _params, %{assigns: %{game_id: _id}} = socket) do
+  def handle_event("queue", _params, socket) do
     # already in a game
     {:noreply, put_flash(socket, :error, "You're already in a game")}
   end
 
   @impl true
-  def handle_event("join", %{"game-id" => id}, socket) do
+  def handle_event("join", %{"game-id" => id}, %{assigns: %{game_id: nil}} = socket) do
     Coordinator.join_game(id, self())
 
     socket = socket
@@ -80,18 +74,31 @@ defmodule InfolabLightGamesWeb.PageLive do
   end
 
   @impl true
-  def terminate(_reason, socket) do
-    case socket do
-      %{assigns: %{name_id: id}} ->
-        Coordinator.terminate_game(id)
-      _ -> :ok
-    end
+  def handle_event("join", _params, socket) do
+    # already in a game
+    {:noreply, put_flash(socket, :error, "You're already in a game")}
   end
 
-  defp unassigns(socket, key) do
-    %{socket |
-      assigns: Map.delete(socket.assigns, key),
-      changed: Map.put_new(socket.changed, key, true)
-    }
+  @impl true
+  def handle_event("leave", %{"game-id" => id}, %{assigns: %{game_id: id}} = socket) do
+    Coordinator.leave_game(id, self())
+
+    socket = socket
+      |> assign(game_id: nil)
+      |> put_flash(:info, "Left game: #{id}")
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("leave", _params, socket) do
+    {:noreply, socket}
+  end
+
+  @impl true
+  def terminate(_reason, socket) do
+    unless is_nil(socket.assigns.game_id) do
+      Coordinator.leave_game(socket.assigns.game_id, self())
+    end
   end
 end
