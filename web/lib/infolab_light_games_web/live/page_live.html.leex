@@ -1,48 +1,83 @@
-<div class="container">
-    <svg viewbox="0 0 <%= @width * 4 %> <%= @height * 4 %>" id="screen_view" phx-update="ignore">
-        <rect width="<%= @width * 4 %>" height="<%= @height * 4 %>" fill="#000000" />
-        <%= for x <- 0..@width-1,
+<header>
+    <section class="container box">
+        <nav role="navigation" class="navbar">
+            <div class="navbar-brand">
+                <a class="navbar-item" href="https://github.com/nitros12/something-secret">
+                    Infolab Light Things
+                </a>
+            </div>
+
+            <div class="navbar-end">
+                <div class="buttons">
+                    <button class="button is-primary" phx-click="queue" phx-value-game-name="pong" <%= if @game_id, do: "disabled" %>>
+                        <strong>Queue game</strong>
+                    </button>
+                </div>
+            </div>
+        </nav>
+    </section>
+</header>
+
+<section class="section">
+    <div class="columns">
+        <div class="column is-one-fith">
+            <div class="current_game">
+                <%= if not is_nil(@coordinator_status.current_game) do %>
+                    <div class="box">
+                        <nav class="level">
+                            <div class="level-left">
+                                <span class="level-item"><%= @coordinator_status.current_game.name %></span>
+                            </div>
+                            <div class="level-right">
+                                <span class="level-item tag is-info"><%= @coordinator_status.current_game.players %>/
+                                    <%= @coordinator_status.current_game.max_players %> players</span>
+                            </div>
+                        </nav>
+                    </div>
+                <% end %>
+            </div>
+        </div>
+
+        <div class="column is-three-fifths is-vcentered">
+            <svg viewbox="0 0 <%= @width * 4 %> <%= @height * 4 %>" id="screen_view" phx-update="ignore">
+                <rect width="<%= @width * 4 %>" height="<%= @height * 4 %>" fill="#000000" />
+                <%= for x <- 0..@width-1,
                 y <- 0..@height-1 do %>
-            <rect id="screen_pix_<%= x %>_<%= y %>" width="4" height="4"
-                  fill="<%= Pixel.render_rgb(@screen[x][y]) %>"
-                  x="<%= x * 4 %>" y="<%= y * 4 %>" />
-        <% end %>
-    </svg>
+                    <rect id="screen_pix_<%= x %>_<%= y %>" width="4" height="4"
+                          fill="<%= Pixel.render_rgb(@screen[x][y]) %>"
+                          x="<%= x * 4 %>" y="<%= y * 4 %>" />
+                <% end %>
+            </svg>
+        </div>
 
-    <button phx-click="queue" phx-value-game-name="pong" <%= if @game_id, do: "disabled" %>>
-        Queue game
-    </button>
-
-    <div class="current_game">
-        <%= if not is_nil(@coordinator_status.current_game) do %>
-            Current Game:
-            Name: <%= @coordinator_status.current_game.name %>
-            Players: <%= @coordinator_status.current_game.players %>
-            Max Players: <%= @coordinator_status.current_game.max_players %>
-            <%= if not @coordinator_status.current_game.ready do %>
-                <button phx-click="join" phx-value-game-id="<%= @coordinator_status.current_game.id %>">
-                    Join game
-                </button>
-            <% end %>
-        <% end %>
+        <div class="column">
+            <nav class="panel">
+                <p class="panel-heading">Queue</p>
+                <%= for game <- @coordinator_status.queue do %>
+                    <div class="box">
+                        <nav class="level">
+                            <div class="level-left">
+                                <span class="level-item"><%= game.name %></span>
+                            </div>
+                            <div class="level-right">
+                                <span class="level-item tag is-info"><%= game.players %>/<%= game.max_players %> players</span>
+                            </div>
+                        </nav>
+                        <div class="field is-grouped">
+                            <button class="button" phx-click="join"
+                                    phx-value-game-id="<%= game.id %>"
+                                    <%= if game.ready or @game_id, do: "disabled" %>>
+                                Join game
+                            </button>
+                            <button class="button is-danger" phx-click="leave"
+                                    phx-value-game-id="<%= game.id %>"
+                                    <%= if game.id != @game_id, do: "disabled" %>>
+                                Leave game
+                            </button>
+                        </div>
+                    </div>
+                <% end %>
+            </nav>
+        </div>
     </div>
-
-    <div class="queue">
-        Queue:
-        <%= for game <- @coordinator_status.queue do %>
-            Name: <%= game.name %>
-            Players: <%= game.players %>
-            Max Players: <%= game.max_players %>
-            <%= if not game.ready do %>
-                <button phx-click="join" phx-value-game-id="<%= game.id %>">
-                    Join game
-                </button>
-            <% end %>
-            <%= if game.id == @game_id do %>
-                <button class="button error" phx-click="leave" phx-value-game-id="<%= game.id %>">
-                    Leave game
-                </button>
-            <% end %>
-        <% end %>
-    </div>
-</div>
+</section>

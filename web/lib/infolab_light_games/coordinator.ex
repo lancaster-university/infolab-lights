@@ -48,6 +48,20 @@ defmodule Coordinator do
     end
   end
 
+  defp is_game_ready?(game) do
+    GenServer.call(game, :get_status).ready
+  end
+
+  defp remove_first_ready(queue) do
+    case Enum.find_index(queue, &is_game_ready?/1) do
+      nil -> {:empty, queue}
+      idx ->
+        s = Enum.take(queue, idx)
+        [e | t] = Enum.drop(queue, idx)
+        {{:value, e}, Qex.join(Qex.new(s), Qex.new(t))}
+    end
+  end
+
   @impl true
   def handle_call({:queue_game, game, initial_player}, _from, state) do
     id =
@@ -88,7 +102,7 @@ defmodule Coordinator do
   def handle_continue(:tick, state) do
     state =
       if is_nil(state.current_game) do
-        case Qex.pop(state.queue) do
+        case remove_first_ready(state.queue) do
           {{:value, game}, q} ->
             %State{state | current_game: game, queue: q}
 
