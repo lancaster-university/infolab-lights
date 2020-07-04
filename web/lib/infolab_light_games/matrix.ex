@@ -1,7 +1,7 @@
 defmodule Matrix do
   def of_dims(x, y, init) do
-    col = Enum.map(0..y-1, fn i -> {i, init} end) |> Map.new()
-    Enum.map(0..x-1, fn i -> {i, col} end) |> Map.new()
+    col = Enum.map(0..(y - 1), fn i -> {i, init} end) |> Map.new()
+    Enum.map(0..(x - 1), fn i -> {i, col} end) |> Map.new()
   end
 
   def diff(a, b) do
@@ -13,10 +13,9 @@ defmodule Matrix do
   end
 
   def draw_rect(screen, {x0, y0} = _top_left, {x1, y1} = _bottom_right, col) do
-    for x <- x0..x1-1,
-        y <- y0..y1-1,
-        reduce: screen
-      do
+    for x <- x0..(x1 - 1),
+        y <- y0..(y1 - 1),
+        reduce: screen do
       screen -> draw_at(screen, x, y, col)
     end
   end

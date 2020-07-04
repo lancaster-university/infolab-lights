@@ -25,13 +25,18 @@ defmodule Coordinator do
   def handle_cast({:terminate, id}, state) do
     GenServer.stop(via_tuple(id))
 
-    state = if state.current_game == via_tuple(id) do
-      %State{state | current_game: nil}
-    else
-      %State{state | queue: Qex.new(Enum.filter(state.queue, fn x -> x != via_tuple(id) end))}
-    end
+    state =
+      if state.current_game == via_tuple(id) do
+        %State{state | current_game: nil}
+      else
+        %State{state | queue: Qex.new(Enum.filter(state.queue, fn x -> x != via_tuple(id) end))}
+      end
 
-    Phoenix.PubSub.broadcast(InfolabLightGames.PubSub, "coordinator:status", {:game_terminate, id})
+    Phoenix.PubSub.broadcast(
+      InfolabLightGames.PubSub,
+      "coordinator:status",
+      {:game_terminate, id}
+    )
 
     {:noreply, state, {:continue, :tick}}
   end
@@ -50,9 +55,8 @@ defmodule Coordinator do
       |> Enum.take_random(6)
       |> List.to_string()
 
-    {:ok, _pid} = DynamicSupervisor.start_child(GameManager, {game, game_id: id,
-                                                              name: via_tuple(id)
-                                                             })
+    {:ok, _pid} =
+      DynamicSupervisor.start_child(GameManager, {game, game_id: id, name: via_tuple(id)})
 
     :ok = GenServer.call(via_tuple(id), {:add_player, initial_player})
 
@@ -82,16 +86,18 @@ defmodule Coordinator do
 
   @impl true
   def handle_continue(:tick, state) do
-    state = if is_nil(state.current_game) do
-      case Qex.pop(state.queue) do
-        {{:value, game}, q} ->
-          %State{state | current_game: game, queue: q}
-        {:empty, q} ->
-          %State{state | queue: q}
+    state =
+      if is_nil(state.current_game) do
+        case Qex.pop(state.queue) do
+          {{:value, game}, q} ->
+            %State{state | current_game: game, queue: q}
+
+          {:empty, q} ->
+            %State{state | queue: q}
+        end
+      else
+        state
       end
-    else
-      state
-    end
 
     if not is_nil(state.current_game) do
       GenServer.call(state.current_game, :start_if_ready)
@@ -103,12 +109,17 @@ defmodule Coordinator do
   end
 
   defp push_status(state) do
-    Phoenix.PubSub.broadcast(InfolabLightGames.PubSub, "coordinator:status", {:coordinator_update, get_status(state)})
+    Phoenix.PubSub.broadcast(
+      InfolabLightGames.PubSub,
+      "coordinator:status",
+      {:coordinator_update, get_status(state)}
+    )
   end
 
   defp get_status(state) do
-    current = if not is_nil(state.current_game),
-      do: GenServer.call(state.current_game, :get_status)
+    current =
+      if not is_nil(state.current_game),
+        do: GenServer.call(state.current_game, :get_status)
 
     queue = Enum.map(state.queue, &GenServer.call(&1, :get_status))
 

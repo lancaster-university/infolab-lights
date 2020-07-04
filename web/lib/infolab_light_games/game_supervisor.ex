@@ -9,7 +9,7 @@ defmodule GameSupervisor do
   def init(_init_args) do
     children = [
       {Registry, keys: :unique, name: GameRegistry},
-      {DynamicSupervisor, strategy: :one_for_one, name: GameManager},
+      {DynamicSupervisor, strategy: :one_for_one, name: GameManager}
     ]
 
     Supervisor.init(children, strategy: :one_for_all)

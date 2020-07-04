@@ -5,7 +5,7 @@ defmodule Screen do
 
   @dims Application.get_env(:infolab_light_games, Screen)[:dims]
 
-  @blank Matrix.of_dims(elem(@dims, 0), elem(@dims, 1), Pixel.empty)
+  @blank Matrix.of_dims(elem(@dims, 0), elem(@dims, 1), Pixel.empty())
 
   def dims do
     @dims
@@ -31,11 +31,11 @@ defmodule Screen do
   end
 
   def update_frame(new_frame) do
-    GenServer.cast __MODULE__, {:update_frame, new_frame}
+    GenServer.cast(__MODULE__, {:update_frame, new_frame})
   end
 
   def latest do
-    GenServer.call __MODULE__, :latest
+    GenServer.call(__MODULE__, :latest)
   end
 
   @impl true
@@ -46,10 +46,12 @@ defmodule Screen do
   @impl true
   def handle_cast({:update_frame, frame}, state) do
     diff = Matrix.diff(state, frame)
+
     if not Enum.empty?(diff) do
       InfolabLightGamesWeb.Endpoint.broadcast("screen_diff", "diff", %{data: diff})
       PubSub.broadcast(InfolabLightGames.PubSub, "screen:diff", {:screen_diff, diff})
     end
+
     PubSub.broadcast(InfolabLightGames.PubSub, "screen:full", {:screen_full, frame})
     {:noreply, frame}
   end

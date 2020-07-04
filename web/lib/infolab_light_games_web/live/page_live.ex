@@ -7,13 +7,14 @@ defmodule InfolabLightGamesWeb.PageLive do
   def mount(_params, _session, socket) do
     if connected?(socket) do
       Phoenix.PubSub.subscribe(InfolabLightGames.PubSub, "coordinator:status")
-
     end
+
     {width, height} = @dims
     coordinator_status = Coordinator.status()
 
-    socket = socket
-      |> assign(game_id: nil, screen: Screen.latest, width: width, height: height)
+    socket =
+      socket
+      |> assign(game_id: nil, screen: Screen.latest(), width: width, height: height)
       |> assign(coordinator_status: coordinator_status)
 
     {:ok, socket, temporary_assigns: [screen: nil]}
@@ -44,12 +45,13 @@ defmodule InfolabLightGamesWeb.PageLive do
     {:ok, game} =
       case game_name do
         "pong" -> {:ok, Games.Pong}
-        _      -> {:error, :unknown_game}
+        _ -> {:error, :unknown_game}
       end
 
     id = Coordinator.queue_game(game, self())
 
-    socket = socket
+    socket =
+      socket
       |> assign(game_id: id)
       |> put_flash(:info, "Joined game: #{id}")
 
@@ -66,7 +68,8 @@ defmodule InfolabLightGamesWeb.PageLive do
   def handle_event("join", %{"game-id" => id}, %{assigns: %{game_id: nil}} = socket) do
     Coordinator.join_game(id, self())
 
-    socket = socket
+    socket =
+      socket
       |> assign(game_id: id)
       |> put_flash(:info, "Joined game: #{id}")
 
@@ -83,7 +86,8 @@ defmodule InfolabLightGamesWeb.PageLive do
   def handle_event("leave", %{"game-id" => id}, %{assigns: %{game_id: id}} = socket) do
     Coordinator.leave_game(id, self())
 
-    socket = socket
+    socket =
+      socket
       |> assign(game_id: nil)
       |> put_flash(:info, "Left game: #{id}")
 

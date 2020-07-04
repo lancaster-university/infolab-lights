@@ -34,7 +34,10 @@ defmodule Games.Pong do
   end
 
   @impl true
-  def handle_cast({:handle_input, player, input}, %State{left_player: lp, right_player: rp} = state) do
+  def handle_cast(
+        {:handle_input, player, input},
+        %State{left_player: lp, right_player: rp} = state
+      ) do
     amount =
       case input do
         "up" -> 1
@@ -50,7 +53,8 @@ defmodule Games.Pong do
         ^rp ->
           Map.update!(state, :right_player, &(&1 + amount))
 
-          _ -> state
+        _ ->
+          state
       end
 
     render(state)
@@ -76,16 +80,23 @@ defmodule Games.Pong do
   end
 
   @impl true
-  def handle_call({:remove_player, player}, _from, %State{left_player: lp, right_player: rp} = state) when player in [lp, rp] do
-    state = cond do
-      state.left_player == player ->
-        %State{state | left_player: nil}
+  def handle_call(
+        {:remove_player, player},
+        _from,
+        %State{left_player: lp, right_player: rp} = state
+      )
+      when player in [lp, rp] do
+    state =
+      cond do
+        state.left_player == player ->
+          %State{state | left_player: nil}
 
-      state.right_player == player ->
-        %State{state | right_player: nil}
+        state.right_player == player ->
+          %State{state | right_player: nil}
 
-      true -> state
-    end
+        true ->
+          state
+      end
 
     if state.running or Enum.all?([state.left_player, state.right_player], &is_nil/1) do
       Coordinator.terminate_game(state.id)
@@ -101,14 +112,16 @@ defmodule Games.Pong do
 
   @impl true
   def handle_call(:get_status, _from, state) do
-    player_count = Enum.count([state.left_player, state.right_player], &not(is_nil(&1)))
-    {:reply, %GameStatus{id: state.id,
-                         name: "Pong",
-                         players: player_count,
-                         max_players: 2,
-                         ready: player_count == 2
-                        },
-     state}
+    player_count = Enum.count([state.left_player, state.right_player], &(not is_nil(&1)))
+
+    {:reply,
+     %GameStatus{
+       id: state.id,
+       name: "Pong",
+       players: player_count,
+       max_players: 2,
+       ready: player_count == 2
+     }, state}
   end
 
   @impl true
@@ -135,13 +148,17 @@ defmodule Games.Pong do
     render(state)
 
     if not is_nil(state.winner) do
-      Phoenix.PubSub.broadcast(InfolabLightGames.PubSub, "coordinator:status", {:game_win, state.id, state.winner})
+      Phoenix.PubSub.broadcast(
+        InfolabLightGames.PubSub,
+        "coordinator:status",
+        {:game_win, state.id, state.winner}
+      )
     end
 
     if state.running do
       tick_request()
     else
-      Screen.update_frame(Screen.blank)
+      Screen.update_frame(Screen.blank())
       Coordinator.terminate_game(state.id)
     end
 
@@ -150,32 +167,37 @@ defmodule Games.Pong do
 
   defp within_paddle(paddle_pos, ball_pos) do
     half_paddle_size = @paddle_size / 2
-    ball_pos < (paddle_pos + half_paddle_size) and ball_pos > (paddle_pos - half_paddle_size)
+    ball_pos < paddle_pos + half_paddle_size and ball_pos > paddle_pos - half_paddle_size
   end
 
   defp handle_bounces(%State{ball_pos: {x, y}, ball_vel: {dx, dy}} = state) do
     {screen_x, screen_y} = Screen.dims()
 
-    state = if y < 0 and dy < 0 or y > screen_y and dy > 0 do
-      update_in(state.ball_vel, fn {dx, dy} -> {dx, -dy} end)
-    else
-      state
-    end
+    state =
+      if (y < 0 and dy < 0) or (y > screen_y and dy > 0) do
+        update_in(state.ball_vel, fn {dx, dy} -> {dx, -dy} end)
+      else
+        state
+      end
 
-    state = case {x < 1 and dx < 0,
-                  within_paddle(state.left_paddle_pos, y),
-                  x > (screen_x - 1) and dx > 0,
-                  within_paddle(state.right_paddle_pos, y)} do
-              {true, true, _, _} ->
-                update_in(state.ball_vel, fn {dx, dy} -> {-dx, dy} end)
-              {true, false, _, _} ->
-                %State{state | running: false, winner: :right}
-              {_, _, true, true} ->
-                update_in(state.ball_vel, fn {dx, dy} -> {-dx, dy} end)
-              {_, _, true, false} ->
-                %State{state | running: false, winner: :left}
-              _ -> state
-    end
+    state =
+      case {x < 1 and dx < 0, within_paddle(state.left_paddle_pos, y),
+            x > screen_x - 1 and dx > 0, within_paddle(state.right_paddle_pos, y)} do
+        {true, true, _, _} ->
+          update_in(state.ball_vel, fn {dx, dy} -> {-dx, dy} end)
+
+        {true, false, _, _} ->
+          %State{state | running: false, winner: :right}
+
+        {_, _, true, true} ->
+          update_in(state.ball_vel, fn {dx, dy} -> {-dx, dy} end)
+
+        {_, _, true, false} ->
+          %State{state | running: false, winner: :left}
+
+        _ ->
+          state
+      end
 
     state
   end
@@ -205,14 +227,23 @@ defmodule Games.Pong do
   defp draw_paddles(screen, %State{left_paddle_pos: lp, right_paddle_pos: rp}) do
     {screen_x, _screen_y} = Screen.dims()
     half_paddle_size = @paddle_size / 2
+
     screen
-    |> Matrix.draw_rect(clamp_xy({0, lp - half_paddle_size}), clamp_xy({2, lp + half_paddle_size}), Pixel.blue())
-    |> Matrix.draw_rect(clamp_xy({screen_x - 2, rp - half_paddle_size}), clamp_xy({screen_x, rp + half_paddle_size}), Pixel.red())
+    |> Matrix.draw_rect(
+      clamp_xy({0, lp - half_paddle_size}),
+      clamp_xy({2, lp + half_paddle_size}),
+      Pixel.blue()
+    )
+    |> Matrix.draw_rect(
+      clamp_xy({screen_x - 2, rp - half_paddle_size}),
+      clamp_xy({screen_x, rp + half_paddle_size}),
+      Pixel.red()
+    )
   end
 
   defp render(state) do
     frame =
-      Screen.blank
+      Screen.blank()
       |> draw_paddles(state)
       |> draw_ball(state)
 
