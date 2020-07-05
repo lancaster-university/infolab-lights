@@ -38,7 +38,9 @@
             </div>
         </div>
 
-        <div class="column is-three-fifths">
+        <div id="game_screen" class="column is-three-fifths"
+             phx-window-keydown="key_down"
+             phx-window-keyup="key_up">
             <svg viewbox="0 0 <%= @width * 4 %> <%= @height * 4 %>" id="screen_view" phx-update="ignore">
                 <rect width="<%= @width * 4 %>" height="<%= @height * 4 %>" fill="#000000" />
                 <%= for x <- 0..@width-1,
@@ -65,7 +67,7 @@
                         </nav>
                         <nav class="level">
                             <div class="level-left">
-                                <button class="level-item button is-small" phx-click="join"
+                                <button class="level-item button is-small is-primary" phx-click="join"
                                         phx-value-game-id="<%= game.id %>"
                                         <%= if game.ready or @game_id, do: "disabled" %>>
                                     Join game

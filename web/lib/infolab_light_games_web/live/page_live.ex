@@ -31,12 +31,12 @@ defmodule InfolabLightGamesWeb.PageLive do
   end
 
   @impl true
-  def handle_info({:game_terminate, id}, %{assigns: %{game_id: id}} = socket) do
+  def handle_info({:game_terminated, id}, %{assigns: %{game_id: id}} = socket) do
     {:noreply, assign(socket, game_id: nil)}
   end
 
   @impl true
-  def handle_info({:game_terminate, _id}, socket) do
+  def handle_info({:game_terminated, _id}, socket) do
     {:noreply, socket}
   end
 
@@ -96,6 +96,20 @@ defmodule InfolabLightGamesWeb.PageLive do
 
   @impl true
   def handle_event("leave", _params, socket) do
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("key_up", %{"key" => key}, socket) do
+    Coordinator.route_input(self(), {false, key})
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("key_down", %{"key" => key}, socket) do
+    Coordinator.route_input(self(), {true, key})
+
     {:noreply, socket}
   end
 

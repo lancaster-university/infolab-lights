@@ -45,6 +45,7 @@ defmodule InfolabLightGames.MixProject do
       {:plug_cowboy, "~> 2.0"},
       {:typed_struct, "~> 0.2"},
       {:qex, "~> 0.5"},
+      {:ok, "~> 2.3"},
       {:credo, "~> 1.4", only: [:dev, :test], runtime: false}
     ]
   end

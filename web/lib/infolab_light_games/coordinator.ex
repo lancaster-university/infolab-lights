@@ -25,18 +25,22 @@ defmodule Coordinator do
   def handle_cast({:terminate, id}, state) do
     GenServer.stop(via_tuple(id))
 
-    state =
-      if state.current_game == via_tuple(id) do
-        %State{state | current_game: nil}
-      else
-        %State{state | queue: Qex.new(Enum.filter(state.queue, fn x -> x != via_tuple(id) end))}
-      end
+    state = handle_terminated_game(id, state)
+
+    {:noreply, state}
+  end
+
+  # we end up trying to remove the game twice, but that's fine
+  def handle_cast({:terminated, id}, state) do
+    state = handle_terminated_game(id, state)
 
     Phoenix.PubSub.broadcast(
       InfolabLightGames.PubSub,
       "coordinator:status",
-      {:game_terminate, id}
+      {:game_terminated, id}
     )
+
+    push_status(state)
 
     {:noreply, state, {:continue, :tick}}
   end
@@ -46,20 +50,8 @@ defmodule Coordinator do
     if not is_nil(state.current_game) do
       GenServer.cast(state.current_game, {:handle_input, player, input})
     end
-  end
 
-  defp is_game_ready?(game) do
-    GenServer.call(game, :get_status).ready
-  end
-
-  defp remove_first_ready(queue) do
-    case Enum.find_index(queue, &is_game_ready?/1) do
-      nil -> {:empty, queue}
-      idx ->
-        s = Enum.take(queue, idx)
-        [e | t] = Enum.drop(queue, idx)
-        {{:value, e}, Qex.join(Qex.new(s), Qex.new(t))}
-    end
+    {:noreply, state}
   end
 
   @impl true
@@ -122,6 +114,20 @@ defmodule Coordinator do
     {:noreply, state}
   end
 
+  defp is_game_ready?(game) do
+    GenServer.call(game, :get_status).ready
+  end
+
+  defp remove_first_ready(queue) do
+    case Enum.find_index(queue, &is_game_ready?/1) do
+      nil -> {:empty, queue}
+      idx ->
+        s = Enum.take(queue, idx)
+        [e | t] = Enum.drop(queue, idx)
+        {{:value, e}, Qex.join(Qex.new(s), Qex.new(t))}
+    end
+  end
+
   defp push_status(state) do
     Phoenix.PubSub.broadcast(
       InfolabLightGames.PubSub,
@@ -140,12 +146,24 @@ defmodule Coordinator do
     %CoordinatorStatus{current_game: current, queue: queue}
   end
 
+  defp handle_terminated_game(id, state) do
+      if state.current_game == via_tuple(id) do
+        %State{state | current_game: nil}
+      else
+        %State{state | queue: Qex.new(Enum.filter(state.queue, fn x -> x != via_tuple(id) end))}
+      end
+  end
+
   defp via_tuple(id) do
     {:via, Registry, {GameRegistry, id}}
   end
 
   def terminate_game(id) do
     GenServer.cast(__MODULE__, {:terminate, id})
+  end
+
+  def notify_game_terminated(id) do
+    GenServer.cast(__MODULE__, {:terminated, id})
   end
 
   def route_input(player, input) do

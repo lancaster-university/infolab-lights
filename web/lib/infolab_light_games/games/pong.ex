@@ -1,4 +1,5 @@
 defmodule Games.Pong do
+  require OK
   use GenServer, restart: :transient
 
   defmodule State do
@@ -6,18 +7,29 @@ defmodule Games.Pong do
 
     typedstruct enforce: true do
       field :id, String.t()
+
       field :running, boolean(), default: false
-      field :winner, :left | :right | none(), default: nil
+      field :winner, :red | :blue | none(), default: nil
+
       field :left_player, pid() | none(), default: nil
       field :right_player, pid() | none(), default: nil
+
       field :left_paddle_pos, non_neg_integer(), default: 0
       field :right_paddle_pos, non_neg_integer(), default: 0
+
+      field :left_keypress_state, %{up: boolean(), down: boolean()},
+        default: %{up: false, down: false}
+
+      field :right_keypress_state, %{up: boolean(), down: boolean()},
+        default: %{up: false, down: false}
+
       field :ball_pos, {float(), float()}, default: Screen.centre_pos()
-      field :ball_vel, {float(), float()}, default: {0.2, 0}
+      field :ball_vel, {float(), float()}, default: {0.5, 0}
     end
   end
 
   @paddle_size 15
+  @paddle_move_amount 2
 
   def start_link(options) do
     GenServer.start_link(__MODULE__, %State{id: Keyword.get(options, :game_id)}, options)
@@ -34,30 +46,31 @@ defmodule Games.Pong do
   end
 
   @impl true
-  def handle_cast(
-        {:handle_input, player, input},
-        %State{left_player: lp, right_player: rp} = state
-      ) do
-    amount =
-      case input do
-        "up" -> 1
-        "down" -> -1
-        _ -> 0
-      end
+  def handle_cast({:handle_input, player, {pressed_state, key}}, state) do
+    state = OK.try do
+      player_state_key <-
+        cond do
+          player == state.left_player ->
+            {:ok, :left_keypress_state}
 
-    state =
-      case player do
-        ^lp ->
-          Map.update!(state, :left_player, &(&1 + amount))
+          player == state.right_player ->
+            {:ok, :right_keypress_state}
 
-        ^rp ->
-          Map.update!(state, :right_player, &(&1 + amount))
+          true ->
+            {:error, :not_a_player}
+        end
 
-        _ ->
-          state
-      end
-
-    render(state)
+      key_name <-
+        case key do
+          "ArrowUp" -> {:ok, :up}
+          "ArrowDown" -> {:ok, :down}
+          _ -> {:error, :unknown_key}
+        end
+    after
+      put_in(state, [Access.key!(player_state_key), key_name], pressed_state)
+    rescue
+      _ -> state
+    end
 
     {:noreply, state}
   end
@@ -142,8 +155,12 @@ defmodule Games.Pong do
   @impl true
   def handle_info(:tick, state) do
     {dx, dy} = state.ball_vel
-    state = update_in(state.ball_pos, fn {x, y} -> {x + dx, y + dy} end)
-    state = handle_bounces(state)
+
+    state =
+      state
+      |> update_in([Access.key!(:ball_pos)], fn {x, y} -> {x + dx, y + dy} end)
+      |> handle_bounces()
+      |> handle_paddle_move()
 
     render(state)
 
@@ -165,6 +182,11 @@ defmodule Games.Pong do
     {:noreply, state}
   end
 
+  @impl true
+  def terminate(_reason, state) do
+    Coordinator.notify_game_terminated(state.id)
+  end
+
   defp within_paddle(paddle_pos, ball_pos) do
     half_paddle_size = @paddle_size / 2
     ball_pos < paddle_pos + half_paddle_size and ball_pos > paddle_pos - half_paddle_size
@@ -181,25 +203,47 @@ defmodule Games.Pong do
       end
 
     state =
-      case {x < 1 and dx < 0, within_paddle(state.left_paddle_pos, y),
-            x > screen_x - 1 and dx > 0, within_paddle(state.right_paddle_pos, y)} do
+      case {x < 3 and dx < 0, within_paddle(state.left_paddle_pos, y),
+            x > screen_x - 3 and dx > 0, within_paddle(state.right_paddle_pos, y)} do
         {true, true, _, _} ->
           update_in(state.ball_vel, fn {dx, dy} -> {-dx, dy} end)
 
         {true, false, _, _} ->
-          %State{state | running: false, winner: :right}
+          %State{state | running: false, winner: :blue}
 
         {_, _, true, true} ->
           update_in(state.ball_vel, fn {dx, dy} -> {-dx, dy} end)
 
         {_, _, true, false} ->
-          %State{state | running: false, winner: :left}
+          %State{state | running: false, winner: :red}
 
         _ ->
           state
       end
 
     state
+  end
+
+  defp handle_paddle_move(state) do
+    {_screen_x, screen_y} = Screen.dims()
+
+    left_movement =
+      case {state.left_keypress_state, state.left_paddle_pos < 0, state.left_paddle_pos > screen_y} do
+        {%{up: true, down: false}, false, _} -> -@paddle_move_amount
+        {%{up: false, down: true}, _, false} -> @paddle_move_amount
+        _ -> 0
+      end
+
+    right_movement =
+      case {state.right_keypress_state, state.right_paddle_pos < 0, state.right_paddle_pos > screen_y} do
+        {%{up: true, down: false}, false, _} -> -@paddle_move_amount
+        {%{up: false, down: true}, _, false} -> @paddle_move_amount
+        _ -> 0
+      end
+
+    state
+    |> update_in([Access.key!(:left_paddle_pos)], fn p -> p + left_movement end)
+    |> update_in([Access.key!(:right_paddle_pos)], fn p -> p + right_movement end)
   end
 
   defp tick_request do
