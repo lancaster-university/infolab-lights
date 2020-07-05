@@ -24,15 +24,25 @@ defmodule Games.Pong do
         default: %{up: false, down: false}
 
       field :ball_pos, {float(), float()}, default: Screen.centre_pos()
-      field :ball_vel, {float(), float()}, default: {0.5, 0}
+      field :ball_vel, {float(), float()}, default: {0.6, 0}
     end
   end
 
-  @paddle_size 15
-  @paddle_move_amount 2
+  @paddle_size 20
+  @paddle_move_amount 3
+  @x_vel_mult_on_hit 1.03
+  @max_ball_x_vel 10
+  @max_ball_y_vel 4
+  @initial_x_vel 0.6
+  @initial_y_vel_range -5..5
 
   def start_link(options) do
-    GenServer.start_link(__MODULE__, %State{id: Keyword.get(options, :game_id)}, options)
+    state = %State{
+      id: Keyword.get(options, :game_id),
+      ball_vel: {@initial_x_vel, 0.1 * Enum.random(@initial_y_vel_range)}
+    }
+
+    GenServer.start_link(__MODULE__, state, options)
   end
 
   @impl true
@@ -47,30 +57,31 @@ defmodule Games.Pong do
 
   @impl true
   def handle_cast({:handle_input, player, {pressed_state, key}}, state) do
-    state = OK.try do
-      player_state_key <-
-        cond do
-          player == state.left_player ->
-            {:ok, :left_keypress_state}
+    state =
+      OK.try do
+        player_state_key <-
+          cond do
+            player == state.left_player ->
+              {:ok, :left_keypress_state}
 
-          player == state.right_player ->
-            {:ok, :right_keypress_state}
+            player == state.right_player ->
+              {:ok, :right_keypress_state}
 
-          true ->
-            {:error, :not_a_player}
-        end
+            true ->
+              {:error, :not_a_player}
+          end
 
-      key_name <-
-        case key do
-          "ArrowUp" -> {:ok, :up}
-          "ArrowDown" -> {:ok, :down}
-          _ -> {:error, :unknown_key}
-        end
-    after
-      put_in(state, [Access.key!(player_state_key), key_name], pressed_state)
-    rescue
-      _ -> state
-    end
+        key_name <-
+          case key do
+            "ArrowUp" -> {:ok, :up}
+            "ArrowDown" -> {:ok, :down}
+            _ -> {:error, :unknown_key}
+          end
+      after
+        put_in(state, [Access.key!(player_state_key), key_name], pressed_state)
+      rescue
+        _ -> state
+      end
 
     {:noreply, state}
   end
@@ -203,19 +214,29 @@ defmodule Games.Pong do
       end
 
     state =
-      case {x < 3 and dx < 0, within_paddle(state.left_paddle_pos, y),
+      case {x < 4 and dx < 0, within_paddle(state.left_paddle_pos, y),
             x > screen_x - 3 and dx > 0, within_paddle(state.right_paddle_pos, y)} do
         {true, true, _, _} ->
-          update_in(state.ball_vel, fn {dx, dy} -> {-dx, dy} end)
+          left_movement = paddle_vel(state.left_keypress_state, state.left_paddle_pos)
+
+          update_in(state.ball_vel, fn {dx, dy} ->
+            {clamp(-dx * @x_vel_mult_on_hit, -@max_ball_x_vel, @max_ball_x_vel),
+             clamp(dy + left_movement * 0.5, -@max_ball_y_vel, @max_ball_y_vel)}
+          end)
 
         {true, false, _, _} ->
-          %State{state | running: false, winner: :blue}
+          %State{state | running: false, winner: :red}
 
         {_, _, true, true} ->
-          update_in(state.ball_vel, fn {dx, dy} -> {-dx, dy} end)
+          right_movement = paddle_vel(state.right_keypress_state, state.right_paddle_pos)
+
+          update_in(state.ball_vel, fn {dx, dy} ->
+            {clamp(-dx * @x_vel_mult_on_hit, -@max_ball_x_vel, @max_ball_x_vel),
+             clamp(dy + right_movement * 0.5, -@max_ball_y_vel, @max_ball_y_vel)}
+          end)
 
         {_, _, true, false} ->
-          %State{state | running: false, winner: :red}
+          %State{state | running: false, winner: :blue}
 
         _ ->
           state
@@ -224,22 +245,19 @@ defmodule Games.Pong do
     state
   end
 
-  defp handle_paddle_move(state) do
+  defp paddle_vel(keypress_state, paddle_pos) do
     {_screen_x, screen_y} = Screen.dims()
 
-    left_movement =
-      case {state.left_keypress_state, state.left_paddle_pos < 0, state.left_paddle_pos > screen_y} do
-        {%{up: true, down: false}, false, _} -> -@paddle_move_amount
-        {%{up: false, down: true}, _, false} -> @paddle_move_amount
-        _ -> 0
-      end
+    case {keypress_state, paddle_pos < 0, paddle_pos > screen_y} do
+      {%{up: true, down: false}, false, _} -> -@paddle_move_amount
+      {%{up: false, down: true}, _, false} -> @paddle_move_amount
+      _ -> 0
+    end
+  end
 
-    right_movement =
-      case {state.right_keypress_state, state.right_paddle_pos < 0, state.right_paddle_pos > screen_y} do
-        {%{up: true, down: false}, false, _} -> -@paddle_move_amount
-        {%{up: false, down: true}, _, false} -> @paddle_move_amount
-        _ -> 0
-      end
+  defp handle_paddle_move(state) do
+    left_movement = paddle_vel(state.left_keypress_state, state.left_paddle_pos)
+    right_movement = paddle_vel(state.right_keypress_state, state.right_paddle_pos)
 
     state
     |> update_in([Access.key!(:left_paddle_pos)], fn p -> p + left_movement end)

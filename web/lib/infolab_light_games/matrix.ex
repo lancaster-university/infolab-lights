@@ -1,7 +1,9 @@
 defmodule Matrix do
+  import ExclusiveRange
+
   def of_dims(x, y, init) do
-    col = Enum.map(0..(y - 1), fn i -> {i, init} end) |> Map.new()
-    Enum.map(0..(x - 1), fn i -> {i, col} end) |> Map.new()
+    col = Enum.map(erange(0..y), fn i -> {i, init} end) |> Map.new()
+    Enum.map(erange(0..x), fn i -> {i, col} end) |> Map.new()
   end
 
   def diff(a, b) do
@@ -13,8 +15,8 @@ defmodule Matrix do
   end
 
   def draw_rect(screen, {x0, y0} = _top_left, {x1, y1} = _bottom_right, col) do
-    for x <- x0..(x1 - 1),
-        y <- y0..(y1 - 1),
+    for x <- erange(x0..x1),
+        y <- erange(y0..y1),
         reduce: screen do
       screen -> draw_at(screen, x, y, col)
     end
