@@ -23,36 +23,62 @@ defmodule Screen do
 
   @impl true
   def init(_opts) do
-    {:ok, @blank}
+    z = :zlib.open()
+
+    {:ok, {@blank, z}}
   end
 
   def start_link(_opts) do
     GenServer.start_link(__MODULE__, @dims, name: __MODULE__)
   end
 
+  @impl true
+  def handle_call(:latest, _from, {frame, _} = state) do
+    {:reply, frame, state}
+  end
+
+  @impl true
+  def handle_cast({:update_frame, frame}, {old_frame, z}) do
+    diff = Matrix.diff(old_frame, frame)
+
+    if not Enum.empty?(diff) do
+      d = compress_b64_json(diff, z)
+      InfolabLightGamesWeb.Endpoint.broadcast("screen_diff", "diff", %{data: d})
+      PubSub.broadcast(InfolabLightGames.PubSub, "screen:diff", {:screen_diff, d})
+    end
+
+    PubSub.broadcast(InfolabLightGames.PubSub, "screen:full", {:screen_full, frame})
+    {:noreply, {frame, z}}
+  end
+
+  @impl true
+  def handle_cast(:push_full_as_diff, {frame, z} = state) do
+    v = Matrix.reduce(frame, [], fn x, y, pix, acc ->
+      [%{x: x, y: y, new: pix} | acc]
+    end)
+    d = compress_b64_json(v, z)
+    InfolabLightGamesWeb.Endpoint.broadcast("screen_diff", "diff", %{data: d})
+    PubSub.broadcast(InfolabLightGames.PubSub, "screen:diff", {:screen_diff, d})
+
+    {:noreply, state}
+  end
+
+  defp compress_b64_json(val, z) do
+    :ok = :zlib.deflateInit(z)
+    d = :zlib.deflate(z, Jason.encode_to_iodata!(val), :finish)
+    :zlib.deflateEnd(z)
+    Base.encode64(IO.iodata_to_binary(d))
+  end
+
   def update_frame(new_frame) do
     GenServer.cast(__MODULE__, {:update_frame, new_frame})
   end
 
+  def push_full_as_diff do
+    GenServer.cast(__MODULE__, :push_full_as_diff)
+  end
+
   def latest do
     GenServer.call(__MODULE__, :latest)
-  end
-
-  @impl true
-  def handle_call(:latest, _from, state) do
-    {:reply, state, state}
-  end
-
-  @impl true
-  def handle_cast({:update_frame, frame}, state) do
-    diff = Matrix.diff(state, frame)
-
-    if not Enum.empty?(diff) do
-      InfolabLightGamesWeb.Endpoint.broadcast("screen_diff", "diff", %{data: diff})
-      PubSub.broadcast(InfolabLightGames.PubSub, "screen:diff", {:screen_diff, diff})
-    end
-
-    PubSub.broadcast(InfolabLightGames.PubSub, "screen:full", {:screen_full, frame})
-    {:noreply, frame}
   end
 end

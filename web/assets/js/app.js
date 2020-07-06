@@ -13,12 +13,13 @@ import "../css/app.scss"
 //     import socket from "./socket"
 //
 import "phoenix_html"
-import {Socket} from "phoenix"
+import { Socket } from "phoenix"
 import NProgress from "nprogress"
-import {LiveSocket} from "phoenix_live_view"
+import { LiveSocket } from "phoenix_live_view"
+import * as pako from "pako"
 
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
-let liveSocket = new LiveSocket("/live", Socket, {params: {_csrf_token: csrfToken}})
+let liveSocket = new LiveSocket("/live", Socket, { params: { _csrf_token: csrfToken } })
 
 // Show progress bar on live navigation and form submits
 window.addEventListener("phx:page-loading-start", info => NProgress.start())
@@ -32,15 +33,19 @@ liveSocket.connect()
 // >> liveSocket.enableLatencySim(1000)
 window.liveSocket = liveSocket
 
-let socket = new Socket("/socket", {params: {_csrf_token: csrfToken}})
+let socket = new Socket("/socket", { params: { _csrf_token: csrfToken } })
 socket.connect()
 
 let screen_channel = socket.channel("screen_diff", {})
-screen_channel.on("diff", ({ data }) => {
-    for (const { new: {r, g, b}, x, y } of data) {
-        const pix = document.getElementById(`screen_pix_${x}_${y}`)
-        pix.setAttribute("fill", `rgb(${r}, ${g}, ${b})`)
-    }
+screen_channel.on("diff", ({ data: data_compressed }) => {
+  const arr = Uint8Array.from(atob(data_compressed), c => c.charCodeAt(0))
+  const inflated = String.fromCharCode.apply(null, new Uint16Array(pako.inflate(arr)))
+  const data = JSON.parse(inflated)
+
+  for (const { new: { r, g, b }, x, y } of data) {
+    const pix = document.getElementById(`screen_pix_${x}_${y}`)
+    pix.setAttribute("fill", `rgb(${r}, ${g}, ${b})`)
+  }
 })
 
 screen_channel.join()

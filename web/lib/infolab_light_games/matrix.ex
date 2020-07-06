@@ -36,10 +36,20 @@ defmodule Matrix do
     |> Map.new()
   end
 
-  @spec diff(t(of), t(of)) :: [%{x: non_neg_integer(), y: non_neg_integer(), old: of, new: of}]
+  @spec diff(t(of), t(of)) :: [%{x: non_neg_integer(), y: non_neg_integer(), new: of}]
         when of: var
   def diff(a, b) do
     Enum.reduce(a, [], fn {x, col}, acc -> diff_inner(x, col, b[x], acc) end)
+  end
+
+  @spec reduce(t(of), acc, (non_neg_integer(), non_neg_integer(), of, acc -> acc)) :: acc
+        when of: var, acc: var
+  def reduce(m, i, f) do
+    for {x, col} <- m,
+        {y, val} <- col,
+        reduce: i do
+      acc -> f.(x, y, val, acc)
+    end
   end
 
   @spec draw_at(t(of), non_neg_integer(), non_neg_integer(), of) :: t(of) when of: var
@@ -65,7 +75,7 @@ defmodule Matrix do
   defp diff_inner(x, a, b, acc) do
     Enum.reduce(a, acc, fn {y, val}, acc ->
       val2 = b[y]
-      if val != val2, do: [%{x: x, y: y, old: val, new: val2} | acc], else: acc
+      if val != val2, do: [%{x: x, y: y, new: val2} | acc], else: acc
     end)
   end
 end
