@@ -7,17 +7,17 @@ defmodule InfolabLightGames.Application do
 
   def start(_type, _args) do
     children = [
-      Screen,
-      Coordinator,
-      GameSupervisor,
       # Start the Telemetry supervisor
       InfolabLightGamesWeb.Telemetry,
       # Start the PubSub system
       {Phoenix.PubSub, name: InfolabLightGames.PubSub},
       # Start the Endpoint (http/https)
-      InfolabLightGamesWeb.Endpoint
+      InfolabLightGamesWeb.Endpoint,
       # Start a worker by calling: InfolabLightGames.Worker.start_link(arg)
       # {InfolabLightGames.Worker, arg}
+      GameSupervisor,
+      Screen,
+      Coordinator
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

@@ -7,18 +7,21 @@ defmodule Coordinator do
     use TypedStruct
 
     typedstruct enforce: true do
+      field :current_idle_animation, Coordinator.via_tuple() | none()
       field :current_game, Coordinator.via_tuple() | none()
       field :queue, Qex.t(Coordinator.via_tuple())
     end
   end
 
   def start_link(_opts) do
-    GenServer.start_link(__MODULE__, %State{current_game: nil, queue: Qex.new()}, name: __MODULE__)
+    GenServer.start_link(__MODULE__, %State{current_idle_animation: nil,
+                                            current_game: nil,
+                                            queue: Qex.new()}, name: __MODULE__)
   end
 
   @impl true
   def init(state) do
-    {:ok, state}
+    {:ok, state, {:continue, :tick}}
   end
 
   @impl true
@@ -41,6 +44,13 @@ defmodule Coordinator do
     )
 
     push_status(state)
+
+    {:noreply, state, {:continue, :tick}}
+  end
+
+  @impl true
+  def handle_cast({:terminated_idle_animation, _id}, state) do
+    state = %State{state | current_idle_animation: nil}
 
     {:noreply, state, {:continue, :tick}}
   end
@@ -100,10 +110,13 @@ defmodule Coordinator do
 
           {:empty, q} ->
             %State{state | queue: q}
+            |> maybe_start_idle_animation()
         end
       else
         state
       end
+
+    state = maybe_stop_idle_animation(state)
 
     if not is_nil(state.current_game) do
       GenServer.call(state.current_game, :start_if_ready)
@@ -112,6 +125,29 @@ defmodule Coordinator do
     push_status(state)
 
     {:noreply, state}
+  end
+
+  defp maybe_stop_idle_animation(state) do
+    if !is_nil(state.current_idle_animation) and !is_nil(state.current_game) do
+      GenServer.stop(state.current_idle_animation)
+
+      %State{state | current_idle_animation: nil}
+    else
+      state
+    end
+  end
+
+  defp maybe_start_idle_animation(state) do
+    if is_nil(state.current_idle_animation) do
+      animation = Enum.random([IdleAnimations.GOL])
+
+      {:ok, _pid} =
+        DynamicSupervisor.start_child(GameManager, {animation, game_id: "idle_anim", name: via_tuple("idle_anim")})
+
+      %State{state | current_idle_animation: via_tuple("idle_anim")}
+    else
+      state
+    end
   end
 
   defp is_game_ready?(game) do
@@ -164,6 +200,10 @@ defmodule Coordinator do
 
   def notify_game_terminated(id) do
     GenServer.cast(__MODULE__, {:terminated, id})
+  end
+
+  def notify_idle_animation_terminated(id) do
+    GenServer.cast(__MODULE__, {:terminated_idle_animation, id})
   end
 
   def route_input(player, input) do
