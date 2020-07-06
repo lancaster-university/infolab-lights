@@ -139,6 +139,11 @@ defmodule Coordinator do
 
   defp maybe_start_idle_animation(state) do
     if is_nil(state.current_idle_animation) do
+      if not is_nil(GenServer.whereis(via_tuple("idle_anim"))) do
+        # saw this once
+        GenServer.stop(via_tuple("idle_anim"))
+      end
+
       animation = Enum.random([IdleAnimations.GOL])
 
       {:ok, _pid} =
