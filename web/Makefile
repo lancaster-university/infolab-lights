@@ -21,6 +21,8 @@ run: ## Run the app in Docker
 
 release:
 	docker tag $(APP_NAME):latest docker.pkg.github.com/nitros12/something-secret/$(APP_NAME):latest
+	docker tag $(APP_NAME):latest nitros12/infolab_lights_web:latest
 	docker tag $(APP_NAME):$(APP_VSN)-$(BUILD) docker.pkg.github.com/nitros12/something-secret/$(APP_NAME):$(APP_VSN)-$(BUILD)
 	docker push docker.pkg.github.com/nitros12/something-secret/$(APP_NAME):$(APP_VSN)-$(BUILD)
 	docker push docker.pkg.github.com/nitros12/something-secret/$(APP_NAME):latest
+	docker push nitros12/infolab_lights_web:latest
