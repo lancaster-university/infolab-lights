@@ -33,7 +33,6 @@ defmodule Coordinator do
     {:noreply, state}
   end
 
-  # we end up trying to remove the game twice, but that's fine
   def handle_cast({:terminated, id}, state) do
     state = handle_terminated_game(id, state)
 
@@ -57,7 +56,7 @@ defmodule Coordinator do
 
   @impl true
   def handle_cast({:route_input, player, input}, state) do
-    if not is_nil(state.current_game) do
+    if state.current_game do
       GenServer.cast(state.current_game, {:handle_input, player, input})
     end
 
@@ -102,6 +101,7 @@ defmodule Coordinator do
 
   @impl true
   def handle_continue(:tick, state) do
+    # if there's no active game, we can try to ready one
     state =
       if is_nil(state.current_game) do
         case remove_first_ready(state.queue) do
@@ -109,6 +109,7 @@ defmodule Coordinator do
             %State{state | current_game: game, queue: q}
 
           {:empty, q} ->
+            # if there's no idle animation, and no current game: start an idle animation
             %State{state | queue: q}
             |> maybe_start_idle_animation()
         end
@@ -116,10 +117,12 @@ defmodule Coordinator do
         state
       end
 
-    state = maybe_stop_idle_animation(state)
-
-    if not is_nil(state.current_game) do
-      GenServer.call(state.current_game, :start_if_ready)
+    if state.current_game do
+      # if there's a current game ready and an idle anim, tell the idle anim to
+      # stop, otherwise if there's no idle animation we can start the game
+      if state.current_idle_animation,
+        do: GenServer.cast(state.current_idle_animation, :terminate),
+        else: GenServer.call(state.current_game, :start_if_ready)
     end
 
     push_status(state)
@@ -127,19 +130,9 @@ defmodule Coordinator do
     {:noreply, state}
   end
 
-  defp maybe_stop_idle_animation(state) do
-    if !is_nil(state.current_idle_animation) and !is_nil(state.current_game) do
-      GenServer.stop(state.current_idle_animation)
-
-      %State{state | current_idle_animation: nil}
-    else
-      state
-    end
-  end
-
   defp maybe_start_idle_animation(state) do
     if is_nil(state.current_idle_animation) do
-      if not is_nil(GenServer.whereis(via_tuple("idle_anim"))) do
+      if GenServer.whereis(via_tuple("idle_anim")) do
         # saw this once
         GenServer.stop(via_tuple("idle_anim"))
       end
@@ -179,7 +172,7 @@ defmodule Coordinator do
 
   defp get_status(state) do
     current =
-      if not is_nil(state.current_game),
+      if state.current_game,
         do: GenServer.call(state.current_game, :get_status)
 
     queue = Enum.map(state.queue, &GenServer.call(&1, :get_status))

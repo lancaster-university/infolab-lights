@@ -11,6 +11,8 @@ defmodule Games.Pong do
       field :running, boolean(), default: false
       field :winner, :red | :blue | none(), default: nil
 
+      field :fader, Fader.t(), default: Fader.new(8)
+
       field :left_player, pid() | none(), default: nil
       field :right_player, pid() | none(), default: nil
 
@@ -170,12 +172,13 @@ defmodule Games.Pong do
     state =
       state
       |> update_in([Access.key!(:ball_pos)], fn {x, y} -> {x + dx, y + dy} end)
+      |> update_in([Access.key!(:fader)], &Fader.step/1)
       |> handle_bounces()
       |> handle_paddle_move()
 
     render(state)
 
-    if not is_nil(state.winner) do
+    if state.winner do
       Phoenix.PubSub.broadcast(
         InfolabLightGames.PubSub,
         "coordinator:status",
@@ -183,14 +186,30 @@ defmodule Games.Pong do
       )
     end
 
-    if state.running do
+    state = if state.running do
       tick_request()
+      state
     else
-      Screen.update_frame(Screen.blank())
-      Coordinator.terminate_game(state.id)
+      fade_tick_request()
+      put_in(state.fader.direction, :dec)
     end
 
     {:noreply, state}
+  end
+
+  @impl true
+  def handle_info(:fade_tick, state) do
+    if Fader.done(state.fader) do
+      {:stop, :normal, state}
+    else
+      state = %State{state| fader: Fader.step(state.fader)}
+
+      render(state)
+
+      fade_tick_request()
+
+      {:noreply, state}
+    end
   end
 
   @impl true
@@ -268,6 +287,10 @@ defmodule Games.Pong do
     Process.send_after(self(), :tick, Integer.floor_div(1000, 30))
   end
 
+  defp fade_tick_request do
+    Process.send_after(self(), :fade_tick, Integer.floor_div(1000, 30))
+  end
+
   defp clamp(val, mn, mx) do
     val
     |> min(mx)
@@ -282,11 +305,12 @@ defmodule Games.Pong do
     {x, y}
   end
 
-  defp draw_ball(screen, %State{ball_pos: {x, y}}) do
-    Matrix.draw_rect(screen, clamp_xy({x - 1, y - 1}), clamp_xy({x + 1, y + 1}), Pixel.white())
+  defp draw_ball(screen, %State{ball_pos: {x, y}} = state) do
+    pix = Fader.apply(Pixel.white(), state.fader)
+    Matrix.draw_rect(screen, clamp_xy({x - 1, y - 1}), clamp_xy({x + 1, y + 1}), pix)
   end
 
-  defp draw_paddles(screen, %State{left_paddle_pos: lp, right_paddle_pos: rp}) do
+  defp draw_paddles(screen, %State{left_paddle_pos: lp, right_paddle_pos: rp} = state) do
     {screen_x, _screen_y} = Screen.dims()
     half_paddle_size = @paddle_size / 2
 
@@ -294,12 +318,12 @@ defmodule Games.Pong do
     |> Matrix.draw_rect(
       clamp_xy({0, lp - half_paddle_size}),
       clamp_xy({2, lp + half_paddle_size}),
-      Pixel.blue()
+      Fader.apply(Pixel.blue(), state.fader)
     )
     |> Matrix.draw_rect(
       clamp_xy({screen_x - 2, rp - half_paddle_size}),
       clamp_xy({screen_x, rp + half_paddle_size}),
-      Pixel.red()
+      Fader.apply(Pixel.red(), state.fader)
     )
   end
 

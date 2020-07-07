@@ -25,6 +25,10 @@ defmodule Pixel do
     %Pixel{r: 0, g: 0, b: 255}
   end
 
+  def scale(%Pixel{r: r, g: g, b: b}, pct) do
+    %Pixel{r: r * pct, g: g * pct, b: b * pct}
+  end
+
   def render_rgb(%Pixel{r: r, g: g, b: b}) do
     "rgb(#{r}, #{g}, #{b})"
   end

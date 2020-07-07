@@ -22,7 +22,7 @@
     <div class="columns">
         <div class="column is-one-fith">
             <div class="current_game">
-                <%= if not is_nil(@coordinator_status.current_game) do %>
+                <%= if @coordinator_status.current_game do %>
                     <div class="box">
                         <nav class="level">
                             <div class="level-left">

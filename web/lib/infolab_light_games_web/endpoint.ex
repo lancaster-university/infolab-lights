@@ -27,7 +27,7 @@ defmodule InfolabLightGamesWeb.Endpoint do
   plug Plug.Static,
     at: "/",
     from: :infolab_light_games,
-    gzip: true,
+    gzip: false,
     only: ~w(css fonts images js favicon.ico robots.txt)
 
   # Code reloading can be explicitly enabled under the

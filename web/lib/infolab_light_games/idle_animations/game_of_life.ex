@@ -11,6 +11,9 @@ defmodule IdleAnimations.GOL do
 
       field :gol_state, Matrix.t(boolean())
 
+      field :fading_out, boolean(), default: false
+      field :fader, Fader.t(), default: Fader.new(8)
+
       field :steps, non_neg_integer(), default: 0
       field :max_steps, non_neg_integer()
     end
@@ -43,16 +46,22 @@ defmodule IdleAnimations.GOL do
       state
       | gol_state:
           Matrix.map(state.gol_state, fn x, y, s -> update_cell(state.gol_state, x, y, s) end),
-        steps: state.steps + 1
+        steps: state.steps + 1,
+        fader: Fader.step(state.fader)
     }
 
-    if state.steps < state.max_steps do
+    if state.steps < state.max_steps and not (state.fading_out and Fader.done(state.fader)) do
       tick_request()
 
       {:noreply, state}
     else
       {:stop, :normal, state}
     end
+  end
+
+  @impl true
+  def handle_cast(:terminate, state) do
+    {:noreply, %State{state | fading_out: true, fader: %Fader{state.fader | direction: :dec}}}
   end
 
   @impl true
@@ -144,8 +153,10 @@ defmodule IdleAnimations.GOL do
   end
 
   defp render(state) do
+    on_colour = Fader.apply(Pixel.white(), state.fader)
+
     frame =
-      Matrix.map(state.gol_state, fn _x, _y, s -> if s, do: Pixel.white(), else: Pixel.empty() end)
+      Matrix.map(state.gol_state, fn _x, _y, s -> if s, do: on_colour, else: Pixel.empty() end)
 
     Screen.update_frame(frame)
   end
