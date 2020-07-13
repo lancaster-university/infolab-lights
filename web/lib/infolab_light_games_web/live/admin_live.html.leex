@@ -1,0 +1,64 @@
+<header>
+    <section class="container box">
+        <nav role="navigation" class="navbar">
+            <div class="navbar-brand">
+                <a class="navbar-item" href="https://github.com/nitros12/something-secret">
+                    Infolab Light Things
+                </a>
+            </div>
+        </nav>
+    </section>
+</header>
+
+<section class="section">
+    <div class="columns">
+        <div class="column is-half">
+            <div class="current_game">
+                <%= if @coordinator_status.current_game do %>
+                    <div class="box">
+                        <nav class="level">
+                            <div class="level-left">
+                                <span class="level-item"><%= @coordinator_status.current_game.name %></span>
+                            </div>
+                            <div class="level-right">
+                                <span class="level-item tag is-info"><%= @coordinator_status.current_game.players %>/
+                                    <%= @coordinator_status.current_game.max_players %> players</span>
+
+                                <button class="level-item button is-small is-danger" phx-click="terminate"
+                                        phx-value-game-id="<%= @coordinator_status.current_game.id %>">
+                                    Terminate game
+                                </button>
+                            </div>
+                        </nav>
+                    </div>
+                <% end %>
+            </div>
+        </div>
+
+        <div class="column is-half">
+            <nav class="panel">
+                <p class="panel-heading">Queue</p>
+                <%= for game <- @coordinator_status.queue do %>
+                    <div class="box">
+                        <nav class="level">
+                            <div class="level-left">
+                                <span class="level-item"><%= game.name %></span>
+                            </div>
+                            <div class="level-right">
+                                <span class="level-item tag is-info"><%= game.players %>/<%= game.max_players %> players</span>
+                            </div>
+                        </nav>
+                        <nav class="level">
+                            <div class="level-right">
+                                <button class="level-item button is-small is-danger" phx-click="terminate"
+                                        phx-value-game-id="<%= game.id %>">
+                                    Terminate game
+                                </button>
+                            </div>
+                        </nav>
+                    </div>
+                <% end %>
+            </nav>
+        </div>
+    </div>
+</section>

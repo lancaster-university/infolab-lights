@@ -17,6 +17,9 @@ config :infolab_light_games, InfolabLightGamesWeb.Endpoint,
 
 config :infolab_light_games, Screen, dims: {120, 80}
 
+config :infolab_light_games, InfolabLightGamesWeb.Router,
+  admin_pass: "admin"
+
 # Configures Elixir's Logger
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",
