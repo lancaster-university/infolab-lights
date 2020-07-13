@@ -1,5 +1,10 @@
 # InfolabLightGames
 
+![Rust](https://github.com/nitros12/something-secret/workflows/Rust/badge.svg)
+![Elixir CI](https://github.com/nitros12/something-secret/workflows/Elixir%20CI/badge.svg)
+
+Something that does things.
+
 To start your Phoenix server:
 
   * Install dependencies with `mix deps.get`
