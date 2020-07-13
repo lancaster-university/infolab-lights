@@ -57,6 +57,9 @@ defmodule Matrix do
     put_in(screen[x][y], val)
   end
 
+  @spec draw_at(t(of), {non_neg_integer(), non_neg_integer()}, of) :: t(of) when of: var
+  def draw_at(screen, {x, y}, val), do: draw_at(screen, x, y, val)
+
   @spec draw_rect(
           t(of),
           {non_neg_integer(), non_neg_integer()},
@@ -71,6 +74,12 @@ defmodule Matrix do
       screen -> draw_at(screen, x, y, val)
     end
   end
+
+  @spec at(t(of), {non_neg_integer(), non_neg_integer()}) :: of when of: var
+  def at(m, {x, y}), do: at(m, x, y)
+
+  @spec at(t(of), non_neg_integer(), non_neg_integer()) :: of when of: var
+  def at(m, x, y), do: m[x][y]
 
   defp diff_inner(x, a, b, acc) do
     Enum.reduce(a, acc, fn {y, val}, acc ->
