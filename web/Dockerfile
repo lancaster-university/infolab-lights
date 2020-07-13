@@ -2,9 +2,6 @@ ARG ALPINE_VERSION=3.11.6
 
 FROM elixir:1.10.3-alpine AS builder
 
-# The following are build arguments used to change variable parts of the image.
-# The name of your application/release (required)
-ARG APP_NAME
 # The version of the application we are building (required)
 ARG APP_VSN
 # The environment to build with
@@ -17,7 +14,6 @@ ARG SKIP_PHOENIX=false
 ARG PHOENIX_SUBDIR=.
 
 ENV SKIP_PHOENIX=${SKIP_PHOENIX} \
-    APP_NAME=${APP_NAME} \
     APP_VSN=${APP_VSN} \
     MIX_ENV=${MIX_ENV}
 
@@ -53,28 +49,18 @@ fi
 
 RUN \
     mkdir -p /opt/built && \
-    mix distillery.release --verbose && \
-    cp _build/${MIX_ENV}/rel/${APP_NAME}/releases/${APP_VSN}/${APP_NAME}.tar.gz /opt/built && \
-    cd /opt/built && \
-    tar -xzf ${APP_NAME}.tar.gz && \
-    rm ${APP_NAME}.tar.gz
+    mix release
 
 # From this line onwards, we're in a new image, which will be the image used in production
 FROM alpine:${ALPINE_VERSION}
-
-# The name of your application/release (required)
-ARG APP_NAME
 
 RUN apk update && \
     apk add --no-cache \
     bash \
     openssl-dev
 
-ENV REPLACE_OS_VARS=true \
-    APP_NAME=${APP_NAME}
-
 WORKDIR /opt/app
 
-COPY --from=builder /opt/built .
+COPY --from=builder /opt/app/_build .
 
-CMD trap 'exit' INT; /opt/app/bin/${APP_NAME} foreground
+CMD ["./prod/rel/infolab_light_games/bin/infolab_light_games", "start"]

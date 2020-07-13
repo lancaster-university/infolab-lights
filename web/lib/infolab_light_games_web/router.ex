@@ -1,6 +1,5 @@
 defmodule InfolabLightGamesWeb.Router do
   use InfolabLightGamesWeb, :router
-  import Plug.BasicAuth
   import Phoenix.LiveDashboard.Router
 
   pipeline :browser do
@@ -17,7 +16,7 @@ defmodule InfolabLightGamesWeb.Router do
   end
 
   pipeline :admins_only do
-    plug :basic_auth, username: "admin", password: Application.get_env(:infolab_light_games, InfolabLightGamesWeb.Router)[:admin_pass]
+    plug :auth
   end
 
   scope "/", InfolabLightGamesWeb do
@@ -36,5 +35,15 @@ defmodule InfolabLightGamesWeb.Router do
 
     live "/admin", InfolabLightGamesWeb.AdminLive, :index
     live_dashboard "/dashboard", metrics: InfolabLightGamesWeb.Telemetry
+  end
+
+  defp auth(conn, _opts) do
+    admin_pass = Application.get_env(:infolab_light_games, InfolabLightGamesWeb.Router)[:admin_pass]
+    with {"admin", pass} <- Plug.BasicAuth.parse_basic_auth(conn),
+         true <- Plug.Crypto.secure_compare(pass, admin_pass) do
+      conn
+    else
+      _ -> conn |> Plug.BasicAuth.request_basic_auth() |> halt()
+    end
   end
 end
