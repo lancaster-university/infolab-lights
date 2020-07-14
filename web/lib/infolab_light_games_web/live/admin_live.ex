@@ -32,4 +32,11 @@ defmodule InfolabLightGamesWeb.AdminLive do
 
     {:noreply, socket}
   end
+
+  @impl true
+  def handle_event("terminate-idle-animation", _, socket) do
+    Coordinator.terminate_idle_animation()
+
+    {:noreply, socket}
+  end
 end

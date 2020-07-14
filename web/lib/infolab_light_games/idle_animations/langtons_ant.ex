@@ -3,7 +3,10 @@ defmodule IdleAnimations.Ant do
 
   @moduledoc "A langton's ant idle animation"
 
+  @fps 20
   @max_steps 10_000
+  @min_changed_between_interesting_inspection 5
+  @steps_between_interesting_inspection 16
 
   defmodule State do
     use TypedStruct
@@ -15,11 +18,12 @@ defmodule IdleAnimations.Ant do
       field :ant_position, {non_neg_integer(), non_neg_integer()}, default: Screen.centre_pos()
 
       field :state_matrix, Matrix.t(Pixel.t())
+      field :last_state_matrix, Matrix.t(Pixel.t())
 
       field :ruleset, Ant.RuleSet.t()
 
       field :fading_out, boolean(), default: false
-      field :fader, Fader.t(), default: Fader.new(8)
+      field :fader, Fader.t(), default: Fader.new(20)
 
       field :steps, non_neg_integer(), default: 0
     end
@@ -37,10 +41,12 @@ defmodule IdleAnimations.Ant do
   def start_link(options) do
     {screen_x, screen_y} = Screen.dims()
     ruleset = get_ruleset()
+    state_matrix = Matrix.of_dims(screen_x, screen_y, ruleset.default_state)
 
     state = %State{
       id: Keyword.get(options, :game_id),
-      state_matrix: Matrix.of_dims(screen_x, screen_y, ruleset.default_state),
+      state_matrix: state_matrix,
+      last_state_matrix: state_matrix,
       ruleset: ruleset
     }
 
@@ -63,6 +69,7 @@ defmodule IdleAnimations.Ant do
     state =
       %State{state | steps: state.steps + 1, fader: Fader.step(state.fader)}
       |> update_fn.()
+      |> is_interesting()
 
     if state.steps < @max_steps and not (state.fading_out and Fader.done(state.fader)) do
       tick_request()
@@ -75,7 +82,7 @@ defmodule IdleAnimations.Ant do
 
   @impl true
   def handle_cast(:terminate, state) do
-    {:noreply, %State{state | fading_out: true, fader: %Fader{state.fader | direction: :dec}}}
+    {:noreply, start_fading_out(state)}
   end
 
   @impl true
@@ -83,8 +90,12 @@ defmodule IdleAnimations.Ant do
     Coordinator.notify_idle_animation_terminated(state.id)
   end
 
+  defp start_fading_out(%State{} = state) do
+    %State{state | fading_out: true, fader: %Fader{state.fader | direction: :dec}}
+  end
+
   defp get_ruleset do
-    pattern = Enum.random([:original, :square_thing_0])
+    pattern = Enum.random([:original, :square_thing_0, :random])
 
     case pattern do
       :original ->
@@ -98,18 +109,90 @@ defmodule IdleAnimations.Ant do
               s |> rotate(:right) |> set_colour(Pixel.empty()) |> step(1)
             end
           }
-    }
+        }
+
       :square_thing_0 ->
         %RuleSet{
           default_state: Pixel.empty(),
           rule_map: %{
-            Pixel.empty() => fn s -> s |> rotate(:right) |> rotate(:right) |> set_colour(Pixel.white()) |> step(3) end,
+            Pixel.empty() => fn s ->
+              s |> rotate(:right) |> rotate(:right) |> set_colour(Pixel.white()) |> step(3)
+            end,
             Pixel.white() => fn s -> s |> rotate(:right) |> set_colour(Pixel.red()) |> step(2) end,
-            Pixel.red()   => fn s -> s |> rotate(:right) |> rotate(:right) |> set_colour(Pixel.blue()) |> step(3) end,
-            Pixel.blue()  => fn s -> s |> rotate(:left) |> set_colour(Pixel.empty()) |> step(1) end,
+            Pixel.red() => fn s ->
+              s |> rotate(:right) |> rotate(:right) |> set_colour(Pixel.blue()) |> step(3)
+            end,
+            Pixel.blue() => fn s -> s |> rotate(:left) |> set_colour(Pixel.empty()) |> step(1) end
           }
-    }
+        }
+
+      :random ->
+        random_ruleset()
     end
+  end
+
+  defp is_interesting(%State{} = state) do
+    if rem(state.steps, @steps_between_interesting_inspection) == 0 do
+      number_changed = Matrix.diff(state.last_state_matrix, state.state_matrix) |> length()
+
+      state = %State{state | last_state_matrix: state.state_matrix}
+
+      if number_changed < @min_changed_between_interesting_inspection,
+        do: start_fading_out(state),
+        else: state
+    else
+      state
+    end
+  end
+
+  @possible_colours [
+    Pixel.white(),
+    Pixel.red(),
+    Pixel.blue(),
+    Pixel.green(),
+    Pixel.magenta(),
+    Pixel.cyan()
+  ]
+
+  defp generate_rotate() do
+    n = Enum.random(0..3)
+
+    ExclusiveRange.erange(0..n)
+    |> Enum.map(fn _ -> fn s -> rotate(s, :right) end end)
+    |> Enum.reduce(
+      fn s -> s end,
+      fn f, r ->
+        fn s -> s |> f.() |> r.() end
+      end
+    )
+  end
+
+  defp generate_rule(states) do
+    num_rules = Enum.random([1, 1, 1, 1, 2, 2, 3])
+
+    1..num_rules
+    |> Enum.map(fn _ ->
+      rotate_f = generate_rotate()
+      col = Enum.random(states)
+      steps = Enum.random(0..2)
+      fn s -> s |> rotate_f.() |> set_colour(col) |> step(steps) end
+    end)
+    |> Enum.reduce(fn f, r -> fn s -> s |> f.() |> r.() end end)
+  end
+
+  defp random_ruleset do
+    num_rules = Enum.random(1..length(@possible_colours))
+    states = [Pixel.empty() | Enum.take_random(@possible_colours, num_rules)]
+
+    rules =
+      states
+      |> Enum.map(&{&1, generate_rule(states)})
+      |> Enum.into(%{})
+
+    %RuleSet{
+      default_state: Pixel.empty(),
+      rule_map: rules
+    }
   end
 
   defp rotate(state, dir) do
@@ -144,13 +227,13 @@ defmodule IdleAnimations.Ant do
       end
 
     {x, y} = state.ant_position
-    new_pos = {rem(x + dx, screen_x), rem(y + dy, screen_y)}
+    new_pos = {Integer.mod(x + dx, screen_x), Integer.mod(y + dy, screen_y)}
 
     %State{state | ant_position: new_pos}
   end
 
   defp tick_request do
-    Process.send_after(self(), :tick, Integer.floor_div(1000, 20))
+    Process.send_after(self(), :tick, Integer.floor_div(1000, @fps))
   end
 
   defp render(state) do

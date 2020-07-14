@@ -25,6 +25,18 @@ defmodule Pixel do
     %Pixel{r: 0, g: 0, b: 255}
   end
 
+  def green do
+    %Pixel{r: 0, g: 255, b: 0}
+  end
+
+  def magenta do
+    %Pixel{r: 255, g: 0, b: 255}
+  end
+
+  def cyan do
+    %Pixel{r: 0, g: 255, b: 255}
+  end
+
   def scale(%Pixel{r: r, g: g, b: b}, pct) do
     %Pixel{r: r * pct, g: g * pct, b: b * pct}
   end

@@ -33,6 +33,13 @@ defmodule Coordinator do
     {:noreply, state}
   end
 
+  @impl true
+  def handle_cast(:terminate_idle_animation, state) do
+    GenServer.stop(via_tuple("idle_anim"))
+
+    {:noreply, state}
+  end
+
   def handle_cast({:terminated, id}, state) do
     state = handle_terminated_game(id, state)
 
@@ -194,6 +201,10 @@ defmodule Coordinator do
 
   def terminate_game(id) do
     GenServer.cast(__MODULE__, {:terminate, id})
+  end
+
+  def terminate_idle_animation() do
+    GenServer.cast(__MODULE__, :terminate_idle_animation)
   end
 
   def notify_game_terminated(id) do

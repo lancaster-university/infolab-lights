@@ -138,7 +138,11 @@ defmodule IdleAnimations.GOL do
 
     live_neighbors =
       for dx <- -1..1, dy <- -1..1, {dx, dy} != {0, 0}, reduce: 0 do
-        c -> c + if gol_state[rem(x + dx, screen_x)][rem(y + dy, screen_y)], do: 1, else: 0
+        c ->
+          c +
+            if gol_state[Integer.mod(x + dx, screen_x)][Integer.mod(y + dy, screen_y)],
+              do: 1,
+              else: 0
       end
 
     if s do
