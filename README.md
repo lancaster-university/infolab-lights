@@ -1,7 +1,7 @@
 # InfolabLightGames
 
-![Rust](https://github.com/nitros12/something-secret/workflows/Rust/badge.svg)
-![Elixir CI](https://github.com/nitros12/something-secret/workflows/Elixir%20CI/badge.svg)
+![Rust](https://github.com/nitros12/infolab-light-thingy/workflows/Rust/badge.svg)
+![Elixir CI](https://github.com/nitros12/infolab-light-thingy/workflows/Elixir%20CI/badge.svg)
 
 Something that does things.
 
