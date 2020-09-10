@@ -36,7 +36,8 @@ window.liveSocket = liveSocket
 let socket = new Socket("/socket", { params: { _csrf_token: csrfToken } })
 socket.connect()
 
-let screen_channel = socket.channel("screen_diff", {})
+let screen_channel = socket.channel("screen", {})
+
 screen_channel.on("diff", ({ data: data_compressed }) => {
   const arr = Uint8Array.from(atob(data_compressed), c => c.charCodeAt(0))
   const inflated = String.fromCharCode.apply(null, new Uint16Array(pako.inflate(arr)))
@@ -51,3 +52,5 @@ screen_channel.on("diff", ({ data: data_compressed }) => {
 screen_channel.join()
   .receive("ok", resp => { console.log("Joined successfully", resp) })
   .receive("error", resp => { console.log("Unable to join", resp) })
+
+screen_channel.push("request_full", null)

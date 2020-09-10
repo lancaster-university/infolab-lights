@@ -38,29 +38,26 @@ defmodule Screen do
   end
 
   @impl true
+  def handle_call(:full_as_diff, _from, {frame, z} = state) do
+    v = Matrix.reduce(frame, [], fn x, y, pix, acc ->
+      [%{x: x, y: y, new: pix} | acc]
+    end)
+    d = compress_b64_json(v, z)
+
+    {:reply, d, state}
+  end
+
+  @impl true
   def handle_cast({:update_frame, frame}, {old_frame, z}) do
     diff = Matrix.diff(old_frame, frame)
 
     if not Enum.empty?(diff) do
       d = compress_b64_json(diff, z)
-      InfolabLightGamesWeb.Endpoint.broadcast("screen_diff", "diff", %{data: d})
       PubSub.broadcast(InfolabLightGames.PubSub, "screen:diff", {:screen_diff, d})
     end
 
     PubSub.broadcast(InfolabLightGames.PubSub, "screen:full", {:screen_full, frame})
     {:noreply, {frame, z}}
-  end
-
-  @impl true
-  def handle_cast(:push_full_as_diff, {frame, z} = state) do
-    v = Matrix.reduce(frame, [], fn x, y, pix, acc ->
-      [%{x: x, y: y, new: pix} | acc]
-    end)
-    d = compress_b64_json(v, z)
-    InfolabLightGamesWeb.Endpoint.broadcast("screen_diff", "diff", %{data: d})
-    PubSub.broadcast(InfolabLightGames.PubSub, "screen:diff", {:screen_diff, d})
-
-    {:noreply, state}
   end
 
   defp compress_b64_json(val, z) do
@@ -74,8 +71,8 @@ defmodule Screen do
     GenServer.cast(__MODULE__, {:update_frame, new_frame})
   end
 
-  def push_full_as_diff do
-    GenServer.cast(__MODULE__, :push_full_as_diff)
+  def full_as_diff do
+    GenServer.call(__MODULE__, :full_as_diff)
   end
 
   def latest do

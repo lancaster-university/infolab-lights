@@ -4,7 +4,7 @@ defmodule InfolabLightGamesWeb.UserSocket do
   ## Channels
   # channel "room:*", InfolabLightGamesWeb.RoomChannel
 
-  channel "screen_diff", InfolabLightGamesWeb.ScreenChannel
+  channel "screen", InfolabLightGamesWeb.ScreenChannel
 
   # Socket params are passed from the client and can
   # be used to verify and authenticate a user. After
