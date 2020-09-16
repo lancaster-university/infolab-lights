@@ -15,7 +15,7 @@ defmodule InfolabLightGamesWeb.Endpoint do
     longpoll: false
 
   socket "/screen_stream", InfolabLightGamesWeb.ScreenStream,
-    websocket: true,
+    websocket: [timeout: :infinity],
     longpoll: false
 
   socket "/live", Phoenix.LiveView.Socket, websocket: [connect_info: [session: @session_options]]

@@ -7,14 +7,15 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-serde = { version = "1.0.115", features = ["derive"] }
-deku = "0.7.2"
-tungstenite = "0.11.1"
+serde = { version = "1.0.116", features = ["derive"] }
 serde_json = "1.0.57"
+tungstenite = "0.11.1"
 url = "2.1.1"
 roxmltree = "0.13.0"
-ndarray = "0.13.1"
 num-traits = "0.2.12"
 itertools = "0.9.0"
 base64 = "0.12.3"
-miniz_oxide = "0.4.1"
+miniz_oxide = "0.4.2"
+getset = "0.1.1"
+zerocopy = "0.3.0"
+speedy = "0.6.0"

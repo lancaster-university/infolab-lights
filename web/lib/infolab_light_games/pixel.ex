@@ -38,7 +38,7 @@ defmodule Pixel do
   end
 
   def scale(%Pixel{r: r, g: g, b: b}, pct) do
-    %Pixel{r: r * pct, g: g * pct, b: b * pct}
+    %Pixel{r: floor(r * pct), g: floor(g * pct), b: floor(b * pct)}
   end
 
   def render_rgb(%Pixel{r: r, g: g, b: b}) do

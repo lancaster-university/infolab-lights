@@ -1,71 +1,96 @@
-use crate::screen::Pixel;
+use crate::pixel::Pixel;
+use base64;
+use de::DeserializeOwned;
+use miniz_oxide;
 use serde::{
-    de::{self, MapAccess, Visitor},
+    de::{self, MapAccess, Visitor, DeserializeSeed},
     Deserialize, Deserializer,
 };
 use std::{collections::HashMap, fmt, marker::PhantomData};
 use tungstenite::connect;
 use url::Url;
-use base64;
-use miniz_oxide;
-use de::DeserializeOwned;
 
 #[derive(Deserialize)]
 pub struct DiffPixel {
-    pub x: u32,
-    pub y: u32,
+    pub x: u16,
+    pub y: u16,
     pub new: Pixel,
 }
 
-#[derive(Debug)]
-pub struct IntKeyMap<V>(pub HashMap<u16, V>);
+fn de_intkeyed<'de, D: Deserializer<'de>, T: Deserialize<'de>>(deserializer: D) ->
+    Result<HashMap<(u16, u16), T>, D::Error>
+{
 
-struct IntKeyMapVisitor<V> {
-    marker: PhantomData<fn() -> IntKeyMap<V>>,
-}
+    struct ExtendMap<'a, T: 'a>(u16, &'a mut HashMap<(u16, u16), T>);
 
-impl<V> IntKeyMapVisitor<V> {
-    fn new() -> Self {
-        Self {
-            marker: PhantomData,
+    impl<'de, 'a, V> DeserializeSeed<'de> for ExtendMap<'a, V>
+    where
+        V: Deserialize<'de>,
+    {
+        type Value = ();
+
+        fn deserialize<D>(self, deserializer: D) -> Result<Self::Value, D::Error>
+        where
+            D: Deserializer<'de>,
+        {
+            struct ExtendMapVisitor<'a, T: 'a>(u16, &'a mut HashMap<(u16, u16), T>);
+
+            impl<'de, 'a, V> Visitor<'de> for ExtendMapVisitor<'a, V>
+            where
+                V: Deserialize<'de>,
+            {
+                type Value = ();
+
+                fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+                    formatter.write_str("int keyed map")
+                }
+
+                fn visit_map<M>(self, mut access: M) -> Result<Self::Value, M::Error>
+                where
+                    M: MapAccess<'de>,
+                {
+                    while let Some((key, value)) = access.next_entry::<&str, _>()? {
+                        let y = key.parse::<u16>().map_err(de::Error::custom)?;
+                        self.1.insert((self.0, y), value);
+                    }
+
+                    Ok(())
+                }
+            }
+
+            deserializer.deserialize_map(ExtendMapVisitor(self.0, self.1))
         }
     }
-}
 
-impl<'de, V> Visitor<'de> for IntKeyMapVisitor<V>
-where
-    V: Deserialize<'de>,
-{
-    type Value = IntKeyMap<V>;
+    struct IntKeyMapVisitor<T>(PhantomData<T>);
 
-    fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-        formatter.write_str("int keyed map")
-    }
-
-    fn visit_map<M>(self, mut access: M) -> Result<Self::Value, M::Error>
+    impl<'de, V> Visitor<'de> for IntKeyMapVisitor<V>
     where
-        M: MapAccess<'de>,
+        V: Deserialize<'de>,
     {
-        let mut map = HashMap::with_capacity(access.size_hint().unwrap_or(0));
+        type Value = HashMap<(u16, u16), V>;
 
-        while let Some((key, value)) = access.next_entry::<String, _>()? {
-            map.insert(key.parse::<u16>().map_err(de::Error::custom)?, value);
+        fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+            formatter.write_str("int keyed map")
         }
 
-        Ok(IntKeyMap(map))
-    }
-}
+        fn visit_map<M>(self, mut access: M) -> Result<Self::Value, M::Error>
+        where
+            M: MapAccess<'de>,
+        {
+            let mut map = HashMap::with_capacity(access.size_hint().unwrap_or(0));
 
-impl<'de, V> Deserialize<'de> for IntKeyMap<V>
-where
-    V: Deserialize<'de>,
-{
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where
-        D: Deserializer<'de>,
-    {
-        deserializer.deserialize_map(IntKeyMapVisitor::new())
+            while let Some(key) = access.next_key::<&str>()? {
+                let x = key.parse::<u16>().map_err(de::Error::custom)?;
+                let visitor = ExtendMap(x, &mut map);
+                access.next_value_seed(visitor)?;
+            }
+
+            Ok(map)
+        }
     }
+
+    deserializer.deserialize_map(IntKeyMapVisitor(PhantomData))
 }
 
 struct DebugAsDisplay<T>(T);
@@ -82,7 +107,9 @@ impl<T: fmt::Debug> fmt::Display for DebugAsDisplay<T> {
     }
 }
 
-fn de_compressed<'de, D: Deserializer<'de>, T: DeserializeOwned>(deserializer: D) -> Result<T, D::Error> {
+fn de_compressed<'de, D: Deserializer<'de>, T: DeserializeOwned>(
+    deserializer: D,
+) -> Result<T, D::Error> {
     struct CompressedJsonStringVisitor<T>(PhantomData<T>);
 
     impl<'de, T: DeserializeOwned> Visitor<'de> for CompressedJsonStringVisitor<T> {
@@ -97,7 +124,8 @@ fn de_compressed<'de, D: Deserializer<'de>, T: DeserializeOwned>(deserializer: D
             E: de::Error,
         {
             let decoded = base64::decode(v).map_err(E::custom)?;
-            let inflated = miniz_oxide::inflate::decompress_to_vec_zlib(&decoded).map_err(|e| E::custom(DebugAsDisplay(e)))?;
+            let inflated = miniz_oxide::inflate::decompress_to_vec_zlib(&decoded)
+                .map_err(|e| E::custom(DebugAsDisplay(e)))?;
             let s = std::str::from_utf8(&inflated).map_err(E::custom)?;
             serde_json::from_str(s).map_err(E::custom)
         }
@@ -109,10 +137,13 @@ fn de_compressed<'de, D: Deserializer<'de>, T: DeserializeOwned>(deserializer: D
 #[derive(Deserialize)]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum ScreenUpdate {
-    Full { screen: IntKeyMap<IntKeyMap<Pixel>> },
+    Full {
+        #[serde(deserialize_with = "de_intkeyed")]
+        screen: HashMap<(u16, u16), Pixel>,
+    },
     Diff {
         #[serde(deserialize_with = "de_compressed")]
-        diff: Vec<DiffPixel>
+        diff: Vec<DiffPixel>,
     },
 }
 

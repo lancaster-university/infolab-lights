@@ -19,8 +19,8 @@ defmodule InfolabLightGamesWeb.ScreenStream do
     {:ok, state}
   end
 
-  def handle_in({text, _opts}, state) do
-    {:reply, :ok, {:text, text}, state}
+  def handle_in(_msg, state) do
+    {:ok, state}
   end
 
   def handle_info({:screen_full, screen}, state) do
