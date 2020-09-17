@@ -37,6 +37,7 @@ defmodule Games.Pong do
   @max_ball_y_vel 4
   @initial_x_vel 0.6
   @initial_y_vel_range -5..5
+  @tick_ms Integer.floor_div(1000, 30)
 
   def start_link(options) do
     state = %State{
@@ -160,13 +161,26 @@ defmodule Games.Pong do
         {:reply, :not_ready, state}
 
       true ->
-        tick_request()
+        {:ok, _timer} = :timer.send_interval(@tick_ms, :tick)
         {:reply, :started, %State{state | running: true}}
     end
   end
 
   @impl true
   def handle_info(:tick, state) do
+    if state.running do
+      {:noreply, tick(state)}
+    else
+      fade_tick(state)
+    end
+  end
+
+  @impl true
+  def terminate(_reason, state) do
+    Coordinator.notify_game_terminated(state.id)
+  end
+
+  defp tick(state) do
     {dx, dy} = state.ball_vel
 
     state =
@@ -187,34 +201,23 @@ defmodule Games.Pong do
     end
 
     state = if state.running do
-      tick_request()
       state
     else
-      fade_tick_request()
       put_in(state.fader.direction, :dec)
     end
 
-    {:noreply, state}
+    state
   end
 
-  @impl true
-  def handle_info(:fade_tick, state) do
+  defp fade_tick(state) do
     if Fader.done(state.fader) do
       {:stop, :normal, state}
     else
       state = %State{state| fader: Fader.step(state.fader)}
 
       render(state)
-
-      fade_tick_request()
-
       {:noreply, state}
     end
-  end
-
-  @impl true
-  def terminate(_reason, state) do
-    Coordinator.notify_game_terminated(state.id)
   end
 
   defp within_paddle(paddle_pos, ball_pos) do
@@ -281,14 +284,6 @@ defmodule Games.Pong do
     state
     |> update_in([Access.key!(:left_paddle_pos)], fn p -> p + left_movement end)
     |> update_in([Access.key!(:right_paddle_pos)], fn p -> p + right_movement end)
-  end
-
-  defp tick_request do
-    Process.send_after(self(), :tick, Integer.floor_div(1000, 30))
-  end
-
-  defp fade_tick_request do
-    Process.send_after(self(), :fade_tick, Integer.floor_div(1000, 30))
   end
 
   defp clamp(val, mn, mx) do
