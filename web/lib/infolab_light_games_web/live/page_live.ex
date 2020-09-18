@@ -45,6 +45,7 @@ defmodule InfolabLightGamesWeb.PageLive do
     {:ok, game} =
       case game_name do
         "pong" -> {:ok, Games.Pong}
+        "snake" -> {:ok, Games.Snake}
         _ -> {:error, :unknown_game}
       end
 

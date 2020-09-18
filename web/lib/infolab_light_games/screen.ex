@@ -1,4 +1,5 @@
 defmodule Screen do
+  import ExclusiveRange
   use GenServer
 
   alias Phoenix.PubSub
@@ -53,10 +54,10 @@ defmodule Screen do
 
     if not Enum.empty?(diff) do
       d = compress_b64_json(diff, z)
-      PubSub.broadcast(InfolabLightGames.PubSub, "screen:diff", {:screen_diff, d})
+      PubSub.broadcast!(InfolabLightGames.PubSub, "screen:diff", {:screen_diff, d})
     end
 
-    PubSub.broadcast(InfolabLightGames.PubSub, "screen:full", {:screen_full, frame})
+    PubSub.broadcast!(InfolabLightGames.PubSub, "screen:full", {:screen_full, frame})
     {:noreply, {frame, z}}
   end
 
@@ -77,5 +78,13 @@ defmodule Screen do
 
   def latest do
     GenServer.call(__MODULE__, :latest)
+  end
+
+  def in_range({x, y}), do: in_range(x, y)
+
+  def in_range(x, y) do
+    {screen_x, screen_y} = @dims
+
+    x in erange(0..screen_x) and y in erange(0..screen_y)
   end
 end

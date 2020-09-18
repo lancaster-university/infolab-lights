@@ -9,8 +9,11 @@
 
             <div class="navbar-end">
                 <div class="buttons">
+                    <button class="button is-primary" phx-click="queue" phx-value-game-name="snake" <%= if @game_id, do: "disabled" %>>
+                        <strong>Play snake</strong>
+                    </button>
                     <button class="button is-primary" phx-click="queue" phx-value-game-name="pong" <%= if @game_id, do: "disabled" %>>
-                        <strong>Queue game</strong>
+                        <strong>Queue pong</strong>
                     </button>
                 </div>
             </div>
@@ -39,6 +42,8 @@
         </div>
 
         <div id="game_screen" class="column is-three-fifths"
+             phx-debounce="0"
+             phx-throttle="10"
              phx-window-keydown="key_down"
              phx-window-keyup="key_up">
             <svg viewbox="0 0 <%= @width * 4 %> <%= @height * 4 %>" id="screen_view" phx-update="ignore">

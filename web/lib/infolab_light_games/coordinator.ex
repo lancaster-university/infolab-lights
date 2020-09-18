@@ -43,7 +43,7 @@ defmodule Coordinator do
   def handle_cast({:terminated, id}, state) do
     state = handle_terminated_game(id, state)
 
-    Phoenix.PubSub.broadcast(
+    Phoenix.PubSub.broadcast!(
       InfolabLightGames.PubSub,
       "coordinator:status",
       {:game_terminated, id}
@@ -170,7 +170,7 @@ defmodule Coordinator do
   end
 
   defp push_status(state) do
-    Phoenix.PubSub.broadcast(
+    Phoenix.PubSub.broadcast!(
       InfolabLightGames.PubSub,
       "coordinator:status",
       {:coordinator_update, get_status(state)}

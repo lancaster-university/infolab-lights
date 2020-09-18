@@ -218,7 +218,7 @@ defmodule IdleAnimations.Ant do
   defp step(state, amount) do
     {screen_x, screen_y} = Screen.dims()
 
-    {dy, dx} =
+    {dx, dy} =
       case state.ant_direction do
         :up -> {0, -1 * amount}
         :down -> {0, 1 * amount}

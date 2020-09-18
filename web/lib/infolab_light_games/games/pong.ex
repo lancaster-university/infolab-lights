@@ -193,7 +193,7 @@ defmodule Games.Pong do
     render(state)
 
     if state.winner do
-      Phoenix.PubSub.broadcast(
+      Phoenix.PubSub.broadcast!(
         InfolabLightGames.PubSub,
         "coordinator:status",
         {:game_win, state.id, state.winner}
