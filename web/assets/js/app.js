@@ -53,4 +53,10 @@ screen_channel.join()
   .receive("ok", resp => { console.log("Joined successfully", resp) })
   .receive("error", resp => { console.log("Unable to join", resp) })
 
-screen_channel.push("request_full", null)
+window.addEventListener("load", () =>
+  screen_channel.push("request_full", {}));
+
+window.addEventListener("online", () =>
+  screen_channel.push("request_full", {}));
+
+screen_channel.push("request_full", {})

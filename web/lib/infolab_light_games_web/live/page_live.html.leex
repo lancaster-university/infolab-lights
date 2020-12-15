@@ -51,7 +51,7 @@
                 <%= for x <- 0..@width-1,
                 y <- 0..@height-1 do %>
                     <rect id="screen_pix_<%= x %>_<%= y %>" width="4" height="4"
-                          fill="<%= Pixel.render_rgb(@screen[x][y]) %>"
+                          fill="<%= Pixel.render_rgb(NativeMatrix.get_at(@screen, x, y)) %>"
                           x="<%= x * 4 %>" y="<%= y * 4 %>" />
                 <% end %>
             </svg>

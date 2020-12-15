@@ -158,9 +158,19 @@ defmodule IdleAnimations.GOL do
 
   defp render(state) do
     on_colour = Fader.apply(Pixel.white(), state.fader)
+    off_colour = Pixel.empty()
+
+    on = {on_colour.r, on_colour.g, on_colour.b}
+    off = {off_colour.r, off_colour.g, off_colour.b}
+
+    frame_vals =
+      Matrix.reduce(state.gol_state, [], fn x, y, s, acc ->
+        [{x, y, if(s, do: on, else: off)} | acc]
+      end)
 
     frame =
-      Matrix.map(state.gol_state, fn _x, _y, s -> if s, do: on_colour, else: Pixel.empty() end)
+      Screen.blank()
+      |> NativeMatrix.set_from_list(frame_vals)
 
     Screen.update_frame(frame)
   end

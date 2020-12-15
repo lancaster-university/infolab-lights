@@ -302,7 +302,7 @@ defmodule Games.Pong do
 
   defp draw_ball(screen, %State{ball_pos: {x, y}} = state) do
     pix = Fader.apply(Pixel.white(), state.fader)
-    Matrix.draw_rect(screen, clamp_xy({x - 1, y - 1}), clamp_xy({x + 1, y + 1}), pix)
+    NativeMatrix.draw_rect_at(screen, clamp_xy({x - 1, y - 1}), clamp_xy({x + 1, y + 1}), pix)
   end
 
   defp draw_paddles(screen, %State{left_paddle_pos: lp, right_paddle_pos: rp} = state) do
@@ -310,12 +310,12 @@ defmodule Games.Pong do
     half_paddle_size = @paddle_size / 2
 
     screen
-    |> Matrix.draw_rect(
+    |> NativeMatrix.draw_rect_at(
       clamp_xy({0, lp - half_paddle_size}),
       clamp_xy({2, lp + half_paddle_size}),
       Fader.apply(Pixel.blue(), state.fader)
     )
-    |> Matrix.draw_rect(
+    |> NativeMatrix.draw_rect_at(
       clamp_xy({screen_x - 2, rp - half_paddle_size}),
       clamp_xy({screen_x, rp + half_paddle_size}),
       Fader.apply(Pixel.red(), state.fader)

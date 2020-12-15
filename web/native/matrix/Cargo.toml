@@ -1,0 +1,14 @@
+[package]
+name = "matrix"
+version = "0.1.0"
+authors = []
+edition = "2018"
+
+[lib]
+name = "matrix"
+path = "src/lib.rs"
+crate-type = ["dylib"]
+
+[dependencies]
+rustler = "0.21.1"
+lazy_static = "1.0"

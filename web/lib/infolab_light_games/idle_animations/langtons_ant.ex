@@ -237,7 +237,15 @@ defmodule IdleAnimations.Ant do
   end
 
   defp render(state) do
-    frame = Matrix.map(state.state_matrix, fn _x, _y, s -> Fader.apply(s, state.fader) end)
+    frame_vals =
+      Matrix.reduce(state.state_matrix, [], fn x, y, s, acc ->
+        [{x, y, {s.r, s.g, s.b}} | acc]
+      end)
+
+    frame =
+      Screen.blank()
+      |> NativeMatrix.set_from_list(frame_vals)
+      |> NativeMatrix.mul(Fader.percentage(state.fader))
 
     Screen.update_frame(frame)
   end

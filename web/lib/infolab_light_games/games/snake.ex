@@ -303,10 +303,10 @@ defmodule Games.Snake do
 
   defp draw_snake(screen, %State{} = state) do
     colour = Fader.apply(@snake_colour, state.fader)
-    screen = Enum.reduce(state.snake_pieces, screen, &Matrix.draw_at(&2, &1, colour))
+    screen = Enum.reduce(state.snake_pieces, screen, &NativeMatrix.set_at(&2, &1, colour))
 
     if Screen.in_range(state.snake_head_pos) do
-      Matrix.draw_at(screen, state.snake_head_pos, colour)
+      NativeMatrix.set_at(screen, state.snake_head_pos, colour)
     else
       screen
     end
@@ -316,7 +316,7 @@ defmodule Games.Snake do
     colour = Fader.apply(@food_colour, state.fader)
 
     if state.food_location do
-      Matrix.draw_at(screen, state.food_location, colour)
+      NativeMatrix.set_at(screen, state.food_location, colour)
     else
       screen
     end

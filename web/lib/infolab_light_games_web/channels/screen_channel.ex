@@ -1,5 +1,6 @@
 defmodule InfolabLightGamesWeb.ScreenChannel do
   use InfolabLightGamesWeb, :channel
+  require Logger
 
   @impl true
   def join("screen", _payload, socket) do

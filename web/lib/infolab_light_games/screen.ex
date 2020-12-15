@@ -6,8 +6,6 @@ defmodule Screen do
 
   @dims Application.get_env(:infolab_light_games, Screen)[:dims]
 
-  @blank Matrix.of_dims(elem(@dims, 0), elem(@dims, 1), Pixel.empty())
-
   def dims do
     @dims
   end
@@ -19,14 +17,14 @@ defmodule Screen do
   end
 
   def blank do
-    @blank
+    NativeMatrix.of_dims(elem(@dims, 0), elem(@dims, 1), Pixel.empty())
   end
 
   @impl true
   def init(_opts) do
     z = :zlib.open()
 
-    {:ok, {@blank, z}}
+    {:ok, {blank(), z}}
   end
 
   def start_link(_opts) do
@@ -40,9 +38,7 @@ defmodule Screen do
 
   @impl true
   def handle_call(:full_as_diff, _from, {frame, z} = state) do
-    v = Matrix.reduce(frame, [], fn x, y, pix, acc ->
-      [%{x: x, y: y, new: pix} | acc]
-    end)
+    v = NativeMatrix.all_as_diff(frame)
     d = compress_b64_json(v, z)
 
     {:reply, d, state}
@@ -50,7 +46,7 @@ defmodule Screen do
 
   @impl true
   def handle_cast({:update_frame, frame}, {old_frame, z}) do
-    diff = Matrix.diff(old_frame, frame)
+    diff = NativeMatrix.diff(old_frame, frame)
 
     if not Enum.empty?(diff) do
       d = compress_b64_json(diff, z)

@@ -38,3 +38,5 @@
 /control/target
 **/*.rs.bk
 /control/.env
+/web/native/matrix/target/
+/web/priv/native/

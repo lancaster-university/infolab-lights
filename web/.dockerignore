@@ -1,4 +1,6 @@
 _build/
+assets/yarn.lock
+native/matrix/target/
 deps/
 .git/
 .gitignore
