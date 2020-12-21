@@ -1,0 +1,5 @@
+.envrc
+
+target
+**/*.rs.bk
+.env
