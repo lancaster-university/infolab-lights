@@ -144,7 +144,7 @@ defmodule Coordinator do
         GenServer.stop(via_tuple("idle_anim"))
       end
 
-      animation = Enum.random([IdleAnimations.GOL, IdleAnimations.Ant])
+      animation = Enum.random([IdleAnimations.GOL, IdleAnimations.Ant, IdleAnimations.Ant])
 
       {:ok, _pid} =
         DynamicSupervisor.start_child(GameManager, {animation, game_id: "idle_anim", name: via_tuple("idle_anim")})

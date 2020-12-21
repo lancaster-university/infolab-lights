@@ -95,7 +95,7 @@ defmodule IdleAnimations.Ant do
   end
 
   defp get_ruleset do
-    pattern = Enum.random([:original, :square_thing_0, :random])
+    pattern = Enum.random([:original, :square_thing_0, :random, :random, :random, :random])
 
     case pattern do
       :original ->
