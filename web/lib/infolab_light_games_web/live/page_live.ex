@@ -1,15 +1,13 @@
 defmodule InfolabLightGamesWeb.PageLive do
   use InfolabLightGamesWeb, :live_view
 
-  @dims Application.get_env(:infolab_light_games, Screen)[:dims]
-
   @impl true
   def mount(_params, _session, socket) do
     if connected?(socket) do
       Phoenix.PubSub.subscribe(InfolabLightGames.PubSub, "coordinator:status")
     end
 
-    {width, height} = @dims
+    {width, height} = Screen.dims()
     coordinator_status = Coordinator.status()
 
     socket =
