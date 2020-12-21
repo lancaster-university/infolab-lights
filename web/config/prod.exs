@@ -11,7 +11,8 @@ use Mix.Config
 # before starting your production server.
 config :infolab_light_games, InfolabLightGamesWeb.Endpoint,
   cache_static_manifest: "priv/static/cache_manifest.json",
-  server: true, # critical for Phoenix to run
+  # critical for Phoenix to run
+  server: true,
   root: ".",
   version: Application.spec(:phoenix_distillery, :vsn)
 

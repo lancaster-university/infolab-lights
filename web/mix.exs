@@ -12,7 +12,7 @@ defmodule InfolabLightGames.MixProject do
       aliases: aliases(),
       rustler_crates: [
         matrix: [
-          mode: (if Mix.env() == :prod, do: :release, else: :debug)
+          mode: if(Mix.env() == :prod, do: :release, else: :debug)
         ]
       ],
       deps: deps()

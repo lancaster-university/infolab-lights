@@ -21,8 +21,7 @@ config :infolab_light_games, InfolabLightGamesWeb.Endpoint,
     ]
   ]
 
-config :infolab_light_games, InfolabLightGamesWeb.Router,
-  admin_pass: "admin"
+config :infolab_light_games, InfolabLightGamesWeb.Router, admin_pass: "admin"
 
 # ## SSL Support
 #

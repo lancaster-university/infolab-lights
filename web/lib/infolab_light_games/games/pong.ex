@@ -200,11 +200,12 @@ defmodule Games.Pong do
       )
     end
 
-    state = if state.running do
-      state
-    else
-      put_in(state.fader.direction, :dec)
-    end
+    state =
+      if state.running do
+        state
+      else
+        put_in(state.fader.direction, :dec)
+      end
 
     state
   end
@@ -213,7 +214,7 @@ defmodule Games.Pong do
     if Fader.done(state.fader) do
       {:stop, :normal, state}
     else
-      state = %State{state| fader: Fader.step(state.fader)}
+      state = %State{state | fader: Fader.step(state.fader)}
 
       render(state)
       {:noreply, state}

@@ -14,9 +14,11 @@ defmodule Coordinator do
   end
 
   def start_link(_opts) do
-    GenServer.start_link(__MODULE__, %State{current_idle_animation: nil,
-                                            current_game: nil,
-                                            queue: Qex.new()}, name: __MODULE__)
+    GenServer.start_link(
+      __MODULE__,
+      %State{current_idle_animation: nil, current_game: nil, queue: Qex.new()},
+      name: __MODULE__
+    )
   end
 
   @impl true
@@ -147,7 +149,10 @@ defmodule Coordinator do
       animation = Enum.random([IdleAnimations.GOL, IdleAnimations.Ant, IdleAnimations.Ant])
 
       {:ok, _pid} =
-        DynamicSupervisor.start_child(GameManager, {animation, game_id: "idle_anim", name: via_tuple("idle_anim")})
+        DynamicSupervisor.start_child(
+          GameManager,
+          {animation, game_id: "idle_anim", name: via_tuple("idle_anim")}
+        )
 
       %State{state | current_idle_animation: via_tuple("idle_anim")}
     else
@@ -161,7 +166,9 @@ defmodule Coordinator do
 
   defp remove_first_ready(queue) do
     case Enum.find_index(queue, &is_game_ready?/1) do
-      nil -> {:empty, queue}
+      nil ->
+        {:empty, queue}
+
       idx ->
         s = Enum.take(queue, idx)
         [e | t] = Enum.drop(queue, idx)
@@ -188,11 +195,11 @@ defmodule Coordinator do
   end
 
   defp handle_terminated_game(id, state) do
-      if state.current_game == via_tuple(id) do
-        %State{state | current_game: nil}
-      else
-        %State{state | queue: Qex.new(Enum.filter(state.queue, fn x -> x != via_tuple(id) end))}
-      end
+    if state.current_game == via_tuple(id) do
+      %State{state | current_game: nil}
+    else
+      %State{state | queue: Qex.new(Enum.filter(state.queue, fn x -> x != via_tuple(id) end))}
+    end
   end
 
   defp via_tuple(id) do

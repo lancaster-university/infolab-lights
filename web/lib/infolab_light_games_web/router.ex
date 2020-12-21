@@ -38,7 +38,9 @@ defmodule InfolabLightGamesWeb.Router do
   end
 
   defp auth(conn, _opts) do
-    admin_pass = Application.get_env(:infolab_light_games, InfolabLightGamesWeb.Router)[:admin_pass]
+    admin_pass =
+      Application.get_env(:infolab_light_games, InfolabLightGamesWeb.Router)[:admin_pass]
+
     with {"admin", pass} <- Plug.BasicAuth.parse_basic_auth(conn),
          true <- Plug.Crypto.secure_compare(pass, admin_pass) do
       conn

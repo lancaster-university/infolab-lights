@@ -78,11 +78,12 @@ defmodule Games.Snake do
         _ -> state
       end
 
-    state = if pressed_state do
-      update_direction(state)
-    else
-      state
-    end
+    state =
+      if pressed_state do
+        update_direction(state)
+      else
+        state
+      end
 
     {:noreply, state}
   end

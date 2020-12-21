@@ -133,7 +133,9 @@ defmodule IdleAnimations.GOL do
     offset_x = Integer.floor_div(screen_x - 36, 2)
     offset_y = Integer.floor_div(screen_y - 9, 2)
 
-    Enum.reduce(positions, m, fn {y, x}, m -> Matrix.draw_at(m, x + offset_x, y + offset_y, true) end)
+    Enum.reduce(positions, m, fn {y, x}, m ->
+      Matrix.draw_at(m, x + offset_x, y + offset_y, true)
+    end)
   end
 
   defp update_cell(gol_state, x, y, s) do
