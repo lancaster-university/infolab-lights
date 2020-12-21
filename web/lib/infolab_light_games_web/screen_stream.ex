@@ -14,18 +14,13 @@ defmodule InfolabLightGamesWeb.ScreenStream do
 
   def init(state) do
     # Now we are effectively inside the process that maintains the socket.
-    send(self(), {:screen_full, Screen.latest()})
+    send(self(), {:screen_diff, Screen.full_as_diff()})
     :ok = Phoenix.PubSub.subscribe(InfolabLightGames.PubSub, "screen:diff")
     {:ok, state}
   end
 
   def handle_in(_msg, state) do
     {:ok, state}
-  end
-
-  def handle_info({:screen_full, screen}, state) do
-    msg = Jason.encode!(%{type: :full, screen: screen})
-    {:push, {:text, msg}, state}
   end
 
   def handle_info({:screen_diff, diff}, state) do

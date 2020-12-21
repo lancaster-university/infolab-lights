@@ -50,19 +50,19 @@ defmodule NativeMatrix do
   def draw_rect_at(mat, {_x0, _y0} = top_left, {_x1, _y1} = bottom_right, %Pixel{r: r, g: g, b: b}),
       do: draw_rect_at(mat, top_left, bottom_right, {r, g, b})
 
-  def diff(mat, mat2),
-    do:
-      NifBridge.diff(mat, mat2)
-      |> Enum.map(fn {x, y, {r, g, b}} ->
-        %{x: x, y: y, new: %Pixel{r: r, g: g, b: b}}
-      end)
+  def diff(mat, mat2) do
+    NifBridge.diff(mat, mat2)
+    |> Enum.map(fn {x, y, {r, g, b}} ->
+      %{x: x, y: y, new: %Pixel{r: r, g: g, b: b}}
+    end)
+  end
 
-  def all_as_diff(mat),
-    do:
-      NifBridge.as_pairs(mat)
-      |> Enum.map(fn {x, y, {r, g, b}} ->
-        %{x: x, y: y, new: %Pixel{r: r, g: g, b: b}}
-      end)
+  def full_as_diff(mat) do
+    NifBridge.as_pairs(mat)
+    |> Enum.map(fn {x, y, {r, g, b}} ->
+      %{x: x, y: y, new: %Pixel{r: r, g: g, b: b}}
+    end)
+  end
 
   def mul(mat, by), do: NifBridge.mul(mat, by)
 end

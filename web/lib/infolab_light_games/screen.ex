@@ -32,13 +32,13 @@ defmodule Screen do
   end
 
   @impl true
-  def handle_call(:latest, _from, {frame, _} = state) do
+  def handle_call(:latest_native, _from, {frame, _} = state) do
     {:reply, frame, state}
   end
 
   @impl true
   def handle_call(:full_as_diff, _from, {frame, z} = state) do
-    v = NativeMatrix.all_as_diff(frame)
+    v = NativeMatrix.full_as_diff(frame)
     d = compress_b64_json(v, z)
 
     {:reply, d, state}
@@ -53,7 +53,6 @@ defmodule Screen do
       PubSub.broadcast!(InfolabLightGames.PubSub, "screen:diff", {:screen_diff, d})
     end
 
-    PubSub.broadcast!(InfolabLightGames.PubSub, "screen:full", {:screen_full, frame})
     {:noreply, {frame, z}}
   end
 
@@ -72,8 +71,8 @@ defmodule Screen do
     GenServer.call(__MODULE__, :full_as_diff)
   end
 
-  def latest do
-    GenServer.call(__MODULE__, :latest)
+  def latest_native do
+    GenServer.call(__MODULE__, :latest_native)
   end
 
   def in_range({x, y}), do: in_range(x, y)

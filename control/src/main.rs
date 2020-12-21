@@ -21,11 +21,6 @@ fn main() -> Result<(), Box<dyn Error>> {
         let val: incoming::ScreenUpdate = serde_json::from_str(&msg)?;
 
         match val {
-            incoming::ScreenUpdate::Full { screen: full } => {
-                for ((x, y), p) in full.into_iter() {
-                    let _ = scene.update_at((x, y), p);
-                }
-            }
             incoming::ScreenUpdate::Diff { diff } => {
                 for p in diff {
                     let _ = scene.update_at((p.x, p.y), p.new);

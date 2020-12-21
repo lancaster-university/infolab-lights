@@ -14,7 +14,7 @@ defmodule InfolabLightGamesWeb.PageLive do
 
     socket =
       socket
-      |> assign(game_id: nil, screen: Screen.latest(), width: width, height: height)
+      |> assign(game_id: nil, screen: Screen.latest_native(), width: width, height: height)
       |> assign(coordinator_status: coordinator_status)
 
     {:ok, socket, temporary_assigns: [screen: nil]}
