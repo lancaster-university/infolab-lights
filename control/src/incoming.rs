@@ -1,7 +1,5 @@
 use crate::pixel::Pixel;
-use base64;
 use de::DeserializeOwned;
-use miniz_oxide;
 use serde::{
     de::{self, Visitor},
     Deserialize, Deserializer,

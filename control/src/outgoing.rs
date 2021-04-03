@@ -1,7 +1,6 @@
 use crate::pixel::Pixel;
 use getset::Getters;
 use itertools::Itertools;
-use roxmltree;
 use std::collections::HashMap;
 use std::net::SocketAddrV4;
 use std::io::Write;
@@ -48,8 +47,10 @@ impl Controller {
     fn send<'a>(&mut self, addr: SocketAddrV4, sock: &UdpSocket, scratch: &'a mut Vec<u8>) {
         let hdr = PacketHeader::new(self.id, 255, 0x0C, &self.pixels);
         let mut c = std::io::Cursor::new(scratch);
+
         hdr.write_to_stream_with_ctx(speedy::BigEndian {}, &mut c).unwrap();
-        c.write(self.pixels.as_bytes()).unwrap();
+
+        c.write_all(self.pixels.as_bytes()).unwrap();
 
         sock.send_to(c.into_inner(), addr).unwrap();
     }
