@@ -1,0 +1,60 @@
+version: 2
+updates:
+- package-ecosystem: mix
+  directory: "/web"
+  schedule:
+    interval: daily
+  open-pull-requests-limit: 10
+  ignore:
+  - dependency-name: floki
+    versions:
+    - 0.30.0
+    - 0.30.1
+  - dependency-name: phoenix
+    versions:
+    - 1.5.8
+  - dependency-name: credo
+    versions:
+    - 1.5.4
+    - 1.5.5
+  - dependency-name: phoenix_live_view
+    versions:
+    - 0.15.4
+- package-ecosystem: cargo
+  directory: "/control"
+  schedule:
+    interval: daily
+  open-pull-requests-limit: 10
+  ignore:
+  - dependency-name: roxmltree
+    versions:
+    - 0.14.0
+    - 0.14.1
+  - dependency-name: serde
+    versions:
+    - 1.0.123
+    - 1.0.124
+    - 1.0.125
+  - dependency-name: zerocopy
+    versions:
+    - 0.3.1
+    - 0.4.0
+  - dependency-name: serde_json
+    versions:
+    - 1.0.61
+    - 1.0.62
+    - 1.0.63
+    - 1.0.64
+  - dependency-name: miniz_oxide
+    versions:
+    - 0.4.4
+  - dependency-name: url
+    versions:
+    - 2.2.1
+  - dependency-name: tungstenite
+    versions:
+    - 0.12.0
+    - 0.13.0
+  - dependency-name: itertools
+    versions:
+    - 0.10.0
