@@ -9,6 +9,7 @@ defmodule InfolabLightGamesWeb.Router do
     plug :put_root_layout, {InfolabLightGamesWeb.LayoutView, :root}
     plug :protect_from_forgery
     plug :put_secure_browser_headers
+    plug :put_remote_ip
   end
 
   pipeline :api do
@@ -48,4 +49,9 @@ defmodule InfolabLightGamesWeb.Router do
       _ -> conn |> Plug.BasicAuth.request_basic_auth() |> halt()
     end
   end
+
+  defp put_remote_ip(conn, _), do:
+    conn
+      |> put_session(:remote_ip, conn.remote_ip)
+      |> put_session(:live_socket_id, "user_socket:#{inspect(conn.remote_ip)}")
 end

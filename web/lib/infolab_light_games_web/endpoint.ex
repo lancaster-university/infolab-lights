@@ -18,7 +18,8 @@ defmodule InfolabLightGamesWeb.Endpoint do
     websocket: [timeout: :infinity],
     longpoll: false
 
-  socket "/live", Phoenix.LiveView.Socket, websocket: [connect_info: [session: @session_options]]
+  socket "/live", Phoenix.LiveView.Socket,
+    websocket: [connect_info: [session: @session_options]]
 
   # Serve at "/" the static files from "priv/static" directory.
   #
@@ -27,7 +28,7 @@ defmodule InfolabLightGamesWeb.Endpoint do
   plug Plug.Static,
     at: "/",
     from: :infolab_light_games,
-    gzip: false,
+    gzip: true,
     only: ~w(css fonts images js favicon.ico robots.txt)
 
   # Code reloading can be explicitly enabled under the

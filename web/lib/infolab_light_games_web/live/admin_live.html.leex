@@ -66,4 +66,32 @@
             </nav>
         </div>
     </div>
+
+    <div class="columns">
+        <div class="column is-half">
+            <nav class="panel">
+                <p class="panel-heading">Sessions</p>
+                <%= for presence <- @presences do %>
+                    <div class="box">
+                        <nav class="level">
+                            <div class="level-left">
+                                <span class="level-item"><%= inspect(presence.remote_ip) %></span>
+                            </div>
+                            <div class="level-right">
+                                <span class="level-item"><%= presence.status %></span>
+                            </div>
+                        </nav>
+                        <nav class="level">
+                            <div class="level-right">
+                                <button class="level-item button is-small is-danger" phx-click="ban"
+                                        phx-value-phx-ref="<%= presence.phx_ref %>">
+                                    Ban User
+                                </button>
+                            </div>
+                        </nav>
+                    </div>
+                <% end %>
+            </nav>
+        </div>
+    </div>
 </section>
