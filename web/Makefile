@@ -14,14 +14,13 @@ build: ## Build the Docker image
 		-t $(APP_NAME):latest .
 
 run: ## Run the app in Docker
-	docker run -e SECRET_KEY_BASE=${SECRET_KEY_BASE} \
+	docker run -e SECRET_KEY_BASE=${SECRET_KEY_BASE} -e ADMIN_PASS=${ADMIN_PASS} \
 		--expose 4000 -p 4000:4000 \
 	--rm -it $(APP_NAME):latest
 
 release: ## Push to docker hub
-	docker tag $(APP_NAME):latest nitros12/infolab_lights_web:latest
-	docker tag $(APP_NAME):$(APP_VSN)-$(BUILD) nitros12/infolab_lights_web:$(APP_VSN)-$(BUILD)
-	docker tag $(APP_NAME):latest ghcr.io/nitros12/infolab_lights_web:latest
-	docker tag $(APP_NAME):$(APP_VSN)-$(BUILD) ghcr.io/nitros12/infolab_lights_web:$(APP_VSN)-$(BUILD)
-	docker push nitros12/infolab_lights_web
-	docker push ghcr.io/nitros12/infolab_lights_web
+	docker tag $(APP_NAME):latest simmsb/infolab_lights_web:latest
+	docker tag $(APP_NAME):$(APP_VSN)-$(BUILD) simmsb/infolab_lights_web:$(APP_VSN)-$(BUILD)
+	docker tag $(APP_NAME):latest ghcr.io/simmsb/infolab_lights_web:latest
+	docker tag $(APP_NAME):$(APP_VSN)-$(BUILD) ghcr.io/simmsb/infolab_lights_web:$(APP_VSN)-$(BUILD)
+	docker push ghcr.io/simmsb/infolab_lights_web
