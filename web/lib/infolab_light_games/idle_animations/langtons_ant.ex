@@ -12,20 +12,20 @@ defmodule IdleAnimations.Ant do
     use TypedStruct
 
     typedstruct enforce: true do
-      field :id, String.t()
+      field(:id, String.t())
 
-      field :ant_direction, :up | :down | :left | :right, default: :up
-      field :ant_position, {non_neg_integer(), non_neg_integer()}, default: Screen.centre_pos()
+      field(:ant_direction, :up | :down | :left | :right, default: :up)
+      field(:ant_position, {non_neg_integer(), non_neg_integer()}, default: Screen.centre_pos())
 
-      field :state_matrix, Matrix.t(Pixel.t())
-      field :last_state_matrix, Matrix.t(Pixel.t())
+      field(:state_matrix, Matrix.t(Pixel.t()))
+      field(:last_state_matrix, Matrix.t(Pixel.t()))
 
-      field :ruleset, Ant.RuleSet.t()
+      field(:ruleset, Ant.RuleSet.t())
 
-      field :fading_out, boolean(), default: false
-      field :fader, Fader.t(), default: Fader.new(20)
+      field(:fading_out, boolean(), default: false)
+      field(:fader, Fader.t(), default: Fader.new(20))
 
-      field :steps, non_neg_integer(), default: 0
+      field(:steps, non_neg_integer(), default: 0)
     end
   end
 
@@ -33,8 +33,8 @@ defmodule IdleAnimations.Ant do
     use TypedStruct
 
     typedstruct enforce: true do
-      field :rule_map, %{required(Pixel.t()) => (Ant.State.t() -> Ant.State.t())}
-      field :default_state, Pixel.t()
+      field(:rule_map, %{required(Pixel.t()) => (Ant.State.t() -> Ant.State.t())})
+      field(:default_state, Pixel.t())
     end
   end
 
@@ -145,13 +145,43 @@ defmodule IdleAnimations.Ant do
     end
   end
 
-  @possible_colours [
+  @possible_random_colours [
     Pixel.white(),
     Pixel.red(),
     Pixel.blue(),
     Pixel.green(),
     Pixel.magenta(),
     Pixel.cyan()
+  ]
+
+  @possible_colour_presets [
+    [%Pixel{r: 85, g: 205, b: 252}, Pixel.white(), %Pixel{r: 247, g: 168, b: 184}],
+    Enum.map(
+      [
+        "#55CDFC",
+        "#FFFFFF",
+        "#F7A8B8"
+      ],
+      &Pixel.from_hex/1
+    ),
+    [
+      %Pixel{r: 255, g: 0, b: 24},
+      %Pixel{r: 255, g: 165, b: 44},
+      %Pixel{r: 255, g: 255, b: 65},
+      %Pixel{r: 0, g: 128, b: 24},
+      %Pixel{r: 0, g: 0, b: 249},
+      %Pixel{r: 134, g: 0, b: 125}
+    ],
+    Enum.map(
+      [
+        "#D62900",
+        "#FF9B55",
+        "#FFFFFF",
+        "#D461A6",
+        "#A50062"
+      ],
+      &Pixel.from_hex/1
+    )
   ]
 
   defp generate_rotate() do
@@ -181,8 +211,18 @@ defmodule IdleAnimations.Ant do
   end
 
   defp random_ruleset do
-    num_rules = Enum.random(1..length(@possible_colours))
-    states = [Pixel.empty() | Enum.take_random(@possible_colours, num_rules)]
+    preset_or_random = Enum.random([:preset, :random, :random])
+    # preset_or_random = :preset
+
+    states =
+      case preset_or_random do
+        :preset ->
+          [Pixel.empty() | Enum.random(@possible_colour_presets)]
+
+        :random ->
+          num_rules = Enum.random(1..length(@possible_random_colours))
+          [Pixel.empty() | Enum.take_random(@possible_random_colours, num_rules)]
+      end
 
     rules =
       states

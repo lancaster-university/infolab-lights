@@ -44,4 +44,9 @@ defmodule Pixel do
   def render_rgb(%Pixel{r: r, g: g, b: b}) do
     "rgb(#{r}, #{g}, #{b})"
   end
+
+  def from_hex(hex) do
+    {:ok, col} = Tint.RGB.from_hex(hex)
+    %Pixel{r: col.red, g: col.green, b: col.blue}
+  end
 end
