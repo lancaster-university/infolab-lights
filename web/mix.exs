@@ -5,7 +5,7 @@ defmodule InfolabLightGames.MixProject do
     [
       app: :infolab_light_games,
       version: "0.1.0",
-      elixir: "~> 1.7",
+      elixir: "~> 1.12",
       elixirc_paths: elixirc_paths(Mix.env()),
       compilers: [:rustler, :phoenix] ++ Mix.compilers(),
       start_permanent: Mix.env() == :prod,
@@ -15,7 +15,7 @@ defmodule InfolabLightGames.MixProject do
           mode: if(Mix.env() == :prod, do: :release, else: :debug)
         ]
       ],
-      deps: deps()
+      deps: deps(),
     ]
   end
 
@@ -38,8 +38,8 @@ defmodule InfolabLightGames.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:phoenix, "~> 1.5.8"},
-      {:phoenix_live_view, "~> 0.15.4"},
+      {:phoenix, "~> 1.5.9"},
+      {:phoenix_live_view, "~> 0.15.7"},
       {:floki, ">= 0.0.0", only: :test},
       {:phoenix_html, "~> 2.14"},
       {:phoenix_live_reload, "~> 1.3", only: :dev},

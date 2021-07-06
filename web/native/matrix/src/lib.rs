@@ -1,11 +1,8 @@
-use rustler::{resource_struct_init, Encoder, Env, Error, ResourceArc, Term};
+use rustler::{Env, Error, ResourceArc, Term};
 
 mod atoms {
-    rustler::rustler_atoms! {
-        atom ok;
-        //atom error;
-        //atom __true__ = "true";
-        //atom __false__ = "false";
+    rustler::atoms! {
+        ok,
     }
 }
 
@@ -27,84 +24,48 @@ impl MatrixResource {
 }
 
 fn on_load(env: Env, _info: Term) -> bool {
-    resource_struct_init!(MatrixResource, env);
+    rustler::resource!(MatrixResource, env);
     true
 }
 
-rustler::rustler_export_nifs! {
-    "Elixir.NativeMatrix.NifBridge",
-    [
-        ("of_dims", 3, of_dims),
-        ("set_at", 4, set_at),
-        ("set_from_list", 2, set_from_list),
-        ("get_at", 3, get_at),
-        ("draw_rect_at", 4, draw_rect_at),
-        ("diff", 2, diff),
-        ("as_pairs", 1, as_pairs),
-        ("mul", 2, mul),
-    ],
-    Some(on_load)
-}
+type Pixel = (u8, u8, u8);
 
-fn of_dims<'a>(env: Env<'a>, args: &[Term<'a>]) -> Result<Term<'a>, Error> {
-    let width: usize = args[0].decode()?;
-    let height: usize = args[1].decode()?;
-    let of: (u8, u8, u8) = args[2].decode()?;
-
+#[rustler::nif]
+fn of_dims(width: usize, height: usize, of: Pixel) -> ResourceArc<MatrixResource> {
     let vals = vec![of; width * height].into_boxed_slice();
 
-    let resource = ResourceArc::new(MatrixResource {
+    ResourceArc::new(MatrixResource {
         width,
         height,
         vals,
-    });
-
-    Ok(resource.encode(env))
+    })
 }
 
-fn set_at<'a>(env: Env<'a>, args: &[Term<'a>]) -> Result<Term<'a>, Error> {
-    let mat: ResourceArc<MatrixResource> = args[0].decode()?;
-    let x: usize = args[1].decode()?;
-    let y: usize = args[2].decode()?;
-    let val: (u8, u8, u8) = args[3].decode()?;
-
+#[rustler::nif]
+fn set_at(mat: ResourceArc<MatrixResource>, x: usize, y: usize, val: Pixel) -> ResourceArc<MatrixResource> {
     let mut new_mat: MatrixResource = (&*mat).clone();
     new_mat.set(x, y, val);
 
-    let resource = ResourceArc::new(new_mat);
-    Ok(resource.encode(env))
+    ResourceArc::new(new_mat)
 }
 
-fn set_from_list<'a>(env: Env<'a>, args: &[Term<'a>]) -> Result<Term<'a>, Error> {
-    let mat: ResourceArc<MatrixResource> = args[0].decode()?;
-
+#[rustler::nif]
+fn set_from_list(mat: ResourceArc<MatrixResource>, tail: rustler::ListIterator) -> Result<ResourceArc<MatrixResource>, Error> {
     let mut new_mat: MatrixResource = (&*mat).clone();
 
-    let mut tail = args[1];
-
-    loop {
-        let (h, n_t) = tail.list_get_cell()?;
-
+    for h in tail {
         let (x, y, val): (usize, usize, _) = h.decode()?;
 
         new_mat.set(x, y, val);
-
-        tail = n_t;
-
-        if tail.is_empty_list() {
-            break;
-        }
     }
 
-    let resource = ResourceArc::new(new_mat);
-    Ok(resource.encode(env))
+    Ok(ResourceArc::new(new_mat))
 }
 
-fn draw_rect_at<'a>(env: Env<'a>, args: &[Term<'a>]) -> Result<Term<'a>, Error> {
-    let mat: ResourceArc<MatrixResource> = args[0].decode()?;
-    let (x0, y0): (usize, usize) = args[1].decode()?;
-    let (x1, y1): (usize, usize) = args[2].decode()?;
-    let val: (u8, u8, u8) = args[3].decode()?;
+type Coord = (usize, usize);
+
+#[rustler::nif]
+fn draw_rect_at(mat: ResourceArc<MatrixResource>, (x0, y0): Coord, (x1, y1): Coord, val: Pixel) -> ResourceArc<MatrixResource> {
 
     let mut new_mat: MatrixResource = (&*mat).clone();
 
@@ -114,24 +75,16 @@ fn draw_rect_at<'a>(env: Env<'a>, args: &[Term<'a>]) -> Result<Term<'a>, Error> 
         }
     }
 
-    let resource = ResourceArc::new(new_mat);
-    Ok(resource.encode(env))
+    ResourceArc::new(new_mat)
 }
 
-fn get_at<'a>(env: Env<'a>, args: &[Term<'a>]) -> Result<Term<'a>, Error> {
-    let mat: ResourceArc<MatrixResource> = args[0].decode()?;
-    let x: usize = args[1].decode()?;
-    let y: usize = args[2].decode()?;
-
-    let val = mat.get(x, y);
-
-    Ok(val.encode(env))
+#[rustler::nif]
+fn get_at(mat: ResourceArc<MatrixResource>, x: usize, y: usize) -> Pixel {
+    mat.get(x, y)
 }
 
-fn diff<'a>(env: Env<'a>, args: &[Term<'a>]) -> Result<Term<'a>, Error> {
-    let mat: ResourceArc<MatrixResource> = args[0].decode()?;
-    let mat2: ResourceArc<MatrixResource> = args[1].decode()?;
-
+#[rustler::nif]
+fn diff(mat: ResourceArc<MatrixResource>, mat2: ResourceArc<MatrixResource>) -> Result<Vec<(usize, usize, Pixel)>, Error> {
     if mat.width != mat2.width || mat.height != mat2.height {
         return Err(Error::Atom("differing_sizes"));
     }
@@ -149,12 +102,11 @@ fn diff<'a>(env: Env<'a>, args: &[Term<'a>]) -> Result<Term<'a>, Error> {
         }
     }
 
-    Ok(diffs.encode(env))
+    Ok(diffs)
 }
 
-fn as_pairs<'a>(env: Env<'a>, args: &[Term<'a>]) -> Result<Term<'a>, Error> {
-    let mat: ResourceArc<MatrixResource> = args[0].decode()?;
-
+#[rustler::nif]
+fn as_pairs(mat: ResourceArc<MatrixResource>) -> Vec<(usize, usize, Pixel)> {
     let mut out = vec![];
 
     for y in 0..mat.height {
@@ -164,13 +116,11 @@ fn as_pairs<'a>(env: Env<'a>, args: &[Term<'a>]) -> Result<Term<'a>, Error> {
         }
     }
 
-    Ok(out.encode(env))
+    out
 }
 
-fn mul<'a>(env: Env<'a>, args: &[Term<'a>]) -> Result<Term<'a>, Error> {
-    let mat: ResourceArc<MatrixResource> = args[0].decode()?;
-    let by: f64 = args[1].decode()?;
-
+#[rustler::nif]
+fn mul(mat: ResourceArc<MatrixResource>, by: f64) -> ResourceArc<MatrixResource> {
     let mut new_mat: MatrixResource = (&*mat).clone();
 
     for y in 0..mat.height {
@@ -188,6 +138,20 @@ fn mul<'a>(env: Env<'a>, args: &[Term<'a>]) -> Result<Term<'a>, Error> {
         }
     }
 
-    let resource = ResourceArc::new(new_mat);
-    Ok(resource.encode(env))
+    ResourceArc::new(new_mat)
 }
+
+rustler::init!(
+    "Elixir.NativeMatrix.NifBridge",
+    [
+        of_dims,
+        set_at,
+        set_from_list,
+        get_at,
+        draw_rect_at,
+        diff,
+        as_pairs,
+        mul
+    ],
+    load = on_load
+);

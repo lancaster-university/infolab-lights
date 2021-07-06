@@ -1,5 +1,6 @@
 _build/
 assets/yarn.lock
+assets/node_modules
 native/matrix/target/
 deps/
 .git/
