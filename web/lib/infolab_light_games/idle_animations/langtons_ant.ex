@@ -155,7 +155,6 @@ defmodule IdleAnimations.Ant do
   ]
 
   @possible_colour_presets [
-    [%Pixel{r: 85, g: 205, b: 252}, Pixel.white(), %Pixel{r: 247, g: 168, b: 184}],
     Enum.map(
       [
         "#55CDFC",
@@ -164,14 +163,16 @@ defmodule IdleAnimations.Ant do
       ],
       &Pixel.from_hex/1
     ),
-    [
-      %Pixel{r: 255, g: 0, b: 24},
-      %Pixel{r: 255, g: 165, b: 44},
-      %Pixel{r: 255, g: 255, b: 65},
-      %Pixel{r: 0, g: 128, b: 24},
-      %Pixel{r: 0, g: 0, b: 249},
-      %Pixel{r: 134, g: 0, b: 125}
-    ],
+    Enum.map(
+      [
+        "#ff0018",
+        "#ffa52c",
+        "#ffff41",
+        "#008018",
+        "#86007d"
+      ],
+      &Pixel.from_hex/1
+    ),
     Enum.map(
       [
         "#D62900",
