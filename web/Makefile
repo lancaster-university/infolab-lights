@@ -19,8 +19,6 @@ run: ## Run the app in Docker
 	--rm -it $(APP_NAME):latest
 
 release: ## Push to docker hub
-	docker tag $(APP_NAME):latest simmsb/infolab_lights_web:latest
-	docker tag $(APP_NAME):$(APP_VSN)-$(BUILD) simmsb/infolab_lights_web:$(APP_VSN)-$(BUILD)
 	docker tag $(APP_NAME):latest ghcr.io/simmsb/infolab_lights_web:latest
 	docker tag $(APP_NAME):$(APP_VSN)-$(BUILD) ghcr.io/simmsb/infolab_lights_web:$(APP_VSN)-$(BUILD)
 	docker push ghcr.io/simmsb/infolab_lights_web
