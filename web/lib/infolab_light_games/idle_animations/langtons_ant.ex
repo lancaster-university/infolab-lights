@@ -165,6 +165,31 @@ defmodule IdleAnimations.Ant do
     ),
     Enum.map(
       [
+        "#D60270",
+        "#9B4F96",
+        "#0038A8"
+      ],
+      &Pixel.from_hex/1
+    ),
+    Enum.map(
+      [
+        "#FF1C8D",
+        "#FFD700",
+        "#1AB3FF"
+      ],
+      &Pixel.from_hex/1
+    ),
+    Enum.map(
+      [
+        "#FCF431",
+        "#FCFCFC",
+        "#9D59D2",
+        "#282828"
+      ],
+      &Pixel.from_hex/1
+    ),
+    Enum.map(
+      [
         "#ff0018",
         "#ffa52c",
         "#ffff41",
@@ -182,7 +207,17 @@ defmodule IdleAnimations.Ant do
         "#A50062"
       ],
       &Pixel.from_hex/1
-    )
+    ),
+    Enum.map(
+      [
+        "#22639B",
+        "#06CDE0",
+        "#0DB3CF",
+        "#1498BE",
+        "#1B7EAC",
+      ],
+      &Pixel.from_hex/1
+    ),
   ]
 
   defp generate_rotate() do
@@ -199,12 +234,10 @@ defmodule IdleAnimations.Ant do
   end
 
   defp generate_rule(states) do
-    num_rules = Enum.random([1, 1, 1, 1, 2, 2, 3])
-
-    1..num_rules
-    |> Enum.map(fn _ ->
+    states
+    |> Enum.map(fn col ->
       rotate_f = generate_rotate()
-      col = Enum.random(states)
+      # col = Enum.random(states)
       steps = Enum.random(0..2)
       fn s -> s |> rotate_f.() |> set_colour(col) |> step(steps) end
     end)
@@ -212,7 +245,7 @@ defmodule IdleAnimations.Ant do
   end
 
   defp random_ruleset do
-    preset_or_random = Enum.random([:preset, :random, :random])
+    preset_or_random = Enum.random([:preset, :preset, :random])
     # preset_or_random = :preset
 
     states =
