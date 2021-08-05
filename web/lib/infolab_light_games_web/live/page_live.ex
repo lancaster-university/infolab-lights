@@ -1,5 +1,6 @@
 defmodule InfolabLightGamesWeb.PageLive do
   use InfolabLightGamesWeb, :live_view
+  require Logger
 
   @impl true
   def mount(_params, %{"remote_ip" => remote_ip} = _session, socket) do
@@ -18,6 +19,7 @@ defmodule InfolabLightGamesWeb.PageLive do
       |> assign(remote_ip: remote_ip)
       |> assign(banned: Bans.is_banned?(remote_ip))
 
+    Logger.info("mounted #{inspect(self())}/#{inspect(remote_ip)} on main page")
     {:ok, _} = Presence.track_user(self(), remote_ip)
 
     {:ok, socket, temporary_assigns: [screen: nil]}
@@ -27,8 +29,8 @@ defmodule InfolabLightGamesWeb.PageLive do
   def handle_info({:banned, ip}, socket) do
     if socket.assigns.remote_ip == ip and socket.assigns.game_id do
       socket
-        |> assign(banned: true)
-        |> leave_game(ip, socket.assigns.remote_ip)
+      |> assign(banned: true)
+      |> leave_game(ip, socket.assigns.remote_ip)
     else
       {:noreply, socket}
     end
@@ -45,7 +47,11 @@ defmodule InfolabLightGamesWeb.PageLive do
   end
 
   @impl true
-  def handle_info({:game_terminated, id}, %{assigns: %{game_id: id}} = socket) do
+  def handle_info(
+        {:game_terminated, id},
+        %{assigns: %{game_id: id, remote_ip: remote_ip}} = socket
+      ) do
+    {:ok, _} = Presence.update_user_status(self(), remote_ip, "idle")
     {:noreply, assign(socket, game_id: nil)}
   end
 
@@ -54,14 +60,17 @@ defmodule InfolabLightGamesWeb.PageLive do
     {:noreply, socket}
   end
 
-
   @impl true
   def handle_event("queue", _params, %{assigns: %{banned: true}} = socket) do
     {:noreply, put_flash(socket, :error, "You're banned mate")}
   end
 
   @impl true
-  def handle_event("queue", %{"game-name" => game_name}, %{assigns: %{game_id: nil}} = socket) do
+  def handle_event(
+        "queue",
+        %{"game-name" => game_name},
+        %{assigns: %{game_id: nil, remote_ip: remote_ip}} = socket
+      ) do
     {:ok, game} =
       case game_name do
         "pong" -> {:ok, Games.Pong}
@@ -70,6 +79,8 @@ defmodule InfolabLightGamesWeb.PageLive do
       end
 
     id = Coordinator.queue_game(game, self())
+
+    {:ok, _} = Presence.update_user_status(self(), remote_ip, "in game #{id}")
 
     socket =
       socket
@@ -144,6 +155,7 @@ defmodule InfolabLightGamesWeb.PageLive do
 
   @impl true
   def terminate(_reason, socket) do
+    Logger.warning("terminating user")
     :ok = Presence.untrack_user(self(), socket.assigns.remote_ip)
 
     unless is_nil(socket.assigns.game_id) do

@@ -1,5 +1,6 @@
 defmodule Coordinator do
   use GenServer
+  require Logger
 
   @type via_tuple() :: {:via, atom(), {atom(), String.t()}}
 
@@ -91,14 +92,22 @@ defmodule Coordinator do
 
   @impl true
   def handle_call({:join_game, id, player}, _from, state) do
-    :ok = GenServer.call(via_tuple(id), {:add_player, player})
+    try do
+      :ok = GenServer.call(via_tuple(id), {:add_player, player})
+    catch
+      :exit, e -> Logger.warning("Couldn't join_game: #{inspect(e)}")
+    end
 
     {:reply, id, state, {:continue, :tick}}
   end
 
   @impl true
   def handle_call({:leave_game, id, player}, _from, state) do
-    :ok = GenServer.call(via_tuple(id), {:remove_player, player})
+    try do
+      :ok = GenServer.call(via_tuple(id), {:remove_player, player})
+    catch
+      :exit, e -> Logger.warning("Couldn't leave_game: #{inspect(e)}")
+    end
 
     {:reply, id, state, {:continue, :tick}}
   end
@@ -207,6 +216,7 @@ defmodule Coordinator do
   end
 
   def terminate_game(id) do
+    Logger.info("terminating game #{id}")
     GenServer.cast(__MODULE__, {:terminate, id})
   end
 
@@ -227,14 +237,17 @@ defmodule Coordinator do
   end
 
   def queue_game(game, initial_player) do
+    Logger.info("#{inspect(initial_player)} initializing game #{game}")
     GenServer.call(__MODULE__, {:queue_game, game, initial_player})
   end
 
   def join_game(id, player) do
+    Logger.info("#{inspect(player)} joining game #{id}")
     GenServer.call(__MODULE__, {:join_game, id, player})
   end
 
   def leave_game(id, player) do
+    Logger.info("#{inspect(player)} leaving game #{id}")
     GenServer.call(__MODULE__, {:leave_game, id, player})
   end
 

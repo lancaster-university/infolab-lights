@@ -6,7 +6,7 @@ defmodule InfolabLightGamesWeb.AdminLive do
   def mount(_params, _session, socket) do
     if connected?(socket) do
       Phoenix.PubSub.subscribe(InfolabLightGames.PubSub, "coordinator:status")
-      Phoenix.PubSub.subscribe(InfolabLightGames.PubSub, Presence.key())
+      Phoenix.PubSub.subscribe(InfolabLightGames.PubSub, Presence.topic())
     end
 
     coordinator_status = Coordinator.status()
@@ -68,7 +68,7 @@ defmodule InfolabLightGamesWeb.AdminLive do
   end
 
   defp format_presences do
-    for {_, %{metas: l}} <- Presence.list(Presence.key()),
+    for {_, %{metas: l}} <- Presence.list(Presence.topic()),
         m <- l do
       m
     end

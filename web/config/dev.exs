@@ -13,15 +13,17 @@ config :infolab_light_games, InfolabLightGamesWeb.Endpoint,
   check_origin: false,
   watchers: [
     node: [
-      "node_modules/webpack/bin/webpack.js",
-      "--mode",
-      "development",
+      "build.js",
+      cd: Path.expand("../assets", __DIR__)
+    ],
+    node: [
+      "./node_modules/.bin/cpx",
+      "'static/**/*'",
+      "../priv/static",
       "--watch",
-      "--watch-options-stdin",
       cd: Path.expand("../assets", __DIR__)
     ]
   ]
-
 config :infolab_light_games, InfolabLightGamesWeb.Router, admin_pass: "admin"
 
 # ## SSL Support

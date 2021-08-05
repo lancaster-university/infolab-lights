@@ -39,11 +39,12 @@ defmodule InfolabLightGames.MixProject do
   defp deps do
     [
       {:phoenix, "~> 1.5.9"},
-      {:phoenix_live_view, "~> 0.15.7"},
+      # {:phoenix, git: "https://github.com/phoenixframework/phoenix", override: true},
       {:floki, ">= 0.0.0", only: :test},
       {:phoenix_html, "~> 2.14"},
       {:phoenix_live_reload, "~> 1.3", only: :dev},
-      {:phoenix_live_dashboard, "~> 0.4.0"},
+      {:phoenix_live_view, "~> 0.15.7"},
+      {:phoenix_live_dashboard, "~> 0.4"},
       {:telemetry_metrics, "~> 0.6"},
       {:telemetry_poller, "~> 0.5"},
       {:jason, "~> 1.2"},
@@ -66,7 +67,8 @@ defmodule InfolabLightGames.MixProject do
   # See the documentation for `Mix` for more info on aliases.
   defp aliases do
     [
-      setup: ["deps.get", "cmd npm install --prefix assets"]
+      setup: ["deps.get", "cmd npm install --prefix assets"],
+      "assets.deploy": ["cmd npm run deploy --prefix assets", "phx.digest"]
     ]
   end
 end
