@@ -9,9 +9,7 @@
         </nav>
     </section>
 </header>
-
 <section class="section">
-
     <button class="level-item button is-small is-danger" phx-click="terminate-idle-animation">
         Terminate idle animation
     </button>
@@ -30,7 +28,7 @@
                                     <%= @coordinator_status.current_game.max_players %> players</span>
 
                                 <button class="level-item button is-small is-danger" phx-click="terminate"
-                                        phx-value-game-id="<%= @coordinator_status.current_game.id %>">
+                                        phx-value-game-id={@coordinator_status.current_game.id}>
                                     Terminate game
                                 </button>
                             </div>
@@ -56,7 +54,7 @@
                         <nav class="level">
                             <div class="level-right">
                                 <button class="level-item button is-small is-danger" phx-click="terminate"
-                                        phx-value-game-id="<%= game.id %>">
+                                        phx-value-game-id={game.id}>
                                     Terminate game
                                 </button>
                             </div>
@@ -84,7 +82,7 @@
                         <nav class="level">
                             <div class="level-right">
                                 <button class="level-item button is-small is-danger" phx-click="ban"
-                                        phx-value-phx-ref="<%= presence.phx_ref %>">
+                                        phx-value-phx-ref={presence.phx_ref}>
                                     Ban User
                                 </button>
                             </div>
