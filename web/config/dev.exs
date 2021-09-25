@@ -24,6 +24,7 @@ config :infolab_light_games, InfolabLightGamesWeb.Endpoint,
       cd: Path.expand("../assets", __DIR__)
     ]
   ]
+
 config :infolab_light_games, InfolabLightGamesWeb.Router, admin_pass: "admin"
 
 # ## SSL Support

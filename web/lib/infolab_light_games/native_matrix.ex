@@ -1,6 +1,8 @@
 defmodule NativeMatrix do
   defmodule NifBridge do
-    use Rustler, otp_app: :infolab_light_games, crate: :matrix
+    use Rustler,
+      otp_app: :infolab_light_games,
+      crate: :matrix
 
     def of_dims(_width, _height, {_r, _g, _b} = _of), do: :erlang.nif_error(:nif_not_loaded)
     def set_at(_mat, _x, _y, {_r, _g, _b} = _val), do: :erlang.nif_error(:nif_not_loaded)
