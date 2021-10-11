@@ -4,8 +4,8 @@ use serde::{
     de::{self, Visitor},
     Deserialize, Deserializer,
 };
-use std::{fmt, marker::PhantomData};
-use tungstenite::connect;
+use std::{fmt, marker::PhantomData, net::TcpStream};
+use tungstenite::{WebSocket, connect, stream::MaybeTlsStream};
 use url::Url;
 
 #[derive(Deserialize)]
@@ -65,8 +65,7 @@ pub enum ScreenUpdate {
     },
 }
 
-pub fn connnect_to_spout() -> tungstenite::WebSocket<tungstenite::client::AutoStream> {
-    let url = std::env::var("INFOLAB_PIXEL_SPOUT").unwrap();
-    let (socket, _) = connect(Url::parse(&url).unwrap()).unwrap();
+pub fn connnect_to_spout(url: &Url) -> WebSocket<MaybeTlsStream<TcpStream>> {
+    let (socket, _) = connect(url).unwrap();
     socket
 }

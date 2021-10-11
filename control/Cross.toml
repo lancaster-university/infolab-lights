@@ -1,0 +1,2 @@
+[target.armv7-unknown-linux-gnueabihf]
+image = "armv7-unknown-linux-gnueabihf-clang:latest"
