@@ -12,7 +12,8 @@ cargo run -- --pixels wss://infolab.bensimms.moe/live/websocket --scene InfoLab.
 
 Inside `control/docker`
 
-Build cross compile image: ```bash
+Build cross compile image:
+```bash
 docker build -t armv7-unknown-linux-gnueabihf-clang .
 ```
 
