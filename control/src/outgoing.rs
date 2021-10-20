@@ -21,30 +21,55 @@ struct PacketHeader {
 
 impl PacketHeader {
     fn new(cid: u8, lid: u8, cmd: u8, pixels: &[Pixel]) -> Self {
+        let len = pixels.len() as u16 + 6;
+        let [len_up, len_low] = len.to_be_bytes();
+        let chk = cid.wrapping_add(lid)
+                     .wrapping_add(len_up)
+                     .wrapping_add(len_low)
+                     .wrapping_add(cmd)
+                     .wrapping_add(pixels.iter().map(Pixel::wrapping_sum).sum::<Wrapping<u8>>().0);
+
         PacketHeader {
             cid,
             lid,
-            len: pixels.len() as u16 + 6,
+            len,
             cmd,
-            chk: pixels.iter().map(Pixel::wrapping_sum).sum::<Wrapping<u8>>().0,
+            chk,
         }
     }
 }
 
 pub struct Controller {
     id: u8,
+    dirty: bool,
     lights: Vec<Light>,
     pixels: Vec<Pixel>,
 }
 
 impl Controller {
     pub fn new(id: u8, lights: Vec<Light>) -> Self {
-        let pixels = vec![Pixel::zero(); lights.len()];
+        let pixels = vec![Pixel { r: 0, g: 0, b: 40 }; lights.len()];
 
-        Self { id, lights, pixels }
+        Self { id, dirty: true, lights, pixels }
     }
 
     fn send<'a>(&mut self, addr: SocketAddrV4, sock: &UdpSocket, scratch: &'a mut Vec<u8>) {
+        scratch.clear();
+//        scratch.push(self.id);
+//        scratch.push(255);
+//        scratch.extend_from_slice(&(self.pixels.len() as u16 + 6).to_be_bytes());
+//        scratch.push(0x0C);
+//        scratch.push(0);
+//        scratch.extend_from_slice(self.pixels.as_bytes());
+//
+//        let mut chk = 0u8;
+//
+//        for byte in scratch.as_slice() {
+//            chk = chk.wrapping_add(*byte);
+//        }
+//
+//        scratch[5] = chk;
+
         let hdr = PacketHeader::new(self.id, 255, 0x0C, &self.pixels);
         let mut c = std::io::Cursor::new(scratch);
 
@@ -52,7 +77,10 @@ impl Controller {
 
         c.write_all(self.pixels.as_bytes()).unwrap();
 
-        sock.send_to(c.into_inner(), addr).unwrap();
+        let scratch = c.into_inner();
+        println!("sent to {:?} ({} pixels)", addr, self.pixels.len());
+        sock.send_to(scratch, addr).unwrap();
+        self.dirty = false;
     }
 }
 
@@ -68,7 +96,9 @@ impl Router {
 
     fn send<'a>(&mut self, sock: &UdpSocket, scratch: &'a mut Vec<u8>) {
         for controller in &mut self.controllers {
-            controller.send(self.addr, sock, scratch);
+//            if controller.dirty {
+                controller.send(self.addr, sock, scratch);
+//            }
         }
     }
 
@@ -83,6 +113,7 @@ impl Router {
 
     pub fn update_at(&mut self, path: (usize, usize), pixel: Pixel) {
         self.controllers[path.0].pixels[path.1] = pixel;
+        self.controllers[path.0].dirty = true;
     }
 }
 
@@ -134,7 +165,7 @@ fn parse_router(router: roxmltree::Node) -> Router {
                 .unwrap()
                 .parse::<u16>()
                 .unwrap()
-                .to_ne_bytes();
+                .to_le_bytes();
             let x = light.attribute("x").unwrap().parse().unwrap();
             let y = light.attribute("y").unwrap().parse().unwrap();
             let z = light.attribute("z").unwrap().parse().unwrap();

@@ -20,3 +20,5 @@ getset = "0.1.1"
 zerocopy = "0.6.0"
 speedy = "0.8.0"
 structopt = "0.3.23"
+
+[features]
