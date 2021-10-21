@@ -27,4 +27,6 @@ defmodule InfolabLightGamesWeb.ErrorHelpers do
       String.replace(acc, "%{#{key}}", to_string(value))
     end)
   end
+
+  def error_to_string(:too_many_files), do: "Too many files"
 end

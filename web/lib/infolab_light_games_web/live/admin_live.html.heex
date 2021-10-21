@@ -91,5 +91,31 @@
                 <% end %>
             </nav>
         </div>
+        <div class="column is-half">
+            <nav class="panel">
+                <p class="panel-heading">Static image</p>
+                <form id="static-upload-form" phx-submit="set-static-image" phx-change="validate">
+                    <section phx-drop-target={@uploads.static_image.ref}>
+                        <%= for entry <- @uploads.static_image.entries do %>
+                            <article class="upload-entry">
+                                <figure>
+                                    <%= live_img_preview entry %>
+                                    <figcaption><%= entry.client_name %></figcaption>
+                                </figure>
+
+                                <progress value={entry.progress} max="100"> <%= entry.progress %>% </progress>
+                                <button phx-click="cancel-upload" phx-value-ref={entry.ref} aria-label="cancel">&times;</button>
+
+                                <%= for err <- upload_errors(@uploads.static_image, entry) do %>
+                                    <p class="alert alert-danger"><%= error_to_string(err) %></p>
+                                <% end %>
+                            </article>
+                        <% end %>
+                    </section>
+                    <%= live_file_input @uploads.static_image %>
+                    <button type="submit">Upload</button>
+                </form>
+            </nav>
+        </div>
     </div>
 </section>

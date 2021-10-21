@@ -41,7 +41,7 @@ defmodule Games.Pong do
 
   def start_link(options) do
     state = %State{
-      id: Keyword.get(options, :game_id),
+      id: Keyword.fetch!(options, :game_id),
       ball_vel: {@initial_x_vel, 0.1 * Enum.random(@initial_y_vel_range)}
     }
 

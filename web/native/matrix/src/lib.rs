@@ -1,4 +1,5 @@
-use rustler::{Env, Error, ResourceArc, Term};
+use image::EncodableLayout;
+use rustler::{Binary, Env, Error, ResourceArc, Term};
 
 mod atoms {
     rustler::atoms! {
@@ -42,7 +43,12 @@ fn of_dims(width: usize, height: usize, of: Pixel) -> ResourceArc<MatrixResource
 }
 
 #[rustler::nif]
-fn set_at(mat: ResourceArc<MatrixResource>, x: usize, y: usize, val: Pixel) -> ResourceArc<MatrixResource> {
+fn set_at(
+    mat: ResourceArc<MatrixResource>,
+    x: usize,
+    y: usize,
+    val: Pixel,
+) -> ResourceArc<MatrixResource> {
     let mut new_mat: MatrixResource = (&*mat).clone();
     new_mat.set(x, y, val);
 
@@ -50,7 +56,10 @@ fn set_at(mat: ResourceArc<MatrixResource>, x: usize, y: usize, val: Pixel) -> R
 }
 
 #[rustler::nif]
-fn set_from_list(mat: ResourceArc<MatrixResource>, tail: rustler::ListIterator) -> Result<ResourceArc<MatrixResource>, Error> {
+fn set_from_list(
+    mat: ResourceArc<MatrixResource>,
+    tail: rustler::ListIterator,
+) -> Result<ResourceArc<MatrixResource>, Error> {
     let mut new_mat: MatrixResource = (&*mat).clone();
 
     for h in tail {
@@ -65,8 +74,12 @@ fn set_from_list(mat: ResourceArc<MatrixResource>, tail: rustler::ListIterator) 
 type Coord = (usize, usize);
 
 #[rustler::nif]
-fn draw_rect_at(mat: ResourceArc<MatrixResource>, (x0, y0): Coord, (x1, y1): Coord, val: Pixel) -> ResourceArc<MatrixResource> {
-
+fn draw_rect_at(
+    mat: ResourceArc<MatrixResource>,
+    (x0, y0): Coord,
+    (x1, y1): Coord,
+    val: Pixel,
+) -> ResourceArc<MatrixResource> {
     let mut new_mat: MatrixResource = (&*mat).clone();
 
     for y in y0..y1 {
@@ -84,7 +97,10 @@ fn get_at(mat: ResourceArc<MatrixResource>, x: usize, y: usize) -> Pixel {
 }
 
 #[rustler::nif]
-fn diff(mat: ResourceArc<MatrixResource>, mat2: ResourceArc<MatrixResource>) -> Result<Vec<(usize, usize, Pixel)>, Error> {
+fn diff(
+    mat: ResourceArc<MatrixResource>,
+    mat2: ResourceArc<MatrixResource>,
+) -> Result<Vec<(usize, usize, Pixel)>, Error> {
     if mat.width != mat2.width || mat.height != mat2.height {
         return Err(Error::Atom("differing_sizes"));
     }
@@ -141,6 +157,37 @@ fn mul(mat: ResourceArc<MatrixResource>, by: f64) -> ResourceArc<MatrixResource>
     ResourceArc::new(new_mat)
 }
 
+#[rustler::nif]
+fn load_from_image<'a>(
+    binary: Binary<'a>,
+    width: usize,
+    height: usize,
+) -> Result<ResourceArc<MatrixResource>, Error> {
+    let img = image::load_from_memory(binary.as_bytes())
+        .map_err(|e| Error::Term(Box::new(e.to_string())))?
+        .into_rgb8();
+
+    let img = image::imageops::resize(
+        &img,
+        width as u32,
+        height as u32,
+        image::imageops::FilterType::Lanczos3,
+    );
+
+    let vals = vec![(0, 0, 0); width * height].into_boxed_slice();
+    let mut mat = MatrixResource {
+        width,
+        height,
+        vals,
+    };
+
+    for (x, y, p) in img.enumerate_pixels() {
+        mat.set(x as usize, y as usize, (p.0[0], p.0[1], p.0[2]));
+    }
+
+    Ok(ResourceArc::new(mat))
+}
+
 rustler::init!(
     "Elixir.NativeMatrix.NifBridge",
     [
@@ -151,7 +198,8 @@ rustler::init!(
         draw_rect_at,
         diff,
         as_pairs,
-        mul
+        mul,
+        load_from_image
     ],
     load = on_load
 );

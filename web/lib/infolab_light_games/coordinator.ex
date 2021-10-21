@@ -74,14 +74,16 @@ defmodule Coordinator do
   end
 
   @impl true
-  def handle_call({:queue_game, game, initial_player}, _from, state) do
+  def handle_call({:queue_game, game, initial_player, meta}, _from, state) do
     id =
       ?a..?z
       |> Enum.take_random(6)
       |> List.to_string()
 
+    opts = meta ++ [game_id: id, name: via_tuple(id)]
+
     {:ok, _pid} =
-      DynamicSupervisor.start_child(GameManager, {game, game_id: id, name: via_tuple(id)})
+      DynamicSupervisor.start_child(GameManager, {game, opts})
 
     :ok = GenServer.call(via_tuple(id), {:add_player, initial_player})
 
@@ -238,7 +240,12 @@ defmodule Coordinator do
 
   def queue_game(game, initial_player) do
     Logger.info("#{inspect(initial_player)} initializing game #{game}")
-    GenServer.call(__MODULE__, {:queue_game, game, initial_player})
+    GenServer.call(__MODULE__, {:queue_game, game, initial_player, []})
+  end
+
+  def queue_game(game, initial_player, meta) do
+    Logger.info("#{inspect(initial_player)} initializing game #{game}")
+    GenServer.call(__MODULE__, {:queue_game, game, initial_player, meta})
   end
 
   def join_game(id, player) do

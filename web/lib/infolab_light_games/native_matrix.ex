@@ -15,6 +15,7 @@ defmodule NativeMatrix do
     def diff(_mat, _mat2), do: :erlang.nif_error(:nif_not_loaded)
     def as_pairs(_mat), do: :erlang.nif_error(:nif_not_loaded)
     def mul(_mat, _by), do: :erlang.nif_error(:nif_not_loaded)
+    def load_from_image(_binary, _width, _height), do: :erlang.nif_error(:nif_not_loaded)
   end
 
   @opaque t() :: reference()
@@ -67,4 +68,6 @@ defmodule NativeMatrix do
   end
 
   def mul(mat, by), do: NifBridge.mul(mat, by)
+
+  def load_from_image(binary, width, height), do: NifBridge.load_from_image(binary, width, height)
 end

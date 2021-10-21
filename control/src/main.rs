@@ -36,26 +36,23 @@ fn main() -> Result<(), Box<dyn Error>> {
     
     println!("okay, connected to spout");
 
-    let mut i = 0;
+    let mut img = bmp::Image::new(120, 80);
+
+    let _ = img.save("/tmp/lol.bmp");
 
     while let Ok(Message::Text(msg)) = source.read_message() {
         let val: incoming::ScreenUpdate = serde_json::from_str(&msg)?;
 
-       // match val {
-       //     incoming::ScreenUpdate::Diff { diff } => {
-       //         for p in diff {
-       //             let _ = scene.update_at((p.x, p.y), p.new);
-       //         }
-       //     }
-       // };
+        match val {
+            incoming::ScreenUpdate::Diff { diff } => {
+                for p in diff {
+                    img.set_pixel(119u16.saturating_sub(p.x) as u32, p.y as u32, bmp::Pixel { r: p.new.r, g: p.new.g, b: p.new.b });
+                    // let _ = scene.update_at((p.x, p.y), p.new);
+                }
+            }
+        };
 
-        i += 1;
-
-        if i > 10 {
-            i = 0;
-
-            scene.send(&socket);
-        }
+        let _ = img.save("/tmp/lol.bmp");
     }
 
     Ok(())

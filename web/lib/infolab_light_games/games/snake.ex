@@ -35,7 +35,7 @@ defmodule Games.Snake do
 
   def start_link(options) do
     state = %State{
-      id: Keyword.get(options, :game_id)
+      id: Keyword.fetch!(options, :game_id)
     }
 
     GenServer.start_link(__MODULE__, state, options)
