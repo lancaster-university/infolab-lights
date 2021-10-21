@@ -72,7 +72,7 @@ defmodule IdleAnimations.GOL do
   defp get_initial_state do
     {screen_x, screen_y} = Screen.dims()
 
-    pattern = Enum.random([:random, :glider])
+    pattern = Enum.random([:random, :random, :glider])
 
     case pattern do
       :random ->

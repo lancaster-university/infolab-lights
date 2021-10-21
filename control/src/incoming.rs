@@ -4,7 +4,7 @@ use serde::{
     de::{self, Visitor},
     Deserialize, Deserializer,
 };
-use std::{fmt, marker::PhantomData, net::TcpStream};
+use std::{error::Error, fmt, marker::PhantomData, net::TcpStream};
 use tungstenite::{WebSocket, connect, stream::MaybeTlsStream};
 use url::Url;
 
@@ -65,7 +65,7 @@ pub enum ScreenUpdate {
     },
 }
 
-pub fn connnect_to_spout(url: &Url) -> WebSocket<MaybeTlsStream<TcpStream>> {
-    let (socket, _) = connect(url).unwrap();
-    socket
+pub fn connnect_to_spout(url: &Url) -> Result<WebSocket<MaybeTlsStream<TcpStream>>, Box<dyn Error>> {
+    let (socket, _) = connect(url)?;
+    Ok(socket)
 }

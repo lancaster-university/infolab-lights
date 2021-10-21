@@ -95,7 +95,7 @@ defmodule IdleAnimations.Ant do
   end
 
   defp get_ruleset do
-    pattern = Enum.random([:original, :square_thing_0, :random, :random, :random, :random])
+    pattern = Enum.random([:random, :original, :square_thing_0, :random, :random, :random, :random])
 
     case pattern do
       :original ->
@@ -254,7 +254,7 @@ defmodule IdleAnimations.Ant do
           [Pixel.empty() | Enum.random(@possible_colour_presets)]
 
         :random ->
-          num_rules = Enum.random(1..length(@possible_random_colours))
+          num_rules = Enum.random(2..length(@possible_random_colours))
           [Pixel.empty() | Enum.take_random(@possible_random_colours, num_rules)]
       end
 

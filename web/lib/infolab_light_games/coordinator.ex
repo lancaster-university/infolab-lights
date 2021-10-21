@@ -157,7 +157,7 @@ defmodule Coordinator do
         GenServer.stop(via_tuple("idle_anim"))
       end
 
-      animation = Enum.random([IdleAnimations.GOL, IdleAnimations.Ant, IdleAnimations.Ant])
+      animation = Enum.random([IdleAnimations.Ant, IdleAnimations.GOL, IdleAnimations.Ant, IdleAnimations.Ant])
 
       {:ok, _pid} =
         DynamicSupervisor.start_child(
