@@ -95,7 +95,7 @@ defmodule IdleAnimations.Ant do
   end
 
   defp get_ruleset do
-    pattern = Enum.random([:random, :original, :square_thing_0, :random, :random, :random, :random])
+    pattern = Enum.random([:random, :original, :random, :random, :random, :random])
 
     case pattern do
       :original ->
@@ -111,20 +111,20 @@ defmodule IdleAnimations.Ant do
           }
         }
 
-      :square_thing_0 ->
-        %RuleSet{
-          default_state: Pixel.empty(),
-          rule_map: %{
-            Pixel.empty() => fn s ->
-              s |> rotate(:right) |> rotate(:right) |> set_colour(Pixel.white()) |> step(3)
-            end,
-            Pixel.white() => fn s -> s |> rotate(:right) |> set_colour(Pixel.red()) |> step(2) end,
-            Pixel.red() => fn s ->
-              s |> rotate(:right) |> rotate(:right) |> set_colour(Pixel.blue()) |> step(3)
-            end,
-            Pixel.blue() => fn s -> s |> rotate(:left) |> set_colour(Pixel.empty()) |> step(1) end
-          }
-        }
+      #       :square_thing_0 ->
+      #         %RuleSet{
+      #           default_state: Pixel.empty(),
+      #           rule_map: %{
+      #             Pixel.empty() => fn s ->
+      #               s |> rotate(:right) |> rotate(:right) |> set_colour(Pixel.white()) |> step(3)
+      #             end,
+      #             Pixel.white() => fn s -> s |> rotate(:right) |> set_colour(Pixel.red()) |> step(2) end,
+      #             Pixel.red() => fn s ->
+      #               s |> rotate(:right) |> rotate(:right) |> set_colour(Pixel.blue()) |> step(3)
+      #             end,
+      #             Pixel.blue() => fn s -> s |> rotate(:left) |> set_colour(Pixel.empty()) |> step(1) end
+      #           }
+      #         }
 
       :random ->
         random_ruleset()
@@ -214,10 +214,10 @@ defmodule IdleAnimations.Ant do
         "#06CDE0",
         "#0DB3CF",
         "#1498BE",
-        "#1B7EAC",
+        "#1B7EAC"
       ],
       &Pixel.from_hex/1
-    ),
+    )
   ]
 
   defp generate_rotate() do
