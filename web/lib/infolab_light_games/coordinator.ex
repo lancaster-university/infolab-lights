@@ -82,8 +82,7 @@ defmodule Coordinator do
 
     opts = meta ++ [game_id: id, name: via_tuple(id)]
 
-    {:ok, _pid} =
-      DynamicSupervisor.start_child(GameManager, {game, opts})
+    {:ok, _pid} = DynamicSupervisor.start_child(GameManager, {game, opts})
 
     :ok = GenServer.call(via_tuple(id), {:add_player, initial_player})
 
@@ -157,7 +156,15 @@ defmodule Coordinator do
         GenServer.stop(via_tuple("idle_anim"))
       end
 
-      animation = Enum.random([IdleAnimations.Ant, IdleAnimations.GOL, IdleAnimations.Ant, IdleAnimations.Ant])
+      animation =
+        Enum.random([
+          IdleAnimations.Ant,
+          IdleAnimations.GOL,
+          IdleAnimations.Ant,
+          IdleAnimations.Ant,
+          IdleAnimations.JSImpl,
+          IdleAnimations.JSImpl,
+        ])
 
       {:ok, _pid} =
         DynamicSupervisor.start_child(

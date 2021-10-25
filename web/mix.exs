@@ -50,6 +50,7 @@ defmodule InfolabLightGames.MixProject do
       {:rustler, "~> 0.22"},
       {:remote_ip, "~> 1.0"},
       {:tint, "~> 1.1"},
+      {:temp, "~> 0.4"},
       {:credo, "~> 1.5", only: [:dev, :test], runtime: false}
     ]
   end

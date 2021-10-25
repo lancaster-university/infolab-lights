@@ -202,4 +202,6 @@ WORKDIR /opt/app
 
 COPY --from=builder /opt/app/_build .
 
+COPY --from=denoland/deno:bin-1.15.3 /deno /usr/local/bin/deno
+
 CMD ["./prod/rel/infolab_light_games/bin/infolab_light_games", "start"]
