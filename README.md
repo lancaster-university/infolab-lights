@@ -3,22 +3,19 @@
 ![Rust](https://github.com/simmsb/infolab-light-thingy/workflows/Rust/badge.svg)
 ![Elixir CI](https://github.com/simmsb/infolab-light-thingy/workflows/Elixir%20CI/badge.svg)
 
-Something that does things.
+Welcome to the software that powers the LED light display on the front of the
+Infolab.
 
-To start your Phoenix server:
 
-  * Install dependencies with `mix deps.get`
-  * Install Node.js dependencies with `npm install` inside the `assets` directory
-  * Start Phoenix endpoint with `mix phx.server`
+If you're here to write an effect for the display, have a play around with [The
+Playground](https://infolab.bensimms.moe/playground).
 
-Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
+When you've written your effect, fork the repo and add the effect as a js file
+alongside [](web/priv/js_effects/rainbow.js), then submit a PR!
 
-Ready to run in production? Please [check our deployment guides](https://hexdocs.pm/phoenix/deployment.html).
 
-## Learn more
+# Current effects
 
-  * Official website: https://www.phoenixframework.org/
-  * Guides: https://hexdocs.pm/phoenix/overview.html
-  * Docs: https://hexdocs.pm/phoenix
-  * Forum: https://elixirforum.com/c/phoenix-forum
-  * Source: https://github.com/phoenixframework/phoenix
+| Author    | Effect                                    | Description                                 |
+|-----------|-------------------------------------------|---------------------------------------------|
+| Ben Simms | [Rainbow](web/priv/js_effects/rainbow.js) | Just a simple rainbow effect to demo things |

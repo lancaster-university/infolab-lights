@@ -4,7 +4,7 @@ defmodule IdleAnimations.JSImpl do
   @moduledoc "Idle animations that are written in js"
 
   @fps 20
-  @max_steps 10_000
+  @max_steps 3_000 # about 2.5 minutes at 20fps
 
   defmodule State do
     use TypedStruct

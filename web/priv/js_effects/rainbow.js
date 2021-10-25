@@ -50,7 +50,7 @@ class RainbowEffect {
 
   update() {
     for (let x = 0; x < this.width; x++) {
-      const color = this.hsvToRgb((this.position + x / this.width) % 1, 1, 1);
+      const color = this.hsvToRgb((this.position + x / this.width) % 1, 1, 0.5);
       for (let y = 0; y < this.height; y++) {
         this.set_pixel(x, y, color);
       }
