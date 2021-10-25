@@ -2,9 +2,14 @@
     <section class="container box">
         <nav role="navigation" class="navbar">
             <div class="navbar-brand">
-                <a class="navbar-item" href="https://github.com/nitros12/infolab-light-thingy">
+                <a class="navbar-item" href="https://github.com/simmsb/infolab-light-thingy">
                     Infolab Light Things
                 </a>
+            </div>
+
+            <div class="navbar-start">
+                <%= link "home", to: Routes.page_path(@socket, :index), class: "navbar-item" %>
+                <%= link "playground", to: Routes.playground_path(@socket, :index), class: "navbar-item" %>
             </div>
 
             <div class="navbar-end">

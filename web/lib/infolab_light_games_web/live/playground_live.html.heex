@@ -1,0 +1,46 @@
+<header>
+    <section class="container box">
+        <nav role="navigation" class="navbar">
+            <div class="navbar-brand">
+                <a class="navbar-item" href="https://github.com/simmsb/infolab-light-thingy">
+                    Infolab Light Things
+                </a>
+            </div>
+
+            <div class="navbar-start">
+                <%= link "home", to: Routes.page_path(@socket, :index), class: "navbar-item" %>
+                <%= link "playground", to: Routes.playground_path(@socket, :index), class: "navbar-item" %>
+            </div>
+
+            <div class="navbar-end">
+                <div class="buttons">
+                    <button id="reload-effect-button" class="button is-primary">
+                        <strong>Reload effect</strong>
+                    </button>
+                    <button id="reset-code-button" class="button is-primary">
+                        <strong>Reset code</strong>
+                    </button>
+                </div>
+            </div>
+        </nav>
+    </section>
+</header>
+
+<section class="section">
+    <div class="columns">
+        <div id="playground_screen" class="column is-two-fifths" phx-update="ignore">
+            <svg viewbox={"0 0 #{@width * 4} #{@height * 4}"}>
+                <rect width={@width * 4} height={@height * 4} fill="#000000" />
+                <%= for x <- 0..@width-1,
+                        y <- 0..@height-1 do %>
+                    <rect id={"screen_pix_#{x}_#{y}"} width="4" height="4"
+                          fill="#000000"
+                          x={x * 4} y={y * 4} />
+                <% end %>
+            </svg>
+        </div>
+
+        <div id="editor" class="column is-three-fiths" phx-update="ignore">
+        </div>
+    </div>
+</section>
