@@ -28,7 +28,7 @@
 
 <section class="section">
     <div class="columns">
-        <div class="column is-one-fith">
+        <div class="column is-one-fifth">
             <div class="current_game">
                 <%= if @coordinator_status.current_game do %>
                     <div class="box">
@@ -51,15 +51,8 @@
              phx-throttle="10"
              phx-window-keydown="key_down"
              phx-window-keyup="key_up">
-            <svg viewbox={"0 0 #{@width * 4} #{@height * 4}"} id="screen_view" phx-update="ignore">
-                <rect width={@width * 4} height={@height * 4} fill="#000000" />
-                <%= for x <- 0..@width-1,
-                        y <- 0..@height-1 do %>
-                    <rect id={"screen_pix_#{x}_#{y}"} width="4" height="4"
-                          fill={Pixel.render_rgb(NativeMatrix.get_at(@screen, x, y))}
-                          x={x * 4} y={y * 4} />
-                <% end %>
-            </svg>
+
+            <canvas data-width={@width} data-height={@height} id="screen_view" phx-update="ignore"></canvas>
         </div>
 
         <div class="column is-one-fifth">

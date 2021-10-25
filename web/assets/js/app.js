@@ -22,7 +22,7 @@ let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("
 let liveSocket = new LiveSocket("/live", Socket, { params: { _csrf_token: csrfToken } })
 
 // Show progress bar on live navigation and form submits
-topbar.config({barColors: {0: "#29d"}, shadowColor: "rgba(0, 0, 0, .3)"})
+topbar.config({ barColors: { 0: "#29d" }, shadowColor: "rgba(0, 0, 0, .3)" })
 window.addEventListener("phx:page-loading-start", info => topbar.show())
 window.addEventListener("phx:page-loading-stop", info => topbar.hide())
 
@@ -35,24 +35,78 @@ liveSocket.connect()
 window.liveSocket = liveSocket
 
 if (document.getElementById("game_screen") !== null) {
+  let container = document.getElementById("game_screen")
+  let screen = document.getElementById("screen_view");
+  let ctx = screen.getContext("2d");
+
+  let width = parseInt(screen.dataset.width);
+  let height = parseInt(screen.dataset.height);
+
+  ctx.imageSmoothingEnabled = false;
+
+  let containerWidth = container.clientWidth - (
+    parseInt(window.getComputedStyle(container).getPropertyValue("padding-left")) +
+    parseInt(window.getComputedStyle(container).getPropertyValue("padding-right"))
+  );
+  screen.width = width;
+  screen.height = height;
+  screen.style.width = `${containerWidth}px`;
+  screen.style.height = `${(height / width) * containerWidth}px`;
+
+  window.addEventListener("resize", () => {
+    let containerWidth = container.clientWidth - (
+      parseInt(window.getComputedStyle(container).getPropertyValue("padding-left")) +
+      parseInt(window.getComputedStyle(container).getPropertyValue("padding-right"))
+    );
+    screen.style.width = `${containerWidth}px`;
+    screen.style.height = `${(height / width) * containerWidth}px`;
+  });
+
   let socket = new Socket("/socket", { params: { _csrf_token: csrfToken } })
   socket.connect()
 
   let screen_channel = socket.channel("screen", {})
 
+  let imageData = ctx.getImageData(0, 0, width, height);
+
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      var i = 4 * y * width + 4 * x;
+      imageData.data[i] = 0;
+      imageData.data[i + 1] = 0;
+      imageData.data[i + 2] = 0;
+      imageData.data[i + 3] = 255;
+    }
+  }
+
+  let image = new Uint8ClampedArray(imageData.data);
+
+  ctx.putImageData(imageData, 0, 0);
+
   screen_channel.on("diff", ({ data: data_compressed }) => {
+    let imageData = ctx.getImageData(0, 0, width, height);
+    imageData.data = image;
     const arr = Uint8Array.from(atob(data_compressed), c => c.charCodeAt(0))
     const inflated = pako.inflate(arr, { to: "string" });
     const data = JSON.parse(inflated)
 
     for (const { new: { r, g, b }, x, y } of data) {
-      const pix = document.getElementById(`screen_pix_${x}_${y}`)
-      if (pix === null) {
-        continue;
-      }
-      pix.setAttribute("fill", `rgb(${r}, ${g}, ${b})`)
+      // const pix = document.getElementById(`screen_pix_${x}_${y}`)
+      // if (pix === null) {
+      //   continue;
+      // }
+      // pix.setAttribute("fill", `rgb(${r}, ${g}, ${b})`)
+
+      var i = 4 * y * width + 4 * x;
+      image[i] = r;
+      image[i + 1] = g;
+      image[i + 2] = b;
+      image[i + 3] = 255;
     }
-  })
+
+    imageData.data.set(image);
+    ctx.putImageData(imageData, 0, 0);
+  });
 
   screen_channel.join()
     .receive("ok", resp => { console.log("Joined successfully", resp) })
