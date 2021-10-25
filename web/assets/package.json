@@ -26,7 +26,7 @@
   "devDependencies": {
     "bulma": "^0.9.3",
     "cpx": "^1.5.0",
-    "esbuild": "^0.12.17",
+    "esbuild": "^0.13.9",
     "esbuild-sass-plugin": "^1.4.8"
   },
   "engines": {
