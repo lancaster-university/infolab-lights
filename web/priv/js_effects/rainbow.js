@@ -38,6 +38,7 @@ class RainbowEffect {
 
     this.#clear();
     this.position = 0;
+    this.tick = 0;
   }
 
   #clear() {
@@ -49,6 +50,15 @@ class RainbowEffect {
   }
 
   update() {
+    // limit our fps a bit
+    this.tick += 1;
+
+    if (this.tick < 10) {
+      return;
+    }
+
+    this.tick = 0;
+
     this.setPixels(...Array(this.width).fill(0).flatMap((_, x) => {
       const color = this.hsvToRgb((this.position + x / this.width) % 1, 1, 0.5);
       return Array(this.height).fill(0).map((_, y) =>
@@ -56,7 +66,7 @@ class RainbowEffect {
       )
     }));
 
-    this.position += 0.01;
+    this.position += 0.002;
     this.position %= 1;
   }
 }
