@@ -32,9 +32,9 @@ impl<T: fmt::Debug> fmt::Display for DebugAsDisplay<T> {
 fn de_compressed<'de, D: Deserializer<'de>, T: DeserializeOwned>(
     deserializer: D,
 ) -> Result<T, D::Error> {
-    struct CompressedJsonStringVisitor<T>(PhantomData<T>);
+    struct MsgPackVisitor<T>(PhantomData<T>);
 
-    impl<'de, T: DeserializeOwned> Visitor<'de> for CompressedJsonStringVisitor<T> {
+    impl<'de, T: DeserializeOwned> Visitor<'de> for MsgPackVisitor<T> {
         type Value = T;
 
         fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
@@ -46,14 +46,11 @@ fn de_compressed<'de, D: Deserializer<'de>, T: DeserializeOwned>(
             E: de::Error,
         {
             let decoded = base64::decode(v).map_err(E::custom)?;
-            let inflated = miniz_oxide::inflate::decompress_to_vec_zlib(&decoded)
-                .map_err(|e| E::custom(DebugAsDisplay(e)))?;
-            let s = std::str::from_utf8(&inflated).map_err(E::custom)?;
-            serde_json::from_str(s).map_err(E::custom)
+            rmp_serde::from_read(decoded.as_slice()).map_err(E::custom)
         }
     }
 
-    deserializer.deserialize_any(CompressedJsonStringVisitor(PhantomData))
+    deserializer.deserialize_any(MsgPackVisitor(PhantomData))
 }
 
 #[derive(Deserialize)]

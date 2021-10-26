@@ -20,9 +20,7 @@ defmodule Screen do
 
   @impl true
   def init(_opts) do
-    z = :zlib.open()
-
-    {:ok, {blank(), z}}
+    {:ok, {blank()}}
   end
 
   def start_link(_opts) do
@@ -30,35 +28,32 @@ defmodule Screen do
   end
 
   @impl true
-  def handle_call(:latest_native, _from, {frame, _} = state) do
+  def handle_call(:latest_native, _from, {frame} = state) do
     {:reply, frame, state}
   end
 
   @impl true
-  def handle_call(:full_as_diff, _from, {frame, z} = state) do
+  def handle_call(:full_as_diff, _from, {frame} = state) do
     v = NativeMatrix.full_as_diff(frame)
-    d = compress_b64_json(v, z)
+    d = b64_msgpack(v)
 
     {:reply, d, state}
   end
 
   @impl true
-  def handle_cast({:update_frame, frame}, {old_frame, z}) do
+  def handle_cast({:update_frame, frame}, {old_frame}) do
     diff = NativeMatrix.diff(old_frame, frame)
 
     if not Enum.empty?(diff) do
-      d = compress_b64_json(diff, z)
+      d = b64_msgpack(diff)
       PubSub.broadcast!(InfolabLightGames.PubSub, "screen:diff", {:screen_diff, d})
     end
 
-    {:noreply, {frame, z}}
+    {:noreply, {frame}}
   end
 
-  defp compress_b64_json(val, z) do
-    :ok = :zlib.deflateInit(z)
-    d = :zlib.deflate(z, Jason.encode_to_iodata!(val), :finish)
-    :zlib.deflateEnd(z)
-    Base.encode64(IO.iodata_to_binary(d))
+  defp b64_msgpack(val) do
+    Msgpax.pack!(val) |> IO.iodata_to_binary() |> Base.encode64()
   end
 
   def update_frame(new_frame) do

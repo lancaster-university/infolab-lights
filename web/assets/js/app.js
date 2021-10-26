@@ -16,7 +16,7 @@ import "phoenix_html"
 import { Socket } from "phoenix"
 import { LiveSocket } from "phoenix_live_view"
 import topbar from "topbar";
-import * as pako from "pako"
+import { unpack } from 'msgpackr/unpack';
 
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
 let liveSocket = new LiveSocket("/live", Socket, { params: { _csrf_token: csrfToken } })
@@ -86,17 +86,9 @@ if (document.getElementById("game_screen") !== null) {
   screen_channel.on("diff", ({ data: data_compressed }) => {
     let imageData = ctx.getImageData(0, 0, width, height);
     imageData.data = image;
-    const arr = Uint8Array.from(atob(data_compressed), c => c.charCodeAt(0))
-    const inflated = pako.inflate(arr, { to: "string" });
-    const data = JSON.parse(inflated)
+    const data = unpack(Uint8Array.from(window.atob(data_compressed), c => c.charCodeAt(0)));
 
     for (const { new: { r, g, b }, x, y } of data) {
-      // const pix = document.getElementById(`screen_pix_${x}_${y}`)
-      // if (pix === null) {
-      //   continue;
-      // }
-      // pix.setAttribute("fill", `rgb(${r}, ${g}, ${b})`)
-
       var i = 4 * y * width + 4 * x;
       image[i] = r;
       image[i + 1] = g;

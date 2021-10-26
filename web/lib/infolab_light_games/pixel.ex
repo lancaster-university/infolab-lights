@@ -2,6 +2,7 @@ defmodule Pixel do
   use TypedStruct
 
   @derive Jason.Encoder
+  @derive [{Msgpax.Packer, fields: [:r, :g, :b]}]
 
   typedstruct do
     field :r, non_neg_integer(), default: 0
