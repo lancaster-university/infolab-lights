@@ -7,7 +7,6 @@ use structopt::StructOpt;
 use tungstenite::Message;
 use url::Url;
 
-mod incoming;
 mod outgoing;
 mod pixel;
 
@@ -40,34 +39,19 @@ fn inner(opt: &Opt) -> Result<(), Box<dyn Error>> {
 
     // println!("okay, connected to udp");
 
-    let mut source = incoming::connnect_to_spout(&opt.pixels)?;
+    let (mut source, _) = tungstenite::connect(&opt.pixels)?;
 
     println!("okay, connected to spout");
 
-    let mut img = bmp::Image::new(120, 80);
+    let blank = image::RgbImage::new(120, 80);
+    blank.save_with_format("/tmp/lol.bmp", image::ImageFormat::Bmp)?;
 
-    let _ = img.save("/tmp/lol.bmp");
+    while let Ok(Message::Binary(msg)) = source.read_message() {
+        println!("hi");
+        let frame = image::load_from_memory_with_format(&msg, image::ImageFormat::Png)?;
+        let frame = frame.flipv();
+        frame.save_with_format("/tmp/lol.bmp", image::ImageFormat::Bmp)?;
+    }
 
-    Ok(while let Ok(Message::Text(msg)) = source.read_message() {
-        let val: incoming::ScreenUpdate = serde_json::from_str(&msg)?;
-
-        match val {
-            incoming::ScreenUpdate::Diff { diff } => {
-                for p in diff {
-                    img.set_pixel(
-                        119u16.saturating_sub(p.x) as u32,
-                        p.y as u32,
-                        bmp::Pixel {
-                            r: p.new.r,
-                            g: p.new.g,
-                            b: p.new.b,
-                        },
-                    );
-                    // let _ = scene.update_at((p.x, p.y), p.new);
-                }
-            }
-        };
-
-        let _ = img.save("/tmp/lol.bmp");
-    })
+    Ok(())
 }

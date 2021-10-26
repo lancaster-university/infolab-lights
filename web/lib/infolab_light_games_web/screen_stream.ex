@@ -1,6 +1,11 @@
 defmodule InfolabLightGamesWeb.ScreenStream do
   @behaviour Phoenix.Socket.Transport
 
+  @moduledoc """
+  This is the socket that sends data to the display, and anyone else interested
+  over a plain websocket.
+  """
+
   def child_spec(_opts) do
     # We won't spawn any process, so let's return a dummy task
     %{id: Task, start: {Task, :start_link, [fn -> :ok end]}, restart: :transient}
@@ -9,13 +14,13 @@ defmodule InfolabLightGamesWeb.ScreenStream do
   def connect(state) do
     # Callback to retrieve relevant data from the connection.
     # The map contains options, params, transport and endpoint keys.
+    IO.inspect("starting up")
     {:ok, state}
   end
 
   def init(state) do
     # Now we are effectively inside the process that maintains the socket.
-    send(self(), {:screen_diff, Screen.full_as_diff()})
-    :ok = Phoenix.PubSub.subscribe(InfolabLightGames.PubSub, "screen:diff")
+    :ok = Phoenix.PubSub.subscribe(InfolabLightGames.PubSub, "screen:update")
     {:ok, state}
   end
 
@@ -23,9 +28,8 @@ defmodule InfolabLightGamesWeb.ScreenStream do
     {:ok, state}
   end
 
-  def handle_info({:screen_diff, diff}, state) do
-    msg = Jason.encode!(%{type: :diff, diff: diff})
-    {:push, {:text, msg}, state}
+  def handle_info({:screen_update, update}, state) do
+    {:push, {:binary, update}, state}
   end
 
   def handle_info(_msg, state) do
@@ -33,7 +37,7 @@ defmodule InfolabLightGamesWeb.ScreenStream do
   end
 
   def terminate(_reason, _state) do
-    :ok = Phoenix.PubSub.unsubscribe(InfolabLightGames.PubSub, "screen:diff")
+    :ok = Phoenix.PubSub.unsubscribe(InfolabLightGames.PubSub, "screen:update")
     :ok
   end
 end

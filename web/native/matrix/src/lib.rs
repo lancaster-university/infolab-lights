@@ -1,5 +1,5 @@
-use image::EncodableLayout;
-use rustler::{Binary, Env, Error, ResourceArc, Term};
+use image::{EncodableLayout, Rgb, RgbImage};
+use rustler::{Binary, Env, Error, OwnedBinary, ResourceArc, Term};
 
 mod atoms {
     rustler::atoms! {
@@ -188,6 +188,39 @@ fn load_from_image<'a>(
     Ok(ResourceArc::new(mat))
 }
 
+#[rustler::nif]
+fn to_png(mat: ResourceArc<MatrixResource>) -> Result<OwnedBinary, Error> {
+    let mut image = RgbImage::new(mat.width as u32, mat.height as u32);
+
+    for y in 0..mat.height {
+        for x in 0..mat.width {
+            let (r, g, b) = mat.get(x, y);
+            image.put_pixel(x as u32, y as u32, Rgb([r, g, b]));
+        }
+    }
+
+    let mut bytes = Vec::new();
+
+    image::codecs::png::PngEncoder::new_with_quality(
+        &mut bytes,
+        image::png::CompressionType::Default,
+        image::png::FilterType::Paeth,
+    )
+    .encode(
+        image.as_bytes(),
+        image.width(),
+        image.height(),
+        image::ColorType::Rgb8,
+    )
+    .map_err(|e| Error::Term(Box::new(e.to_string())))?;
+
+    let mut binary = OwnedBinary::new(bytes.len()).ok_or(Error::Atom("allocation_failure"))?;
+
+    binary.as_mut_slice().copy_from_slice(&bytes);
+
+    Ok(binary)
+}
+
 rustler::init!(
     "Elixir.NativeMatrix.NifBridge",
     [
@@ -199,7 +232,8 @@ rustler::init!(
         diff,
         as_pairs,
         mul,
-        load_from_image
+        load_from_image,
+        to_png
     ],
     load = on_load
 );

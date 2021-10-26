@@ -1148,22 +1148,7 @@ ms@2.0.0:
   resolved "https://registry.yarnpkg.com/ms/-/ms-2.0.0.tgz#5608aeadfc00be6c2901df5f9861788de0d597c8"
   integrity sha1-VgiurfwAvmwpAd9fmGF4jeDVl8g=
 
-msgpackr-extract@^1.0.14:
-  version "1.0.15"
-  resolved "https://registry.yarnpkg.com/msgpackr-extract/-/msgpackr-extract-1.0.15.tgz#3010a3ff0b033782d525116071b6c32864a79db2"
-  integrity sha512-vgJgzFva0/4/mt84wXf3CRCDPHKqiqk5t7/kVSjk/V2IvwSjoStHhxyq/b2+VrWcch3sxiNQOJEWXgI86Fm7AQ==
-  dependencies:
-    nan "^2.14.2"
-    node-gyp-build "^4.2.3"
-
-msgpackr@^1.4.7:
-  version "1.4.7"
-  resolved "https://registry.yarnpkg.com/msgpackr/-/msgpackr-1.4.7.tgz#d802ade841e7d2e873000b491cdda6574a3d5748"
-  integrity sha512-bhC8Ed1au3L3oHaR/fe4lk4w7PLGFcWQ5XY/Tk9N6tzDRz8YndjCG68TD8zcvYZoxNtw767eF/7VpaTpU9kf9w==
-  optionalDependencies:
-    msgpackr-extract "^1.0.14"
-
-nan@^2.12.1, nan@^2.14.2:
+nan@^2.12.1:
   version "2.15.0"
   resolved "https://registry.yarnpkg.com/nan/-/nan-2.15.0.tgz#3f34a473ff18e15c1b5626b62903b5ad6e665fee"
   integrity sha512-8ZtvEnA2c5aYCZYd1cvgdnU6cqwixRoYg70xPLWUws5ORTa/lnw+u4amixRS/Ac5U5mQVgp9pnlSUnbNWFaWZQ==
@@ -1184,11 +1169,6 @@ nanomatch@^1.2.9:
     regex-not "^1.0.0"
     snapdragon "^0.8.1"
     to-regex "^3.0.1"
-
-node-gyp-build@^4.2.3:
-  version "4.3.0"
-  resolved "https://registry.yarnpkg.com/node-gyp-build/-/node-gyp-build-4.3.0.tgz#9f256b03e5826150be39c764bf51e993946d71a3"
-  integrity sha512-iWjXZvmboq0ja1pUGULQBexmxq8CV4xBhX7VDOTbL7ZR4FOowwY/VOtRxBN/yKxmdGoIp4j5ysNT4u3S2pDQ3Q==
 
 normalize-path@^2.0.0, normalize-path@^2.0.1:
   version "2.1.1"

@@ -33,35 +33,17 @@ defmodule Screen do
   end
 
   @impl true
-  def handle_call(:full_as_diff, _from, {frame} = state) do
-    v = NativeMatrix.full_as_diff(frame)
-    d = b64_msgpack(v)
+  def handle_cast({:update_frame, frame}, _) do
+    img = NativeMatrix.to_png(frame)
 
-    {:reply, d, state}
-  end
-
-  @impl true
-  def handle_cast({:update_frame, frame}, {old_frame}) do
-    diff = NativeMatrix.diff(old_frame, frame)
-
-    if not Enum.empty?(diff) do
-      d = b64_msgpack(diff)
-      PubSub.broadcast!(InfolabLightGames.PubSub, "screen:diff", {:screen_diff, d})
-    end
+    # this is where we push out screen updates to the rest of the application
+    PubSub.broadcast!(InfolabLightGames.PubSub, "screen:update", {:screen_update, img})
 
     {:noreply, {frame}}
   end
 
-  defp b64_msgpack(val) do
-    Msgpax.pack!(val) |> IO.iodata_to_binary() |> Base.encode64()
-  end
-
   def update_frame(new_frame) do
     GenServer.cast(__MODULE__, {:update_frame, new_frame})
-  end
-
-  def full_as_diff do
-    GenServer.call(__MODULE__, :full_as_diff)
   end
 
   def latest_native do

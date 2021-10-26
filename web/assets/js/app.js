@@ -16,7 +16,6 @@ import "phoenix_html"
 import { Socket } from "phoenix"
 import { LiveSocket } from "phoenix_live_view"
 import topbar from "topbar";
-import { unpack } from 'msgpackr/unpack';
 
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
 let liveSocket = new LiveSocket("/live", Socket, { params: { _csrf_token: csrfToken } })
@@ -67,48 +66,16 @@ if (document.getElementById("game_screen") !== null) {
 
   let screen_channel = socket.channel("screen", {})
 
-  let imageData = ctx.getImageData(0, 0, width, height);
+  const image = new Image();
 
-  for (let y = 0; y < height; y++) {
-    for (let x = 0; x < width; x++) {
-      var i = 4 * y * width + 4 * x;
-      imageData.data[i] = 0;
-      imageData.data[i + 1] = 0;
-      imageData.data[i + 2] = 0;
-      imageData.data[i + 3] = 255;
-    }
-  }
-
-  let image = new Uint8ClampedArray(imageData.data);
-
-  ctx.putImageData(imageData, 0, 0);
-
-  screen_channel.on("diff", ({ data: data_compressed }) => {
-    let imageData = ctx.getImageData(0, 0, width, height);
-    imageData.data = image;
-    const data = unpack(Uint8Array.from(window.atob(data_compressed), c => c.charCodeAt(0)));
-
-    for (const { new: { r, g, b }, x, y } of data) {
-      var i = 4 * y * width + 4 * x;
-      image[i] = r;
-      image[i + 1] = g;
-      image[i + 2] = b;
-      image[i + 3] = 255;
-    }
-
-    imageData.data.set(image);
-    ctx.putImageData(imageData, 0, 0);
+  screen_channel.on("update", ({ data: b64_data }) => {
+    const data = Uint8Array.from(window.atob(b64_data), c => c.charCodeAt(0));
+    const blob = new Blob([data.buffer], { type: "image/png" });
+    image.src = URL.createObjectURL(blob);
+    ctx.drawImage(image, 0, 0);
   });
 
   screen_channel.join()
     .receive("ok", resp => { console.log("Joined successfully", resp) })
     .receive("error", resp => { console.log("Unable to join", resp) })
-
-  window.addEventListener("load", () =>
-    screen_channel.push("request_full", {}));
-
-  window.addEventListener("online", () =>
-    screen_channel.push("request_full", {}));
-
-  screen_channel.push("request_full", {});
 }
