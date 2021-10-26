@@ -51,6 +51,7 @@ defmodule InfolabLightGames.MixProject do
       {:remote_ip, "~> 1.0"},
       {:tint, "~> 1.1"},
       {:temp, "~> 0.4"},
+      {:msgpax, "~> 2.0"},
       {:credo, "~> 1.5", only: [:dev, :test], runtime: false}
     ]
   end

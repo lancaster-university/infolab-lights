@@ -1,5 +1,5 @@
 defmodule IdleAnimations.GOL do
-  use GenServer, restart: :transient
+  use GenServer, restart: :temporary
 
   @moduledoc "A GOL idle animation"
 

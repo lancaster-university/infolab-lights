@@ -1,10 +1,11 @@
 defmodule IdleAnimations.JSImpl do
-  use GenServer, restart: :transient
+  use GenServer, restart: :temporary
 
   @moduledoc "Idle animations that are written in js"
 
   @fps 20
-  @max_steps 3_000 # about 2.5 minutes at 20fps
+  # about 2.5 minutes at 20fps
+  @max_steps 3_000
 
   defmodule State do
     use TypedStruct
@@ -16,6 +17,7 @@ defmodule IdleAnimations.JSImpl do
       field(:matrix, NativeMatrix.t())
       field(:port, port() | nil, default: nil)
       field(:tmp_file, Path.t() | nil, default: nil)
+      field(:working_input, iodata(), default: "")
 
       field(:fading_out, boolean(), default: false)
       field(:fader, Fader.t(), default: Fader.new(20))
@@ -62,6 +64,7 @@ defmodule IdleAnimations.JSImpl do
 
     content = """
     import { writeAllSync } from "https://deno.land/std@0.113.0/streams/conversion.ts";
+    import { pack } from 'https://deno.land/x/msgpackr@v1.3.2/index.js';
 
     async function readStdin() {
         const bytes = [];
@@ -86,8 +89,12 @@ defmodule IdleAnimations.JSImpl do
         return Uint8Array.from(bytes);
     }
 
-    function set_pixel(x, y, [r, g, b]) {
-        writeAllSync(Deno.stdout, new TextEncoder().encode(JSON.stringify({x: x, y: y, v: [r, g, b]}) + "\\n"));
+    function set_pixel(...pixels) {
+        const chunkSize = 1000;
+        const len = pixels.length;
+        for (let i = 0; i < len; i += chunkSize) {
+          writeAllSync(Deno.stdout, pack(pixels.slice(i, i + chunkSize)));
+        }
     }
 
     const effect = (
@@ -138,17 +145,8 @@ defmodule IdleAnimations.JSImpl do
   end
 
   @impl true
-  def handle_info({port, {:data, msg}}, %State{port: port} = state) do
-    state =
-      for line <- String.split(String.trim(msg), ~r/\R/), reduce: state do
-        state ->
-          %{"x" => x, "y" => y, "v" => [r, g, b]} = Jason.decode!(line)
-
-          %State{
-            state
-            | matrix: NativeMatrix.set_at(state.matrix, x, y, {trunc(r), trunc(g), trunc(b)})
-          }
-      end
+  def handle_info({port, {:data, msg}}, %State{port: port, working_input: working_input} = state) do
+    state = process_input([working_input, msg], state)
 
     {:noreply, state}
   end
@@ -176,6 +174,21 @@ defmodule IdleAnimations.JSImpl do
     end
 
     Coordinator.notify_idle_animation_terminated(state.id)
+  end
+
+  defp process_input(msg, %State{} = state) do
+    case Msgpax.unpack_slice(msg) do
+      {:ok, parsed, rest} ->
+        pixels = Enum.map(parsed, fn %{"x" => x, "y" => y, "v" => [r, g, b]} ->
+                                    {x, y, {trunc(r), trunc(g), trunc(b)}}
+                                  end)
+        state = %State{state | matrix: NativeMatrix.set_from_list(state.matrix, pixels)}
+
+        process_input(rest, state)
+
+      {:error, _e} ->
+        %State{state | working_input: msg}
+    end
   end
 
   defp start_fading_out(%State{} = state) do

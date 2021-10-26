@@ -31,8 +31,8 @@ class RainbowEffect {
     return [r * 255, g * 255, b * 255];
   }
 
-  constructor(set_pixel, width, height) {
-    this.set_pixel = set_pixel;
+  constructor(setPixels, width, height) {
+    this.setPixels = setPixels;
     this.width = width;
     this.height = height;
 
@@ -41,20 +41,20 @@ class RainbowEffect {
   }
 
   #clear() {
-    for (let x = 0; x < this.width; x++) {
-      for (let y = 0; y < this.height; y++) {
-        this.set_pixel(x, y, [0, 0, 0]);
-      }
-    }
+    this.setPixels(...Array(this.width).fill(0).flatMap((_, x) =>
+      Array(this.height).fill(0).map((_, y) =>
+        ({ x: x, y: y, v: [0, 0, 0] })
+      )
+    ));
   }
 
   update() {
-    for (let x = 0; x < this.width; x++) {
+    this.setPixels(...Array(this.width).fill(0).flatMap((_, x) => {
       const color = this.hsvToRgb((this.position + x / this.width) % 1, 1, 0.5);
-      for (let y = 0; y < this.height; y++) {
-        this.set_pixel(x, y, color);
-      }
-    }
+      return Array(this.height).fill(0).map((_, y) =>
+        ({ x: x, y: y, v: color })
+      )
+    }));
 
     this.position += 0.01;
     this.position %= 1;

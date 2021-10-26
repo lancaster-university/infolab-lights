@@ -14,11 +14,13 @@ const effect_template = `// Writing effects:
 //  called to render each frame.
 //
 // The class you write will be initialized with the parameters:
-//  (set_pixel, width, height)
+//  (setPixels, width, height)
 //
-// set_pixel: function(x: number, y: number, [r, g, b]: [number, number, number])
+// setPixels: function(...pixels: {x: number, y: number, v: [number, number, number]})
 //   Use this to set the colour of a pixel on the screen
-//   RGB values are 0-255
+//   v is a 3-tuple of RGB values in the range 0-255
+//   This takes a variable number of pixels to set, you should try and call it with
+//   as many pixels to set as possible to minimize ipc messages.
 //
 // width: number
 // height: number
@@ -27,8 +29,8 @@ const effect_template = `// Writing effects:
 //
 
 class MyEffect {
-  constructor(set_pixel, width, height) {
-    this.set_pixel = set_pixel;
+  constructor(setPixels, width, height) {
+    this.setPixels = setPixels;
     this.width = width;
     this.height = height;
 
@@ -36,18 +38,17 @@ class MyEffect {
   }
 
   #clear() {
-    for (let x = 0; x < this.width; x++) {
-      for (let y = 0; y < this.height; y++) {
-        this.set_pixel(x, y, [0, 0, 0]);
-      }
-    }
+    this.setPixels(...Array(this.width).fill(0).flatMap((_, x) =>
+      Array(this.height).fill(0).map((_, y) =>
+        ({ x: x, y: y, v: [0, 0, 0] })
+      )
+    ))
   }
 
   update() {
   }
 }
 `;
-
 
 function getCode() {
   const saved = localStorage.getItem('savedCode');
@@ -59,12 +60,14 @@ function getCode() {
   return effect_template;
 }
 
-function setPixel(x, y, [r, g, b]) {
-  const pix = document.getElementById(`screen_pix_${x}_${y}`)
-  if (pix === null) {
-    return;
+function setPixels(...pixels) {
+  for (const pix of pixels) {
+    const pix = document.getElementById(`screen_pix_${x}_${y}`)
+    if (pix === null) {
+      continue;
+    }
+    pix.setAttribute("fill", `rgb(${r}, ${g}, ${b})`)
   }
-  pix.setAttribute("fill", `rgb(${r}, ${g}, ${b})`)
 }
 
 scrollTheme = EditorView.theme({

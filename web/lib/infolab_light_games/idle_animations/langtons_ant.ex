@@ -1,5 +1,5 @@
 defmodule IdleAnimations.Ant do
-  use GenServer, restart: :transient
+  use GenServer, restart: :temporary
 
   @moduledoc "A langton's ant idle animation"
 
