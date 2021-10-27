@@ -47,7 +47,7 @@ defmodule InfolabLightGamesWeb.AdminLive do
 
   @impl true
   def handle_event("cancel-upload", %{"ref" => ref}, socket) do
-    {:noreply, cancel_upload(socket, :avatar, ref)}
+    {:noreply, cancel_upload(socket, :static_image, ref)}
   end
 
   @impl true

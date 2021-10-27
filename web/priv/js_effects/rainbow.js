@@ -53,7 +53,7 @@ class RainbowEffect {
     // limit our fps a bit
     this.tick += 1;
 
-    if (this.tick < 10) {
+    if (this.tick < 3) {
       return;
     }
 

@@ -90,6 +90,13 @@ defmodule Games.Pong do
   end
 
   @impl true
+  def handle_cast(:terminate, state) do
+    state = %State{state | running: false}
+
+    {:noreply, state}
+  end
+
+  @impl true
   def handle_call({:add_player, player}, _from, state) do
     {:ok, state} =
       case {state.left_player, state.right_player} do

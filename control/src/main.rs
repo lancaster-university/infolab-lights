@@ -49,6 +49,7 @@ fn inner(opt: &Opt) -> Result<(), Box<dyn Error>> {
     while let Ok(Message::Binary(msg)) = source.read_message() {
         println!("hi");
         let frame = image::load_from_memory_with_format(&msg, image::ImageFormat::Png)?;
+        let frame = frame.fliph();
         frame.save_with_format("/tmp/lol.bmp", image::ImageFormat::Bmp)?;
     }
 

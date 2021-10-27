@@ -89,6 +89,13 @@ defmodule Games.Snake do
   end
 
   @impl true
+  def handle_cast(:terminate, state) do
+    state = %State{state | running: false}
+
+    {:noreply, state}
+  end
+
+  @impl true
   def handle_call({:add_player, player}, _from, state) do
     {:ok, state} =
       if is_nil(state.player) do
