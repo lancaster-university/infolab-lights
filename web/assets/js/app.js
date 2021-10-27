@@ -66,13 +66,14 @@ if (document.getElementById("game_screen") !== null) {
 
   let screen_channel = socket.channel("screen", {})
 
-  const image = new Image();
-
   screen_channel.on("update", ({ data: b64_data }) => {
     const data = Uint8Array.from(window.atob(b64_data), c => c.charCodeAt(0));
     const blob = new Blob([data.buffer], { type: "image/png" });
+    const image = new Image();
     image.src = URL.createObjectURL(blob);
-    ctx.drawImage(image, 0, 0);
+    image.onload = () => {
+      ctx.drawImage(image, 0, 0);
+    };
   });
 
   screen_channel.join()
