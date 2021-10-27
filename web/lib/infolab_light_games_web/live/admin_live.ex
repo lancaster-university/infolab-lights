@@ -16,7 +16,7 @@ defmodule InfolabLightGamesWeb.AdminLive do
       |> assign(coordinator_status: coordinator_status)
       |> assign(presences: format_presences())
       |> assign(uploaded_files: [])
-      |> allow_upload(:static_image, accept: ~w(.png .jpg .jpeg), max_entries: 1)
+      |> allow_upload(:static_image, accept: ~w(.png .jpg .jpeg .gif), max_entries: 1)
 
     {:ok, socket}
   end
@@ -61,14 +61,14 @@ defmodule InfolabLightGamesWeb.AdminLive do
   def handle_event("set-static-image", _params, socket) do
     {width, height} = Screen.dims()
 
-    [image] =
+    [images] =
       consume_uploaded_entries(socket, :static_image, fn %{path: path}, _entry ->
         img = File.read!(path)
         NativeMatrix.load_from_image(img, width, height)
       end)
 
     # a bit of a hack to have zero player games, but w/e
-    id = Coordinator.queue_game(Games.Static, nil, [image: image])
+    id = Coordinator.queue_game(Games.Static, nil, [images: images])
 
     socket =
       socket

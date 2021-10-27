@@ -10,16 +10,17 @@ defmodule Games.Static do
 
       field :running, boolean(), default: false
 
-      field :image, NativeMatrix.t()
+      field :images, Qex.t({integer(), NativeMatrix.t()})
     end
   end
 
-  @tick_ms Integer.floor_div(1000, 30)
+  # how often we push an image, not the same as frame delays
+  @tick_ms Integer.floor_div(1000, 4)
 
   def start_link(options) do
     state = %State{
       id: Keyword.fetch!(options, :game_id),
-      image: Keyword.fetch!(options, :image)
+      images: Keyword.fetch!(options, :images) |> Qex.new()
     }
 
     GenServer.start_link(__MODULE__, state, options)
@@ -66,6 +67,7 @@ defmodule Games.Static do
         {:reply, :running, state}
 
       true ->
+        state = next_frame(state)
         {:ok, _timer} = :timer.send_interval(@tick_ms, :tick)
         {:reply, :started, %State{state | running: true}}
     end
@@ -81,16 +83,35 @@ defmodule Games.Static do
   end
 
   @impl true
+  def handle_info(:next_frame, state) do
+    state = next_frame(state)
+
+    {:noreply, state}
+  end
+
+  @impl true
   def terminate(_reason, state) do
     Coordinator.notify_game_terminated(state.id)
   end
 
-  defp tick(state) do
+  defp next_frame(%State{} = state) do
+    {{delay, _} = image, images} = Qex.pop!(state.images)
+    state = %State{state | images: Qex.push(images, image)}
+    render(state)
+
+    Process.send_after(self(), :next_frame, trunc(delay))
+
+    state
+  end
+
+  defp tick(%State{} = state) do
     render(state)
     state
   end
 
-  defp render(%State{image: image}) do
+  defp render(%State{images: images}) do
+    {{_, image}, _} = Qex.pop!(images)
+
     Screen.update_frame(image)
   end
 end

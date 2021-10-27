@@ -1,4 +1,6 @@
-use image::{EncodableLayout, Rgb, RgbImage};
+use std::time::Duration;
+
+use image::{AnimationDecoder, DynamicImage, EncodableLayout, ImageFormat, Rgb, RgbImage};
 use rustler::{Binary, Env, Error, OwnedBinary, ResourceArc, Term};
 
 mod atoms {
@@ -157,16 +159,7 @@ fn mul(mat: ResourceArc<MatrixResource>, by: f64) -> ResourceArc<MatrixResource>
     ResourceArc::new(new_mat)
 }
 
-#[rustler::nif]
-fn load_from_image<'a>(
-    binary: Binary<'a>,
-    width: usize,
-    height: usize,
-) -> Result<ResourceArc<MatrixResource>, Error> {
-    let img = image::load_from_memory(binary.as_bytes())
-        .map_err(|e| Error::Term(Box::new(e.to_string())))?
-        .into_rgb8();
-
+fn process_frame(img: RgbImage, width: usize, height: usize) -> ResourceArc<MatrixResource> {
     let img = image::imageops::resize(
         &img,
         width as u32,
@@ -185,7 +178,47 @@ fn load_from_image<'a>(
         mat.set(x as usize, y as usize, (p.0[0], p.0[1], p.0[2]));
     }
 
-    Ok(ResourceArc::new(mat))
+    ResourceArc::new(mat)
+}
+
+#[rustler::nif]
+fn load_from_image<'a>(
+    binary: Binary<'a>,
+    width: usize,
+    height: usize,
+) -> Result<Vec<(f32, ResourceArc<MatrixResource>)>, Error> {
+    if image::guess_format(binary.as_bytes()).map_err(|e| Error::Term(Box::new(e.to_string())))?
+        == ImageFormat::Gif
+    {
+        let decoder = image::gif::GifDecoder::new(binary.as_bytes())
+            .map_err(|e| Error::Term(Box::new(e.to_string())))?;
+
+        let mut out = vec![];
+
+        for frame in decoder.into_frames() {
+            let frame = frame.map_err(|e| Error::Term(Box::new(e.to_string())))?;
+
+            let delay: Duration = frame.delay().into();
+
+            let mat = process_frame(
+                DynamicImage::ImageRgba8(frame.into_buffer()).to_rgb8(),
+                width,
+                height,
+            );
+
+            out.push((delay.as_millis() as f32, mat))
+        }
+
+        Ok(out)
+    } else {
+        let img = image::load_from_memory(binary.as_bytes())
+            .map_err(|e| Error::Term(Box::new(e.to_string())))?
+            .into_rgb8();
+
+        let mat = process_frame(img, width, height);
+
+        Ok(vec![(9999999.0, mat)])
+    }
 }
 
 #[rustler::nif]
