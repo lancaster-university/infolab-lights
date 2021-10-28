@@ -185,7 +185,7 @@ RUN \
 
 # From this line onwards, we're in a new image, which will be the image used in production
 FROM debian:buster-slim
-LABEL org.opencontainers.image.source https://github.com/simmsb/infolab-lights
+LABEL org.opencontainers.image.source https://github.com/lancaster-university/infolab-lights
 
 ENV LANG C.UTF-8
 ENV LC_ALL C.UTF-8
