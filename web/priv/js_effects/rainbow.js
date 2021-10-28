@@ -1,4 +1,4 @@
-class RainbowEffect {
+return class RainbowEffect {
   /**
   * Converts an HSV color value to RGB. Conversion formula
   * adapted from http://en.wikipedia.org/wiki/HSV_color_space.

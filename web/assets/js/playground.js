@@ -10,7 +10,7 @@ import { githubLight } from '@ddietr/codemirror-themes/theme/github-light.js';
 import { javascript } from "@codemirror/lang-javascript";
 
 const effect_template = `// Writing effects:
-//  Effects are written as a class with a method that is
+//  Effects are written as a class with an 'update' method that is
 //  called to render each frame.
 //
 // The class you write will be initialized with the parameters:
@@ -28,7 +28,7 @@ const effect_template = `// Writing effects:
 //
 //
 
-class MyEffect {
+return class MyEffect {
   constructor(setPixels, width, height) {
     this.setPixels = setPixels;
     this.width = width;
@@ -61,7 +61,7 @@ function getCode() {
 }
 
 function setPixels(...pixels) {
-  for (const pix of pixels) {
+  for (const {x: x, y: y, v: [r, g, b]} of pixels) {
     const pix = document.getElementById(`screen_pix_${x}_${y}`)
     if (pix === null) {
       continue;
@@ -107,7 +107,7 @@ window.onload = () => {
 
   document.getElementById("reload-effect-button").addEventListener("click", () => {
     const body = [...editor.state.doc.iter()].join("\n");
-    const mod = Function("return (" + body + ")")();
+    const mod = Function(body)();
     nextEffect = mod;
   });
 
@@ -119,12 +119,22 @@ window.onload = () => {
 
   setInterval(() => {
     if (nextEffect !== null) {
-      currentEffect = new nextEffect(setPixel, 120, 80);
+      try {
+        currentEffect = new nextEffect(setPixels, 120, 80);
+      } catch (error) {
+        window.alert(`Starting effect failed: ${error}`);
+        currentEffect = null;
+      }
       nextEffect = null;
     }
 
     if (currentEffect !== null) {
-      currentEffect.update();
+      try {
+        currentEffect.update();
+      } catch (error) {
+        window.alert(`Effect update failed: ${error}`);
+        currentEffect = null;
+      }
     }
   }, (1000 / 20));
 };

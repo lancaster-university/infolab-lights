@@ -97,9 +97,9 @@ defmodule IdleAnimations.JSImpl do
         }
     }
 
-    const effect = (
+    const effect = (() => {
         #{src}
-    );
+    })();
 
     const inst = new effect(set_pixel, #{screen_x}, #{screen_y});
 
@@ -179,9 +179,11 @@ defmodule IdleAnimations.JSImpl do
   defp process_input(msg, %State{} = state) do
     case Msgpax.unpack_slice(msg) do
       {:ok, parsed, rest} ->
-        pixels = Enum.map(parsed, fn %{"x" => x, "y" => y, "v" => [r, g, b]} ->
-                                    {x, y, {trunc(r), trunc(g), trunc(b)}}
-                                  end)
+        pixels =
+          Enum.map(parsed, fn %{"x" => x, "y" => y, "v" => [r, g, b]} ->
+            {x, y, {trunc(r), trunc(g), trunc(b)}}
+          end)
+
         state = %State{state | matrix: NativeMatrix.set_from_list(state.matrix, pixels)}
 
         process_input(rest, state)
