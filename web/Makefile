@@ -21,4 +21,7 @@ run: ## Run the app in Docker
 release: ## Push to docker hub
 	docker tag $(APP_NAME):latest ghcr.io/lancaster-university/infolab_lights_web:latest
 	docker tag $(APP_NAME):$(APP_VSN)-$(BUILD) ghcr.io/lancaster-university/infolab_lights_web:$(APP_VSN)-$(BUILD)
-	docker push ghcr.io/lancaster-university/infolab_lights_web
+	docker tag $(APP_NAME):latest ghcr.io/simmsb/infolab_lights_web:latest
+	docker tag $(APP_NAME):$(APP_VSN)-$(BUILD) ghcr.io/simmsb/infolab_lights_web:$(APP_VSN)-$(BUILD)
+	docker push ghcr.io/lancaster-university/infolab_lights_web 
+	docker push ghcr.io/simmsb/infolab_lights_web
