@@ -8,7 +8,7 @@ Infolab.
 
 
 If you're here to write an effect for the display, have a play around with [The
-Playground](https://infolab.bensimms.moe/playground).
+Playground](https://infolab21-lights.lancs.ac.uk/playground).
 
 When you've written your effect, fork the repo and add the effect as a js file
 alongside the others in [web/priv/js_effects/](web/priv/js_effects/), then
