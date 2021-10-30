@@ -31,10 +31,8 @@ return class RainbowEffect {
     return [r * 255, g * 255, b * 255];
   }
 
-  constructor(setPixels, width, height) {
-    this.setPixels = setPixels;
-    this.width = width;
-    this.height = height;
+  constructor(display) {
+    this.display = display;
 
     this.#clear();
     this.position = 0;
@@ -42,11 +40,13 @@ return class RainbowEffect {
   }
 
   #clear() {
-    this.setPixels(...Array(this.width).fill(0).flatMap((_, x) =>
-      Array(this.height).fill(0).map((_, y) =>
-        ({ x: x, y: y, v: [0, 0, 0] })
-      )
-    ));
+    for (let x = 0; x < this.display.width; x++) {
+      for (let y = 0; y < this.display.height; y++) {
+        this.display.setPixel(x, y, [0, 0, 0]);
+      }
+    }
+
+    this.display.flush();
   }
 
   update() {
@@ -59,14 +59,17 @@ return class RainbowEffect {
 
     this.tick = 0;
 
-    this.setPixels(...Array(this.width).fill(0).flatMap((_, x) => {
-      const color = this.hsvToRgb((this.position + x / this.width) % 1, 1, 0.5);
-      return Array(this.height).fill(0).map((_, y) =>
-        ({ x: x, y: y, v: color })
-      )
-    }));
+    for (let x = 0; x < this.display.width; x++) {
+      const color = this.hsvToRgb((this.position + x / this.display.width) % 1, 1, 0.5);
+      for (let y = 0; y < this.display.height; y++) {
+        this.display.setPixel(x, y, color);
+      }
+    }
+
+    this.display.flush();
 
     this.position += 0.002;
     this.position %= 1;
   }
 }
+

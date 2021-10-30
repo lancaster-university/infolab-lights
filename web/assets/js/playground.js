@@ -13,36 +13,41 @@ const effect_template = `// Writing effects:
 //  Effects are written as a class with an 'update' method that is
 //  called to render each frame.
 //
-// The class you write will be initialized with the parameters:
-//  (setPixels, width, height)
+// The class you write will be initialized with the backing display for you to manipulate:
 //
-// setPixels: function(...pixels: {x: number, y: number, v: [number, number, number]})
-//   Use this to set the colour of a pixel on the screen
-//   v is a 3-tuple of RGB values in the range 0-255
-//   This takes a variable number of pixels to set, you should try and call it with
-//   as many pixels to set as possible to minimize ipc messages.
+// display:
+//   an object that has a 'setPixel' method, and a 'flush' method,
+//    it also has 'width' and 'height' attributes:
 //
-// width: number
-// height: number
-//  The size of the display in pixels. 0,0 is the top left corner
+//   setPixel: function(x: number, y: number, v: [number, number, number])
+//     Use this to set the colour of a pixel on the screen
+//     v is a 3-tuple of RGB values in the range 0-255
+//
+//   flush: function()
+//     Use this to flush the display buffer to the system.
+//     Make sure to call this, otherwise you'll not see anything!
+//
+//   width: number
+//   height: number
+//     The size of the display in pixels. 0,0 is the top left corner
 //
 //
 
 return class MyEffect {
-  constructor(setPixels, width, height) {
-    this.setPixels = setPixels;
-    this.width = width;
-    this.height = height;
+  constructor(display) {
+    this.display = display;
 
     this.#clear();
   }
 
   #clear() {
-    this.setPixels(...Array(this.width).fill(0).flatMap((_, x) =>
-      Array(this.height).fill(0).map((_, y) =>
-        ({ x: x, y: y, v: [0, 0, 0] })
-      )
-    ))
+    for (let x = 0; x < this.display.width; x++) {
+      for (let y = 0; y < this.display.height; y++) {
+        this.display.setPixel(x, y, [0, 0, 0]);
+      }
+    }
+
+    this.display.flush();
   }
 
   update() {
@@ -60,13 +65,31 @@ function getCode() {
   return effect_template;
 }
 
-function setPixels(...pixels) {
-  for (const {x: x, y: y, v: [r, g, b]} of pixels) {
-    const pix = document.getElementById(`screen_pix_${x}_${y}`)
-    if (pix === null) {
-      continue;
+class MockDisplay {
+  #buffer;
+
+  constructor(width, height) {
+    this.width = width;
+    this.height = height;
+
+    this.#buffer = Array.from(Array(width), () => Array.from(Array(height), () => [0, 0, 0]));
+  }
+
+  setPixel(x, y, [r, g, b]) {
+    this.#buffer[x][y] = [r, g, b];
+  }
+
+  flush() {
+    for (let x = 0; x < this.width; x++) {
+      for (let y = 0; y < this.height; y++) {
+        const pix = document.getElementById(`screen_pix_${x}_${y}`);
+        const [r, g, b] = this.#buffer[x][y];
+        if (pix === null) {
+          continue;
+        }
+        pix.setAttribute("fill", `rgb(${r}, ${g}, ${b})`);
+      }
     }
-    pix.setAttribute("fill", `rgb(${r}, ${g}, ${b})`)
   }
 }
 
@@ -120,7 +143,7 @@ window.onload = () => {
   setInterval(() => {
     if (nextEffect !== null) {
       try {
-        currentEffect = new nextEffect(setPixels, 120, 80);
+        currentEffect = new nextEffect(new MockDisplay(120, 80));
       } catch (error) {
         window.alert(`Starting effect failed: ${error}`);
         currentEffect = null;

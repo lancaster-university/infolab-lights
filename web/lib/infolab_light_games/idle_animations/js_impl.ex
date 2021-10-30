@@ -89,19 +89,38 @@ defmodule IdleAnimations.JSImpl do
         return Uint8Array.from(bytes);
     }
 
-    function set_pixel(...pixels) {
+    class Display {
+      #buffer;
+
+      constructor(width, height) {
+        this.width = width;
+        this.height = height;
+
+        this.#buffer = Array.from(Array(width), () => Array.from(Array(height), () => [0, 0, 0]));
+      }
+
+      setPixel(x, y, [r, g, b]) {
+        this.#buffer[x][y] = [r, g, b];
+      }
+
+      flush() {
+        const pixels = this.#buffer.flatMap((col, x) => {
+          return col.map((v, y) => ({x, y, v}));
+        });
+
         const chunkSize = 1000;
         const len = pixels.length;
         for (let i = 0; i < len; i += chunkSize) {
           writeAllSync(Deno.stdout, pack(pixels.slice(i, i + chunkSize)));
         }
+      }
     }
 
     const effect = (() => {
         #{src}
     })();
 
-    const inst = new effect(set_pixel, #{screen_x}, #{screen_y});
+    const inst = new effect(new Display(#{screen_x}, #{screen_y}));
 
     while (true) {
         let {msg: msg} = await readStdin();
