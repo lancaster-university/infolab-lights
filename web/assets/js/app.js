@@ -33,50 +33,158 @@ liveSocket.connect()
 // >> liveSocket.enableLatencySim(1000)
 window.liveSocket = liveSocket
 
-if (document.getElementById("game_screen") !== null) {
-  let container = document.getElementById("game_screen")
-  let screen = document.getElementById("screen_view");
-  let ctx = screen.getContext("2d");
+class ArrowHandler {
+  constructor(receiver) {
+    this.receiver = receiver;
+    this.repeaters = {
+      up: null,
+      left: null,
+      down: null,
+      right: null
+    };
 
-  let width = parseInt(screen.dataset.width);
-  let height = parseInt(screen.dataset.height);
+    this.keyMap = {
+      up: {
+        bubbles: true,
+        cancelable: true,
+        key: "ArrowUp",
+        keyCode: 38,
+        which: 38,
+        code: "ArrowUp"
+      },
+      left: {
+        bubbles: true,
+        cancelable: true,
+        key: "ArrowLeft",
+        keyCode: 37,
+        which: 37,
+        code: "ArrowLeft"
+      },
+      down: {
+        bubbles: true,
+        cancelable: true,
+        key: "ArrowDown",
+        keyCode: 40,
+        which: 40,
+        code: "ArrowDown"
+      },
+      right: {
+        bubbles: true,
+        cancelable: true,
+        key: "ArrowRight",
+        keyCode: 39,
+        which: 39,
+        code: "ArrowRight"
+      }
+    };
+  }
 
-  ctx.imageSmoothingEnabled = false;
+  handlePress(direction, elem) {
+    if (this.repeaters[direction] !== null) {
+      clearInterval(this.repeaters[direction]);
+    }
 
-  let containerWidth = container.clientWidth - (
-    parseInt(window.getComputedStyle(container).getPropertyValue("padding-left")) +
-    parseInt(window.getComputedStyle(container).getPropertyValue("padding-right"))
-  );
-  screen.width = width;
-  screen.height = height;
-  screen.style.width = `${containerWidth}px`;
-  screen.style.height = `${(height / width) * containerWidth}px`;
+    this.receiver.dispatchEvent(new KeyboardEvent('keydown', this.keyMap[direction]));
+    setTimeout(() => {
+      this.receiver.dispatchEvent(new KeyboardEvent('keyup', this.keyMap[direction]));
+    }, 50);
 
-  window.addEventListener("resize", () => {
+    this.repeaters[direction] = setInterval(() => {
+      this.receiver.dispatchEvent(new KeyboardEvent('keydown', this.keyMap[direction]));
+      setTimeout(() => {
+        this.receiver.dispatchEvent(new KeyboardEvent('keyup', this.keyMap[direction]));
+      }, 50);
+    }, 500);
+
+    elem.classList.add("pressed-arrow");
+  }
+
+  handleDePress(direction, elem) {
+    if (this.repeaters[direction] !== null) {
+      clearInterval(this.repeaters[direction]);
+    }
+
+    elem.classList.remove("pressed-arrow")
+
+    this.repeaters[direction] = null;
+  }
+
+  setupKeys() {
+    for (const key of document.getElementsByClassName("arrow")) {
+      const dir = key.dataset.dir;
+      key.addEventListener("mousedown", () => this.handlePress(dir, key))
+      key.addEventListener("touchstart", () => this.handlePress(dir, key))
+      key.addEventListener("mouseup", () => this.handleDePress(dir, key))
+      key.addEventListener("touchend", () => this.handleDePress(dir, key))
+    }
+  }
+}
+
+
+function setupBurgers() {
+  document.querySelectorAll(".navbar-burger").forEach((elem) => {
+    elem.addEventListener("click", () => {
+      const target = document.getElementById(elem.dataset.target);
+      elem.classList.toggle("is-active");
+      target.classList.toggle("is-active");
+    });
+  });
+}
+
+
+window.onload = () => {
+  setupBurgers();
+
+  if (document.getElementById("game_screen") !== null) {
+    let container = document.getElementById("game_screen")
+
+    let arrowHandler = new ArrowHandler(window);
+    arrowHandler.setupKeys();
+
+    let screen = document.getElementById("screen_view");
+    let ctx = screen.getContext("2d");
+
+    let width = parseInt(screen.dataset.width);
+    let height = parseInt(screen.dataset.height);
+
+    ctx.imageSmoothingEnabled = false;
+
     let containerWidth = container.clientWidth - (
       parseInt(window.getComputedStyle(container).getPropertyValue("padding-left")) +
       parseInt(window.getComputedStyle(container).getPropertyValue("padding-right"))
     );
+
+    screen.width = width;
+    screen.height = height;
     screen.style.width = `${containerWidth}px`;
     screen.style.height = `${(height / width) * containerWidth}px`;
-  });
 
-  let socket = new Socket("/socket", { params: { _csrf_token: csrfToken } })
-  socket.connect()
+    window.addEventListener("resize", () => {
+      let containerWidth = container.clientWidth - (
+        parseInt(window.getComputedStyle(container).getPropertyValue("padding-left")) +
+        parseInt(window.getComputedStyle(container).getPropertyValue("padding-right"))
+      );
+      screen.style.width = `${containerWidth}px`;
+      screen.style.height = `${(height / width) * containerWidth}px`;
+    });
 
-  let screen_channel = socket.channel("screen", {})
+    let socket = new Socket("/socket", { params: { _csrf_token: csrfToken } })
+    socket.connect()
 
-  screen_channel.on("update", ({ data: b64_data }) => {
-    const data = Uint8Array.from(window.atob(b64_data), c => c.charCodeAt(0));
-    const blob = new Blob([data.buffer], { type: "image/png" });
-    const image = new Image();
-    image.src = URL.createObjectURL(blob);
-    image.onload = () => {
-      ctx.drawImage(image, 0, 0);
-    };
-  });
+    let screen_channel = socket.channel("screen", {})
 
-  screen_channel.join()
-    .receive("ok", resp => { console.log("Joined successfully", resp) })
-    .receive("error", resp => { console.log("Unable to join", resp) })
-}
+    screen_channel.on("update", ({ data: b64_data }) => {
+      const data = Uint8Array.from(window.atob(b64_data), c => c.charCodeAt(0));
+      const blob = new Blob([data.buffer], { type: "image/png" });
+      const image = new Image();
+      image.src = URL.createObjectURL(blob);
+      image.onload = () => {
+        ctx.drawImage(image, 0, 0);
+      };
+    });
+
+    screen_channel.join()
+      .receive("ok", resp => { console.log("Joined successfully", resp) })
+      .receive("error", resp => { console.log("Unable to join", resp) })
+  }
+};

@@ -16,6 +16,10 @@ $input-background-color: $beige-lighter;
 $input-border-color: transparent;
 $input-shadow: none;
 
+$gap: 32px;
+$tablet: 960px + (2 * $gap);
+
+$fa-font-path: "../node_modules/@fortawesome/fontawesome-free/webfonts/";
 @import "~bulma/sass/utilities/_all.sass";
 @import "~bulma/sass/base/_all.sass";
 @import "~bulma/sass/elements/box.sass";
@@ -30,6 +34,8 @@ $input-shadow: none;
 @import "~bulma/sass/grid/columns.sass";
 @import "~bulma/sass/helpers/_all.sass";
 @import "~bulma/sass/layout/section.sass";
+@import "../node_modules/@fortawesome/fontawesome-free/scss/fontawesome";
+@import "../node_modules/@fortawesome/fontawesome-free/scss/solid";
 
 /* LiveView specific classes for your customizations */
 .phx-no-feedback.invalid-feedback,
@@ -118,10 +124,49 @@ $input-shadow: none;
   margin: -1rem 0 2rem;
 }
 canvas {
-  image-rendering: optimizeSpeed;             /* Older versions of FF          */
-  image-rendering: -moz-crisp-edges;          /* FF 6.0+                       */
+  image-rendering: optimizeSpeed; /* Older versions of FF          */
+  image-rendering: -moz-crisp-edges; /* FF 6.0+                       */
   image-rendering: -webkit-optimize-contrast; /* Safari                        */
-  image-rendering: -o-crisp-edges;            /* OS X & Windows Opera (12.02+) */
-  image-rendering: pixelated;                 /* Awesome future-browsers       */
-  -ms-interpolation-mode: nearest-neighbor;   /* IE                            */
+  image-rendering: -o-crisp-edges; /* OS X & Windows Opera (12.02+) */
+  image-rendering: pixelated; /* Awesome future-browsers       */
+  -ms-interpolation-mode: nearest-neighbor; /* IE                            */
+}
+
+#arrowkeys {
+  text-align: center;
+  width: 500px;
+  height: 500px;
+  margin: auto;
+
+  @media(min-width: $desktop) {
+    display: none;
+  }
+}
+
+.arrow {
+  cursor: pointer;
+  width: 100px;
+  height: 100px;
+  text-align: center;
+  line-height: 100px;
+  background: grey;
+  color: white;
+  font-size: 50px;
+  display: inline-block;
+  margin: 5px;
+  user-select: none;
+  transition: all 0.05s linear;
+
+  &:active {
+    text-shadow: 0 0 10px white, 0 0 10px white, 0 0 20px white;
+  }
+}
+
+.up-arrow {
+  position: relative;
+  top: -4px;
+}
+
+.pressed-arrow {
+  text-shadow: 0 0 10px white;
 }

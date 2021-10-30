@@ -5,23 +5,34 @@
                 <a class="navbar-item" href="https://github.com/lancaster-university/infolab-lights">
                     Infolab Light Things
                 </a>
+
+                <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarmenu">
+                    <span aria-hidden="true"></span>
+                    <span aria-hidden="true"></span>
+                    <span aria-hidden="true"></span>
+                </a>
             </div>
 
-            <div class="navbar-start">
-                <%= link "home", to: Routes.page_path(@socket, :index), class: "navbar-item" %>
-                <%= link "playground", to: Routes.playground_path(@socket, :index), class: "navbar-item" %>
-            </div>
+            <div id="navbarmenu" class="navbar-menu">
+                <div class="navbar-start">
+                    <%= link "home", to: Routes.page_path(@socket, :index), class: "navbar-item" %>
+                    <%= link "playground", to: Routes.playground_path(@socket, :index), class: "navbar-item" %>
+                </div>
 
-            <div class="navbar-end">
-                <div class="buttons">
-                    <button class="button is-primary" phx-click="queue" phx-value-game-name="snake" {if @game_id, do: [disabled: ""], else: []}>
-                        <strong>Play snake</strong>
-                    </button>
-                    <button class="button is-primary" phx-click="queue" phx-value-game-name="pong" {if @game_id, do: [disabled: ""], else: []}>
-                        <strong>Queue pong</strong>
-                    </button>
+                <div class="navbar-end">
+                    <div class="navbar-item">
+                        <div class="buttons">
+                            <button class="button is-primary" phx-click="queue" phx-value-game-name="snake" {if @game_id, do: [disabled: ""], else: []}>
+                                <strong>Play snake</strong>
+                            </button>
+                            <button class="button is-primary" phx-click="queue" phx-value-game-name="pong" {if @game_id, do: [disabled: ""], else: []}>
+                                <strong>Queue pong</strong>
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
+
         </nav>
     </section>
 </header>
@@ -56,6 +67,14 @@
         </div>
 
         <div class="column is-one-fifth">
+            <div id="arrowkeys">
+                <div class="arrow up-arrow" data-dir="up"><i class="fa fa-arrow-up"></i></div>
+                <br />
+                <div class="arrow" data-dir="left"><i class="fa fa-arrow-left"></i></div>
+                <div class="arrow" data-dir="down"><i class="fa fa-arrow-down"></i></div>
+                <div class="arrow" data-dir="right"><i class="fa fa-arrow-right"></i></div>
+            </div>
+
             <nav class="panel">
                 <p class="panel-heading">Queue</p>
                 <%= for game <- @coordinator_status.queue do %>

@@ -12,6 +12,11 @@ build({
   sourcemap: process.env.NODE_ENV === "development",
   minify: true,
   loader: {
-    ".ttf": "file"
+    ".ttf": "file",
+    ".otf": "file",
+    ".svg": "file",
+    ".woff": "file",
+    ".woff2": "file",
+    ".eot": "file"
   }
 }).catch((e) => console.error(e.message))
