@@ -3,8 +3,8 @@ const { sassPlugin } = require('esbuild-sass-plugin');
 
 build({
   entryPoints: ['js/app.js',
-                'js/playground.js',
-               ],
+    'js/playground.js',
+  ],
   bundle: true,
   target: "es2016",
   outdir: "../priv/static/assets",

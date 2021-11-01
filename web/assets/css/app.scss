@@ -134,9 +134,8 @@ canvas {
 
 #arrowkeys {
   text-align: center;
-  width: 500px;
-  height: 500px;
   margin: auto;
+  padding-bottom: 1.5rem;
 
   @media(min-width: $desktop) {
     display: none;
@@ -145,13 +144,13 @@ canvas {
 
 .arrow {
   cursor: pointer;
-  width: 100px;
-  height: 100px;
+  width: 20vw;
+  height: 20vw;
   text-align: center;
-  line-height: 100px;
+  line-height: 20vw;
   background: grey;
   color: white;
-  font-size: 50px;
+  font-size: 10vw;
   display: inline-block;
   margin: 5px;
   user-select: none;
