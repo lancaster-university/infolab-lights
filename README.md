@@ -17,6 +17,8 @@ submit a PR!
 
 # Current effects
 
-| Author    | Effect                                    | Description                                 |
-|-----------|-------------------------------------------|---------------------------------------------|
-| Ben Simms | [Rainbow](web/priv/js_effects/rainbow.js) | Just a simple rainbow effect to demo things |
+| Author      | Effect                                      | Description                                     |
+|-------------|---------------------------------------------|-------------------------------------------------|
+| Ben Simms   | [Rainbow](web/priv/js_effects/rainbow.js)   | Just a simple rainbow effect to demo things     |
+| John Vidler | [Conway](web/priv/js_effects/conway.js)     | The classic Conway's Game of Life sim           |
+| John Vidler | [Colorway](web/priv/js_effects/colorway.js) | Another Conway's Game of Life sim, with trails! |
