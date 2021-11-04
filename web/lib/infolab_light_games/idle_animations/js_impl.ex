@@ -105,7 +105,7 @@ defmodule IdleAnimations.JSImpl do
 
       flush() {
         const pixels = this.#buffer.flatMap((col, x) => {
-          return col.map((v, y) => ({x, y, v}));
+          return col.map(([r, g, b], y) => ({x: x | 0, y: y | 0, v: [r | 0, g | 0, b | 0]}));
         });
 
         const chunkSize = 1000;
