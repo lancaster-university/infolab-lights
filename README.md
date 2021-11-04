@@ -14,9 +14,19 @@ When you've written your effect, fork the repo and add the effect as a js file
 alongside the others in [web/priv/js_effects/](web/priv/js_effects/), then
 submit a PR!
 
+## Rules
+
+If you're submitting an effect, please make sure it follows these rules:
+
+1. Effects must not display explicit/ offensive content.
+2. Effects must not fetch external resources.
+
+For obvious reasons, PRs containing effects that violate these restrictions will
+be rejected.
 
 # Current effects
 
-| Author    | Effect                                    | Description                                 |
-|-----------|-------------------------------------------|---------------------------------------------|
-| Ben Simms | [Rainbow](web/priv/js_effects/rainbow.js) | Just a simple rainbow effect to demo things |
+| Author                                       | Effect                                                 | Description                                                                                     |
+|----------------------------------------------|--------------------------------------------------------|-------------------------------------------------------------------------------------------------|
+| [@simmsb](https://github.com/simmsb)         | [Rainbow](web/priv/js_effects/rainbow.js)              | Just a simple rainbow effect to demo things                                                     |
+| [@JohnVidler](https://github.com/JohnVidler) | [Conway's Game of Life](web/priv/js_effects/conway.js) | A simulation of Conway's Game of Life [](https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life) |
