@@ -8,9 +8,9 @@ defmodule Coordinator do
     use TypedStruct
 
     typedstruct enforce: true do
-      field :current_idle_animation, Coordinator.via_tuple() | none()
-      field :current_game, Coordinator.via_tuple() | none()
-      field :queue, Qex.t(Coordinator.via_tuple())
+      field(:current_idle_animation, Coordinator.via_tuple() | none())
+      field(:current_game, Coordinator.via_tuple() | none())
+      field(:queue, Qex.t(Coordinator.via_tuple()))
     end
   end
 
@@ -149,6 +149,14 @@ defmodule Coordinator do
     {:noreply, state}
   end
 
+  defp modes_for_modules(modules) do
+    modules
+    |> Enum.flat_map(fn mod ->
+      # TODO: protocol this
+      Enum.map(apply(mod, :possible_modes, []), &{mod, &1})
+    end)
+  end
+
   defp maybe_start_idle_animation(state) do
     if is_nil(state.current_idle_animation) do
       if GenServer.whereis(via_tuple("idle_anim")) do
@@ -156,20 +164,14 @@ defmodule Coordinator do
         GenServer.stop(via_tuple("idle_anim"))
       end
 
-      animation =
-        Enum.random([
-          IdleAnimations.Ant,
-          IdleAnimations.GOL,
-          IdleAnimations.Ant,
-          IdleAnimations.Ant,
-          IdleAnimations.JSImpl,
-          IdleAnimations.JSImpl,
-        ])
+      {module, mode} =
+        modes_for_modules([IdleAnimations.Ant, IdleAnimations.GOL, IdleAnimations.JSImpl])
+        |> Enum.random()
 
       {:ok, _pid} =
         DynamicSupervisor.start_child(
           GameManager,
-          {animation, game_id: "idle_anim", name: via_tuple("idle_anim")}
+          {module, game_id: "idle_anim", name: via_tuple("idle_anim"), mode: mode}
         )
 
       %State{state | current_idle_animation: via_tuple("idle_anim")}

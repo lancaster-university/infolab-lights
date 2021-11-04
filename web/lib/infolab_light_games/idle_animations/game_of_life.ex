@@ -20,7 +20,8 @@ defmodule IdleAnimations.GOL do
   end
 
   def start_link(options) do
-    {gol_state, max_steps} = get_initial_state()
+    mode = Keyword.fetch!(options, :mode)
+    {gol_state, max_steps} = get_initial_state(mode)
 
     state = %State{
       id: Keyword.get(options, :game_id),
@@ -69,12 +70,12 @@ defmodule IdleAnimations.GOL do
     Coordinator.notify_idle_animation_terminated(state.id)
   end
 
-  defp get_initial_state do
+  def possible_modes, do: [:random, :random, :glider]
+
+  defp get_initial_state(mode) do
     {screen_x, screen_y} = Screen.dims()
 
-    pattern = Enum.random([:random, :random, :glider])
-
-    case pattern do
+    case mode do
       :random ->
         gol_state =
           Matrix.of_dims_f(screen_x, screen_y, fn _, _ -> Enum.random([true, false, false]) end)

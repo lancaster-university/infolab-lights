@@ -29,9 +29,11 @@ defmodule IdleAnimations.JSImpl do
   def start_link(options) do
     {screen_x, screen_y} = Screen.dims()
 
+    mode = Keyword.fetch!(options, :mode)
+
     state = %State{
       id: Keyword.fetch!(options, :game_id),
-      file: get_random_effect(),
+      file: mode,
       matrix: NativeMatrix.of_dims(screen_x, screen_y, Pixel.empty())
     }
 
@@ -40,11 +42,10 @@ defmodule IdleAnimations.JSImpl do
     GenServer.start_link(__MODULE__, state, options)
   end
 
-  def get_random_effect() do
+  def possible_modes do
     Application.app_dir(:infolab_light_games, "priv")
     |> Path.join("js_effects/*.js")
     |> Path.wildcard()
-    |> Enum.random()
   end
 
   @impl true

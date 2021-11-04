@@ -40,7 +40,10 @@ defmodule IdleAnimations.Ant do
 
   def start_link(options) do
     {screen_x, screen_y} = Screen.dims()
-    ruleset = get_ruleset()
+
+    mode = Keyword.fetch!(options, :mode)
+    ruleset = get_ruleset(mode)
+
     state_matrix = Matrix.of_dims(screen_x, screen_y, ruleset.default_state)
 
     state = %State{
@@ -94,10 +97,10 @@ defmodule IdleAnimations.Ant do
     %State{state | fading_out: true, fader: %Fader{state.fader | direction: :dec}}
   end
 
-  defp get_ruleset do
-    pattern = Enum.random([:random, :original, :random, :random, :random, :random])
+  def possible_modes, do: [:original, :random, :random, :random]
 
-    case pattern do
+  defp get_ruleset(mode) do
+    case mode do
       :original ->
         %RuleSet{
           default_state: Pixel.empty(),
