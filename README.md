@@ -26,7 +26,7 @@ be rejected.
 
 # Current effects
 
-| Author                                       | Effect                                                 | Description                                                                                     |
-|----------------------------------------------|--------------------------------------------------------|-------------------------------------------------------------------------------------------------|
-| [@simmsb](https://github.com/simmsb)         | [Rainbow](web/priv/js_effects/rainbow.js)              | Just a simple rainbow effect to demo things                                                     |
-| [@JohnVidler](https://github.com/JohnVidler) | [Conway's Game of Life](web/priv/js_effects/conway.js) | A simulation of Conway's Game of Life [](https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life) |
+| Author                                       | Effect                                                 | Description                                                                                 |
+|----------------------------------------------|--------------------------------------------------------|---------------------------------------------------------------------------------------------|
+| [@simmsb](https://github.com/simmsb)         | [Rainbow](web/priv/js_effects/rainbow.js)              | Just a simple rainbow effect to demo things                                                 |
+| [@JohnVidler](https://github.com/JohnVidler) | [Conway's Game of Life](web/priv/js_effects/conway.js) | A simulation of Conway's Game of Life https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life |
