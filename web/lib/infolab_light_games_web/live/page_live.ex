@@ -14,7 +14,7 @@ defmodule InfolabLightGamesWeb.PageLive do
 
     socket =
       socket
-      |> assign(game_id: nil, screen: Screen.latest_native(), width: width, height: height)
+      |> assign(game_id: nil, width: width, height: height)
       |> assign(coordinator_status: coordinator_status)
       |> assign(remote_ip: remote_ip)
       |> assign(banned: Bans.is_banned?(remote_ip))
@@ -22,7 +22,7 @@ defmodule InfolabLightGamesWeb.PageLive do
     Logger.info("mounted #{inspect(self())}/#{inspect(remote_ip)} on main page")
     {:ok, _} = Presence.track_user(self(), remote_ip)
 
-    {:ok, socket, temporary_assigns: [screen: nil]}
+    {:ok, socket}
   end
 
   @impl true

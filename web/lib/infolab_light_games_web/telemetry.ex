@@ -11,12 +11,19 @@ defmodule InfolabLightGamesWeb.Telemetry do
     children = [
       # Telemetry poller will execute the given period measurements
       # every 10_000ms. Learn more here: https://hexdocs.pm/telemetry_metrics
-      {:telemetry_poller, measurements: periodic_measurements(), period: 10_000}
+      {:telemetry_poller, measurements: periodic_measurements(), period: 10_000},
       # Add reporters as children of your supervision tree.
       # {Telemetry.Metrics.ConsoleReporter, metrics: metrics()}
+      {InfolabLightGamesWeb.MetricStorage, metrics()}
     ]
 
     Supervisor.init(children, strategy: :one_for_one)
+  end
+
+  defmodule InfolabLightGamesWeb.Telemetry.Fns do
+    def put_lv_meta(metadata) do
+      Map.put(metadata, :view, "#{inspect(metadata.socket.view)}")
+    end
   end
 
   def metrics do
@@ -27,6 +34,23 @@ defmodule InfolabLightGamesWeb.Telemetry do
       ),
       summary("phoenix.router_dispatch.stop.duration",
         tags: [:route],
+        unit: {:native, :millisecond}
+      ),
+
+      # Live View Metrics
+      summary("phoenix.live_view.mount.stop.duration",
+        tags: [:view],
+        tag_values: &InfolabLightGamesWeb.Telemetry.Fns.put_lv_meta/1,
+        unit: {:native, :millisecond}
+      ),
+      summary("phoenix.live_view.handle_params.stop.duration",
+        tags: [:view],
+        tag_values: &InfolabLightGamesWeb.Telemetry.Fns.put_lv_meta/1,
+        unit: {:native, :millisecond}
+      ),
+      summary("phoenix.live_view.handle_event.stop.duration",
+        tags: [:view, :event],
+        tag_values: &InfolabLightGamesWeb.Telemetry.Fns.put_lv_meta/1,
         unit: {:native, :millisecond}
       ),
 

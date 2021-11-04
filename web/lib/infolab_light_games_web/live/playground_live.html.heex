@@ -5,23 +5,34 @@
                 <a class="navbar-item" href="https://github.com/lancaster-university/infolab-lights">
                     Infolab Light Things
                 </a>
+
+                <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarmenu">
+                    <span aria-hidden="true"></span>
+                    <span aria-hidden="true"></span>
+                    <span aria-hidden="true"></span>
+                </a>
             </div>
 
-            <div class="navbar-start">
-                <%= link "home", to: Routes.page_path(@socket, :index), class: "navbar-item" %>
-                <%= link "playground", to: Routes.playground_path(@socket, :index), class: "navbar-item" %>
-            </div>
+            <div id="navbarmenu" class="navbar-menu">
+                <div class="navbar-start">
+                    <%= link "home", to: Routes.page_path(@socket, :index), class: "navbar-item" %>
+                    <%= link "playground", to: Routes.playground_path(@socket, :index), class: "navbar-item" %>
+                </div>
 
-            <div class="navbar-end">
-                <div class="buttons">
-                    <button id="reload-effect-button" class="button is-primary">
-                        <strong>Reload effect</strong>
-                    </button>
-                    <button id="reset-code-button" class="button is-primary">
-                        <strong>Reset code</strong>
-                    </button>
+                <div class="navbar-end">
+                    <div class="navbar-item">
+                        <div class="buttons">
+                            <button id="reload-effect-button" class="button is-primary">
+                                <strong>Reload effect</strong>
+                            </button>
+                            <button id="reset-code-button" class="button is-primary">
+                                <strong>Reset code</strong>
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
+
         </nav>
     </section>
 </header>

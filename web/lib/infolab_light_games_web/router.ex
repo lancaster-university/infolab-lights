@@ -37,7 +37,9 @@ defmodule InfolabLightGamesWeb.Router do
     pipe_through [:browser, :admins_only]
 
     live "/admin", InfolabLightGamesWeb.AdminLive, :index
-    live_dashboard "/dashboard", metrics: InfolabLightGamesWeb.Telemetry
+    live_dashboard "/dashboard",
+      metrics: InfolabLightGamesWeb.Telemetry,
+      metrics_history: {InfolabLightGamesWeb.MetricStorage, :metrics_history, []}
   end
 
   defp auth(conn, _opts) do

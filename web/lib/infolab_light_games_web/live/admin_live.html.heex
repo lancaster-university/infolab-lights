@@ -5,6 +5,19 @@
                 <a class="navbar-item" href="https://github.com/lancaster-university/infolab-lights">
                     Infolab Light Things
                 </a>
+
+                <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarmenu">
+                    <span aria-hidden="true"></span>
+                    <span aria-hidden="true"></span>
+                    <span aria-hidden="true"></span>
+                </a>
+            </div>
+
+            <div id="navbarmenu" class="navbar-menu">
+                <div class="navbar-start">
+                    <%= link "home", to: Routes.page_path(@socket, :index), class: "navbar-item" %>
+                    <%= link "playground", to: Routes.playground_path(@socket, :index), class: "navbar-item" %>
+                </div>
             </div>
         </nav>
     </section>
