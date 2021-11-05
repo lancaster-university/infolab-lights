@@ -2,7 +2,7 @@ defmodule MatrixPow do
   use Agent
 
   def start_link(_opts) do
-    Agent.start_link(fn -> 1.0 end, name: __MODULE__)
+    Agent.start_link(fn -> 1.8 end, name: __MODULE__)
   end
 
   def get, do: Agent.get(__MODULE__, & &1)
