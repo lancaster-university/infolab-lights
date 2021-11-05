@@ -156,6 +156,7 @@ window.onload = () => {
         currentEffect.update();
       } catch (error) {
         window.alert(`Effect update failed: ${error}`);
+        console.error(error);
         currentEffect = null;
       }
     }
