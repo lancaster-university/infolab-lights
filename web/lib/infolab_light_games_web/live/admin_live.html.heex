@@ -107,7 +107,7 @@
         <div class="column is-half">
             <nav class="panel">
                 <p class="panel-heading">Static image</p>
-                <form id="static-upload-form" phx-submit="set-static-image" phx-change="validate">
+                <form id="static-upload-form" phx-submit="set-static-image" phx-change="validate-static-image">
                     <section phx-drop-target={@uploads.static_image.ref}>
                         <%= for entry <- @uploads.static_image.entries do %>
                             <article class="upload-entry">
@@ -128,6 +128,19 @@
                     <%= live_file_input @uploads.static_image %>
                     <button type="submit">Upload</button>
                 </form>
+            </nav>
+        </div>
+    </div>
+    <div class="columns">
+        <div class="column is-half">
+            <nav class="panel">
+                <p class="panel-heading">Matrix power scale</p>
+                <div class="box">
+                    <form id="power-scale-form" phx-change="set-mat-pow">
+                        <input type="range" min="0.1" max="5" step="0.1" value={@mat_pow} class="slider" id="mat-pow-value" name="mat-pow-value">
+                        <output for="mat-pow-value"><%= @mat_pow %></output>
+                    </form>
+                </div>
             </nav>
         </div>
     </div>

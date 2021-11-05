@@ -19,7 +19,8 @@ defmodule InfolabLightGames.Application do
       GameSupervisor,
       Screen,
       Coordinator,
-      Bans
+      Bans,
+      MatrixPow
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

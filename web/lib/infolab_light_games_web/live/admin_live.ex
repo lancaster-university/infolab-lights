@@ -16,6 +16,7 @@ defmodule InfolabLightGamesWeb.AdminLive do
       |> assign(coordinator_status: coordinator_status)
       |> assign(presences: format_presences())
       |> assign(uploaded_files: [])
+      |> assign(mat_pow: MatrixPow.get())
       |> allow_upload(:static_image, accept: ~w(.png .jpg .jpeg .gif), max_entries: 1)
 
     {:ok, socket}
@@ -41,7 +42,7 @@ defmodule InfolabLightGamesWeb.AdminLive do
   end
 
   @impl true
-  def handle_event("validate", _, socket) do
+  def handle_event("validate-static-image", _, socket) do
     {:noreply, socket}
   end
 
@@ -95,6 +96,16 @@ defmodule InfolabLightGamesWeb.AdminLive do
     for target <- to_ban do
       Bans.add_ban(target)
     end
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("set-mat-pow", %{"mat-pow-value" => val}, socket) do
+    {val, ""} = Float.parse(val)
+    MatrixPow.set(val)
+
+    socket = assign(socket, mat_pow: val)
 
     {:noreply, socket}
   end

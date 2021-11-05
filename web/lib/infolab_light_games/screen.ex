@@ -34,6 +34,7 @@ defmodule Screen do
 
   @impl true
   def handle_cast({:update_frame, frame}, _) do
+    frame = NativeMatrix.pow(frame, MatrixPow.get())
     img = NativeMatrix.to_png(frame)
 
     # this is where we push out screen updates to the rest of the application

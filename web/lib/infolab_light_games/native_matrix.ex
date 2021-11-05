@@ -17,6 +17,7 @@ defmodule NativeMatrix do
     def mul(_mat, _by), do: :erlang.nif_error(:nif_not_loaded)
     def load_from_image(_binary, _width, _height), do: :erlang.nif_error(:nif_not_loaded)
     def to_png(_binary), do: :erlang.nif_error(:nif_not_loaded)
+    def pow(_mat, _p), do: :erlang.nif_error(:nif_not_loaded)
   end
 
   @opaque t() :: reference()
@@ -73,4 +74,6 @@ defmodule NativeMatrix do
   def load_from_image(binary, width, height), do: NifBridge.load_from_image(binary, width, height)
 
   def to_png(binary), do: NifBridge.to_png(binary)
+
+  def pow(mat, p), do: NifBridge.pow(mat, p)
 end

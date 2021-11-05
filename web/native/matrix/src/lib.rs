@@ -254,6 +254,28 @@ fn to_png(mat: ResourceArc<MatrixResource>) -> Result<OwnedBinary, Error> {
     Ok(binary)
 }
 
+#[rustler::nif]
+fn pow(mat: ResourceArc<MatrixResource>, p: f64) -> ResourceArc<MatrixResource> {
+    let mut new_mat: MatrixResource = (&*mat).clone();
+
+    for y in 0..mat.height {
+        for x in 0..mat.width {
+            let (a, b, c) = new_mat.get(x, y);
+            new_mat.set(
+                x,
+                y,
+                (
+                    ((a as f64 / 255.0).powf(p) * 255.0) as u8,
+                    ((b as f64 / 255.0).powf(p) * 255.0) as u8,
+                    ((c as f64 / 255.0).powf(p) * 255.0) as u8,
+                ),
+            );
+        }
+    }
+
+    ResourceArc::new(new_mat)
+}
+
 rustler::init!(
     "Elixir.NativeMatrix.NifBridge",
     [
@@ -266,7 +288,8 @@ rustler::init!(
         as_pairs,
         mul,
         load_from_image,
-        to_png
+        to_png,
+        pow
     ],
     load = on_load
 );
