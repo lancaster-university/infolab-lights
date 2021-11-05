@@ -86,26 +86,19 @@ class Buffer {
       return;
     }
 
-    let [r, g, b, a] = v;
-    r *= a;
-    g *= a;
-    b *= a;
-
-    this.buffer[x][y] = [r, g, b, a];
+    this.buffer[x][y] = mergeColours(this.buffer[x][y], v);
   }
 
-  /**
-   * @param {Buffer} other
-   */
-  combine(other) {
-    for (let x = 0; x < this.buffer.length; x++) {
-      for (let y = 0; y < this.buffer[0].length; y++) {
-        if (other.buffer[x][y][3] > this.buffer[x][y][3]) {
-          this.buffer[x][y] = other.buffer[x][y];
-        }
-      }
-    }
-  }
+  // /**
+  //  * @param {Buffer} other
+  //  */
+  // combine(other) {
+  //   for (let x = 0; x < this.buffer.length; x++) {
+  //     for (let y = 0; y < this.buffer[0].length; y++) {
+  //       this.buffer[x][y] = mergeColours(this.buffer[x][y], other.buffer[x][y]);
+  //     }
+  //   }
+  // }
 }
 
 /**
@@ -113,6 +106,14 @@ class Buffer {
  * @param {[number, number, number, number]} y
  */
 function mergeColours(x, y) {
+  if (x[3] < 0.001) {
+    return y;
+  }
+
+  if (y[3] < 0.001) {
+    return x;
+  }
+
   const z = (1 - x[3]) * y[3]
   const a = z + x[3];
 
@@ -248,9 +249,6 @@ class Tracer {
   drawOnto(buffer) {
     let [r, g, b] = this.colour;
     let a = this.fadeTimer / 50;
-    r *= a;
-    g *= a;
-    b *= a;
 
     const colour = [r, g, b, a]
     this.previousPositions.drawOnto(buffer, colour, 0.85);
@@ -480,11 +478,11 @@ class PreviousPositions {
     const ypxl1 = ipart(yend);
 
     if (steep) {
-      buffer.paint(ypxl1, xpxl1, [r, g, b, a * rfpart(yend) * xgap * 2]);
-      buffer.paint(ypxl1 + 1, xpxl1, [r, g, b, a * fpart(yend) * xgap * 2]);
+      buffer.paint(ypxl1, xpxl1, [r, g, b, Math.sqrt(a * rfpart(yend) * xgap)]);
+      buffer.paint(ypxl1 + 1, xpxl1, [r, g, b, Math.sqrt(a * fpart(yend) * xgap)]);
     } else {
-      buffer.paint(xpxl1, ypxl1, [r, g, b, a * rfpart(yend) * xgap * 2]);
-      buffer.paint(xpxl1, ypxl1 + 1, [r, g, b, a * fpart(yend) * xgap * 2]);
+      buffer.paint(xpxl1, ypxl1, [r, g, b, Math.sqrt(a * rfpart(yend) * xgap)]);
+      buffer.paint(xpxl1, ypxl1 + 1, [r, g, b, Math.sqrt(a * fpart(yend) * xgap)]);
     }
 
     let intery = yend + gradient;
@@ -496,23 +494,23 @@ class PreviousPositions {
     const ypxl2 = ipart(yend);
 
     if (steep) {
-      buffer.paint(ypxl2, xpxl2, [r, g, b, a * rfpart(yend) * xgap * 2]);
-      buffer.paint(ypxl2 + 1, xpxl2, [r, g, b, a * fpart(yend) * xgap * 2]);
+      buffer.paint(ypxl2, xpxl2, [r, g, b, Math.sqrt(a * rfpart(yend) * xgap)]);
+      buffer.paint(ypxl2 + 1, xpxl2, [r, g, b, Math.sqrt(a * fpart(yend) * xgap)]);
     } else {
-      buffer.paint(xpxl2, ypxl2, [r, g, b, a * rfpart(yend) * xgap * 2]);
-      buffer.paint(xpxl2, ypxl2 + 1, [r, g, b, a * fpart(yend) * xgap * 2]);
+      buffer.paint(xpxl2, ypxl2, [r, g, b, Math.sqrt(a * rfpart(yend) * xgap)]);
+      buffer.paint(xpxl2, ypxl2 + 1, [r, g, b, Math.sqrt(a * fpart(yend) * xgap)]);
     }
 
     if (steep) {
       for (let x = xpxl1 + 1; x < xpxl2; x++) {
-        buffer.paint(intery, x, [r, g, b, a * rfpart(intery)]);
-        buffer.paint(intery + 1, x, [r, g, b, a * fpart(intery)]);
+        buffer.paint(intery, x, [r, g, b, Math.sqrt(a * rfpart(intery))]);
+        buffer.paint(intery + 1, x, [r, g, b, Math.sqrt(a * fpart(intery))]);
         intery += gradient;
       }
     } else {
       for (let x = xpxl1 + 1; x < xpxl2; x++) {
-        buffer.paint(x, intery, [r, g, b, a * rfpart(intery)]);
-        buffer.paint(x, intery + 1, [r, g, b, a * fpart(intery)]);
+        buffer.paint(x, intery, [r, g, b, Math.sqrt(a * rfpart(intery))]);
+        buffer.paint(x, intery + 1, [r, g, Math.sqrt(b, a * fpart(intery))]);
         intery += gradient;
       }
     }
@@ -565,23 +563,19 @@ return class FireworksEffect {
     const buffer = new Buffer(Array.from(Array(this.display.width), () => Array.from(Array(this.display.height), () => [0, 0, 0, 0])));
 
     for (const firework of this.fireworks) {
-      const tmp = new Buffer(Array.from(Array(this.display.width), () => Array.from(Array(this.display.height), () => [0, 0, 0, 0])));
-      firework.drawOnto(tmp);
+      firework.drawOnto(buffer);
       firework.step();
-      buffer.combine(tmp);
     }
 
     for (const tracer of this.tracers) {
-      const tmp = new Buffer(Array.from(Array(this.display.width), () => Array.from(Array(this.display.height), () => [0, 0, 0, 0])));
       tracer.drawOnto(buffer);
       tracer.step();
-      buffer.combine(tmp);
     }
 
     for (let x = 0; x < this.display.width; x++) {
       for (let y = 0; y < this.display.height; y++) {
-        const [r, g, b, _a] = buffer.buffer[x][y];
-        this.display.setPixel(x, (this.display.height - 1) - y, [r, g, b]);
+        const [r, g, b, a] = buffer.buffer[x][y];
+        this.display.setPixel(x, (this.display.height - 1) - y, [r * a, g * a, b * a]);
       }
     }
 
