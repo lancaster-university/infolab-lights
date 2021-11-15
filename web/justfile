@@ -1,0 +1,24 @@
+app_name := `grep 'app:' mix.exs | sed -e 's/\[//g' -e 's/ //g' -e 's/app://' -e 's/[:,]//g'`
+app_vsn := `grep 'version:' mix.exs | cut -d '"' -f2`
+build := `git rev-parse --short HEAD`
+
+# Build the Docker image
+build:
+  docker build --build-arg APP_VSN={{app_vsn}} \
+    -t {{app_name}}:{{app_vsn}}-{{build}} \
+    -t {{app_name}}:latest .
+
+# Run the app in Docker
+run: 
+  docker run -e SECRET_KEY_BASE={{env_var("SECRET_KEY_BASE")}} -e ADMIN_PASS={{env_var("ADMIN_PASS")}} \
+    --expose 4000 -p 4000:4000 \
+    --rm -it {{app_name}}:latest
+
+# Push to docker hub
+release: 
+  docker tag {{app_name}}:latest ghcr.io/lancaster-university/infolab_lights_web:latest
+  docker tag {{app_name}}:{{app_vsn}}-{{build}} ghcr.io/lancaster-university/infolab_lights_web:{{app_vsn}}-{{build}}
+  docker tag {{app_name}}:latest ghcr.io/simmsb/infolab_lights_web:latest
+  docker tag {{app_name}}:{{app_vsn}}-{{build}} ghcr.io/simmsb/infolab_lights_web:{{app_vsn}}-{{build}}
+  docker push ghcr.io/lancaster-university/infolab_lights_web 
+  docker push ghcr.io/simmsb/infolab_lights_web
