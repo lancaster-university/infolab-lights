@@ -11,4 +11,5 @@ config :infolab_light_games, InfolabLightGamesWeb.Endpoint,
   secret_key_base: System.get_env("SECRET_KEY_BASE") || default_secret_key_base
 
 config :infolab_light_games, InfolabLightGamesWeb.Router,
-  admin_pass: System.get_env("ADMIN_PASS") || raise("environment variable ADMIN_PASS is missing.")
+  admin_pass: System.get_env("ADMIN_PASS") || raise("environment variable ADMIN_PASS is missing."),
+  api_token: System.get_env("API_TOKEN") || raise("environment variable API_TOKEN is missing.")

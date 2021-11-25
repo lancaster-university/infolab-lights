@@ -1,5 +1,6 @@
 defmodule IdleAnimations.JSImpl do
   use GenServer, restart: :temporary
+  require Logger
 
   @moduledoc "Idle animations that are written in js"
 
@@ -37,7 +38,7 @@ defmodule IdleAnimations.JSImpl do
       matrix: NativeMatrix.of_dims(screen_x, screen_y, Pixel.empty())
     }
 
-    IO.inspect("starting up js effect #{state.file}")
+    Logger.info("starting up js effect #{state.file}")
 
     GenServer.start_link(__MODULE__, state, options)
   end
@@ -173,11 +174,15 @@ defmodule IdleAnimations.JSImpl do
 
   @impl true
   def handle_info({port, :closed}, %State{port: port} = state) do
+    Logger.info("Js effect exited")
+
     {:noreply, start_fading_out(state)}
   end
 
   @impl true
   def handle_cast(:terminate, %State{} = state) do
+    Logger.info("Forcing js effect termination")
+
     case state.port do
       nil -> nil
       port -> send(port, {self(), :close})

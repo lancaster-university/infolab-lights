@@ -18,7 +18,11 @@ defmodule InfolabLightGamesWeb.Router do
   end
 
   pipeline :admins_only do
-    plug :auth
+    plug :auth_web
+  end
+
+  pipeline :requires_api_auth do
+    plug :auth_api
   end
 
   scope "/", InfolabLightGamesWeb do
@@ -37,25 +41,48 @@ defmodule InfolabLightGamesWeb.Router do
     pipe_through [:browser, :admins_only]
 
     live "/admin", InfolabLightGamesWeb.AdminLive, :index
+
     live_dashboard "/dashboard",
       metrics: InfolabLightGamesWeb.Telemetry,
       metrics_history: {InfolabLightGamesWeb.MetricStorage, :metrics_history, []}
   end
 
-  defp auth(conn, _opts) do
+  scope "/api" do
+    pipe_through [:api, :requires_api_auth]
+
+    post "/set_js_animation", Api.AnimationController, :post
+  end
+
+  defp auth_api(conn, _opts) do
+    api_token = Application.get_env(:infolab_light_games, InfolabLightGamesWeb.Router)[:api_token]
+
+    with [provided_token_encoded] <- get_req_header(conn, "authorization"),
+         {:ok, provided_token} <- Base.decode64(provided_token_encoded),
+         true <- Plug.Crypto.secure_compare(provided_token, api_token) do
+      conn
+    else
+      _ ->
+        conn
+        |> put_status(401)
+        |> json(%{status: "fail", data: %{message: "Not authenticated"}})
+    end
+  end
+
+  defp auth_web(conn, _opts) do
     admin_pass =
       Application.get_env(:infolab_light_games, InfolabLightGamesWeb.Router)[:admin_pass]
 
-    with {"admin", pass} <- Plug.BasicAuth.parse_basic_auth(conn),
-         true <- Plug.Crypto.secure_compare(pass, admin_pass) do
+    with {"admin", provided_pass} <- Plug.BasicAuth.parse_basic_auth(conn),
+         true <- Plug.Crypto.secure_compare(provided_pass, admin_pass) do
       conn
     else
       _ -> conn |> Plug.BasicAuth.request_basic_auth() |> halt()
     end
   end
 
-  defp put_remote_ip(conn, _), do:
-    conn
+  defp put_remote_ip(conn, _),
+    do:
+      conn
       |> put_session(:remote_ip, conn.remote_ip)
       |> put_session(:live_socket_id, "user_socket:#{inspect(conn.remote_ip)}")
 end

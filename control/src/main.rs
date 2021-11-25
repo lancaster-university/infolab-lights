@@ -27,6 +27,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let mut scene = outgoing::parse_scene(&scene);
 
+
     loop {
         let _ = inner(&opt);
 

@@ -1,4 +1,6 @@
 defmodule InfolabLightGamesWeb.ScreenStream do
+  require Logger
+
   @behaviour Phoenix.Socket.Transport
 
   @moduledoc """
@@ -14,7 +16,7 @@ defmodule InfolabLightGamesWeb.ScreenStream do
   def connect(state) do
     # Callback to retrieve relevant data from the connection.
     # The map contains options, params, transport and endpoint keys.
-    IO.inspect("starting up")
+    Logger.info("starting up screen stream")
     {:ok, state}
   end
 

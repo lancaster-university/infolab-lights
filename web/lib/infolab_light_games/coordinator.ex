@@ -37,8 +37,10 @@ defmodule Coordinator do
   end
 
   @impl true
-  def handle_cast(:terminate_idle_animation, state) do
-    GenServer.stop(via_tuple("idle_anim"))
+  def handle_cast(:terminate_idle_animation, %State{} = state) do
+    if !is_nil(state.current_idle_animation) and GenServer.whereis(state.current_idle_animation) do
+      GenServer.stop(state.current_idle_animation)
+    end
 
     {:noreply, state}
   end
@@ -58,8 +60,15 @@ defmodule Coordinator do
   end
 
   @impl true
-  def handle_cast({:terminated_idle_animation, _id}, state) do
-    state = %State{state | current_idle_animation: nil}
+  def handle_cast({:terminated_idle_animation, id}, %State{} = state) do
+    Logger.info("Idle animation quit #{id}")
+
+    state =
+      if state.current_idle_animation == via_tuple(id) do
+        %State{state | current_idle_animation: nil}
+      else
+        state
+      end
 
     {:noreply, state, {:continue, :tick}}
   end
@@ -75,10 +84,7 @@ defmodule Coordinator do
 
   @impl true
   def handle_call({:queue_game, game, initial_player, meta}, _from, state) do
-    id =
-      ?a..?z
-      |> Enum.take_random(6)
-      |> List.to_string()
+    id = random_id()
 
     opts = meta ++ [game_id: id, name: via_tuple(id)]
 
@@ -116,6 +122,17 @@ defmodule Coordinator do
   @impl true
   def handle_call(:get_status, _from, state) do
     {:reply, get_status(state), state}
+  end
+
+  @impl true
+  def handle_call({:push_idle_animation, module, mode}, _from, state) do
+    if is_nil(state.current_game) do
+      {state, pid} = start_idle_animation(state, module, mode)
+
+      {:reply, {:ok, pid}, state}
+    else
+      {:reply, {:error, :active_game}, state}
+    end
   end
 
   @impl true
@@ -157,24 +174,35 @@ defmodule Coordinator do
     end)
   end
 
+  defp start_idle_animation(%State{} = state, module, mode) do
+    Logger.info("Starting idle animation #{module}:#{mode}")
+    # stop the idle animation if it exists
+    if !is_nil(state.current_idle_animation) and GenServer.whereis(state.current_idle_animation) do
+      # we need the idle animation to stop immediately so it doesn't try to draw over us
+      GenServer.stop(state.current_idle_animation)
+    end
+
+    id = random_id()
+
+    {:ok, pid} =
+      DynamicSupervisor.start_child(
+        GameManager,
+        {module, game_id: id, name: via_tuple(id), mode: mode}
+      )
+
+    {%State{state | current_idle_animation: via_tuple(id)}, pid}
+  end
+
   defp maybe_start_idle_animation(state) do
     if is_nil(state.current_idle_animation) do
-      if GenServer.whereis(via_tuple("idle_anim")) do
-        # saw this once
-        GenServer.stop(via_tuple("idle_anim"))
-      end
-
       {module, mode} =
         modes_for_modules([IdleAnimations.Ant, IdleAnimations.GOL, IdleAnimations.JSImpl])
         |> Enum.random()
 
-      {:ok, _pid} =
-        DynamicSupervisor.start_child(
-          GameManager,
-          {module, game_id: "idle_anim", name: via_tuple("idle_anim"), mode: mode}
-        )
-
-      %State{state | current_idle_animation: via_tuple("idle_anim")}
+      Logger.info("Selecting a random idle animation #{module}:#{mode}")
+      {state, _pid} = start_idle_animation(state, module, mode)
+      Logger.info("Hm: #{inspect(state)}")
+      state
     else
       state
     end
@@ -220,6 +248,12 @@ defmodule Coordinator do
     else
       %State{state | queue: Qex.new(Enum.filter(state.queue, fn x -> x != via_tuple(id) end))}
     end
+  end
+
+  defp random_id() do
+    ?a..?z
+    |> Enum.take_random(6)
+    |> List.to_string()
   end
 
   defp via_tuple(id) do
@@ -269,5 +303,9 @@ defmodule Coordinator do
 
   def status do
     GenServer.call(__MODULE__, :get_status)
+  end
+
+  def push_idle_animation(module, mode) do
+    GenServer.call(__MODULE__, {:push_idle_animation, module, mode})
   end
 end

@@ -39,4 +39,5 @@ jobs:
       run: mix test
       env:
         ADMIN_PASS: admin
+        API_TOKEN: api_admin
         SECRET_KEY_BASE: DDyMkkTIcIMVgub9/HtLUyJ/tkJM+4Ls0K/yAO22GFmLTHnStvlDwhv/b+hhOkas

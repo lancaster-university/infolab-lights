@@ -10,7 +10,7 @@ build:
 
 # Run the app in Docker
 run: 
-  docker run -e SECRET_KEY_BASE={{env_var("SECRET_KEY_BASE")}} -e ADMIN_PASS={{env_var("ADMIN_PASS")}} \
+  docker run -e SECRET_KEY_BASE={{env_var("SECRET_KEY_BASE")}} -e ADMIN_PASS={{env_var("ADMIN_PASS")}} -e API_TOKEN={{env_var("API_TOKEN")}} \
     --expose 4000 -p 4000:4000 \
     --rm -it {{app_name}}:latest
 
