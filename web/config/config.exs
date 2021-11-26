@@ -28,8 +28,7 @@ config :phoenix, :json_library, Jason
 config :infolab_light_games, :phoenix_swagger,
   swagger_files: %{
     "priv/static/swagger.json" => [
-      router: InfolabLightGamesWeb.Router,
-      endpoint: InfolabLightGamesWeb.Endpoint
+      router: InfolabLightGamesWeb.Router
     ]
   }
 

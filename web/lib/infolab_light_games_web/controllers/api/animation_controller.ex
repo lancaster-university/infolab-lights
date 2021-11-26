@@ -28,14 +28,21 @@ defmodule Api.AnimationController do
 
   swagger_path :post do
     description "Set the current idle animation"
-    response code(:created), "Set idle animation"
+    response code(:created), "Idle animation was set successfully"
 
     response code(:service_unavailable),
              "Display cannot display an idle animation at the current time"
 
-    parameter :code, :formData, :file, "The js animation to display",
-      required: true,
-      example: @example_animation
+    consumes "multipart/form-data"
+
+    parameters do
+      code(:formData, :file, "The js animation to display",
+        required: true,
+        example: @example_animation
+      )
+    end
+
+    security [%{apiKeyAuth: []}]
   end
 
   def post(conn, %{"code" => %Plug.Upload{path: path} = upload}) do

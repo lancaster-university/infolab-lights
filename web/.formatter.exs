@@ -20,7 +20,8 @@
     response: 4,
     security: 1,
     summary: 1,
-    tag: 1
+    tag: 1,
+    consumes: 1
   ],
   import_deps: [:phoenix, :typed_struct],
   inputs: ["*.{ex,exs}", "{config,lib,test}/**/*.{ex,exs}"]
