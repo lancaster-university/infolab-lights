@@ -61,7 +61,7 @@ defmodule InfolabLightGamesWeb.Router do
 
   def swagger_info do
     %{
-      schemes: ["http", "https", "ws", "wss"],
+      schemes: ["https"],
       info: %{
         version: "1.0",
         title: "infolab lights"
