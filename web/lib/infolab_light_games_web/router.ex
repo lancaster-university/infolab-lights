@@ -53,6 +53,30 @@ defmodule InfolabLightGamesWeb.Router do
     post "/set_js_animation", Api.AnimationController, :post
   end
 
+  scope "/api/swagger" do
+    forward "/", PhoenixSwagger.Plug.SwaggerUI,
+      otp_app: :infolab_light_games,
+      swagger_file: "swagger.json"
+  end
+
+  def swagger_info do
+    %{
+      schemes: ["http", "https", "ws", "wss"],
+      info: %{
+        version: "1.0",
+        title: "infolab lights"
+      },
+      securityDefinitions: %{
+        apiKeyAuth: %{
+          type: "apiKey",
+          name: "Authorization",
+          description: "API Token must be provided via `Authorization: ` header",
+          in: "header"
+        }
+      }
+    }
+  end
+
   defp auth_api(conn, _opts) do
     api_token = Application.get_env(:infolab_light_games, InfolabLightGamesWeb.Router)[:api_token]
 

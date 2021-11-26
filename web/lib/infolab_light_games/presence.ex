@@ -2,6 +2,7 @@ defmodule Presence do
   use Phoenix.Presence,
     otp_app: :infolab_light_games,
     pubsub_server: InfolabLightGames.PubSub
+
   require Logger
 
   @presence_topic "user_presence"
@@ -11,6 +12,7 @@ defmodule Presence do
   @spec track_user(pid(), :inet.ip_address()) :: any()
   def track_user(pid, remote_ip) do
     Logger.info("tracking status of #{inspect(pid)}/#{inspect(remote_ip)}")
+
     track(pid, @presence_topic, inspect(remote_ip), %{
       online_at: NaiveDateTime.to_string(NaiveDateTime.utc_now()),
       remote_ip: remote_ip,

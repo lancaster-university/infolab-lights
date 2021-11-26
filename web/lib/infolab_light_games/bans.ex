@@ -18,7 +18,7 @@ defmodule Bans do
   """
   @spec is_banned?(:inet.ip_address()) :: boolean()
   def is_banned?(ip) do
-    Agent.get(__MODULE__, & MapSet.member?(&1, ip))
+    Agent.get(__MODULE__, &MapSet.member?(&1, ip))
   end
 
   @doc """
@@ -27,6 +27,6 @@ defmodule Bans do
   @spec add_ban(:inet.ip_address()) :: :ok
   def add_ban(ip) do
     Phoenix.PubSub.broadcast!(InfolabLightGames.PubSub, "bans", {:banned, ip})
-    Agent.update(__MODULE__, & MapSet.put(&1, ip))
+    Agent.update(__MODULE__, &MapSet.put(&1, ip))
   end
 end

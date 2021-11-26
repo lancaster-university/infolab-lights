@@ -177,6 +177,7 @@ RUN if [ ! "$SKIP_PHOENIX" = "true" ]; then \
     yarn deploy && \
     cd - && \
     mix phx.digest; \
+    mix phx.swagger.generate; \
 fi
 
 RUN \

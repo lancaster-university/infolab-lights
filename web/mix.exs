@@ -7,7 +7,7 @@ defmodule InfolabLightGames.MixProject do
       version: "0.1.0",
       elixir: "~> 1.12",
       elixirc_paths: elixirc_paths(Mix.env()),
-      compilers: [:phoenix] ++ Mix.compilers(),
+      compilers: [:phoenix] ++ Mix.compilers() ++ [:phoenix_swagger],
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
       deps: deps()
@@ -53,6 +53,8 @@ defmodule InfolabLightGames.MixProject do
       {:tint, "~> 1.1"},
       {:temp, "~> 0.4"},
       {:msgpax, "~> 2.0"},
+      {:phoenix_swagger, "~> 0.8"},
+      {:ex_json_schema, "~> 0.5"},
       {:credo, "~> 1.5", only: [:dev, :test], runtime: false}
     ]
   end

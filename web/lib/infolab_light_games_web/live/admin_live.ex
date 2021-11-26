@@ -69,7 +69,7 @@ defmodule InfolabLightGamesWeb.AdminLive do
       end)
 
     # a bit of a hack to have zero player games, but w/e
-    id = Coordinator.queue_game(Games.Static, nil, [images: images])
+    id = Coordinator.queue_game(Games.Static, nil, images: images)
 
     socket =
       socket

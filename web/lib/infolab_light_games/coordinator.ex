@@ -199,9 +199,7 @@ defmodule Coordinator do
         modes_for_modules([IdleAnimations.Ant, IdleAnimations.GOL, IdleAnimations.JSImpl])
         |> Enum.random()
 
-      Logger.info("Selecting a random idle animation #{module}:#{mode}")
       {state, _pid} = start_idle_animation(state, module, mode)
-      Logger.info("Hm: #{inspect(state)}")
       state
     else
       state
