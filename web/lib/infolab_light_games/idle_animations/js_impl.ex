@@ -13,7 +13,7 @@ defmodule IdleAnimations.JSImpl do
 
     typedstruct enforce: true do
       field(:id, String.t())
-      field(:file, Path.t())
+      field(:file, {Path.t(), :js | :ts})
 
       field(:matrix, NativeMatrix.t())
       field(:port, port() | nil, default: nil)
@@ -38,26 +38,141 @@ defmodule IdleAnimations.JSImpl do
       matrix: NativeMatrix.of_dims(screen_x, screen_y, Pixel.empty())
     }
 
-    Logger.info("starting up js effect #{state.file}")
+    Logger.info("starting up js effect #{state.id}:#{inspect(state.file)}")
 
     GenServer.start_link(__MODULE__, state, options)
   end
 
+  defp ftype(name) do
+    case Path.extname(name) do
+      ".js" -> :js
+      ".ts" -> :ts
+    end
+  end
+
   def possible_modes do
     Application.app_dir(:infolab_light_games, "priv")
-    |> Path.join("js_effects/*.js")
+    |> Path.join("js_effects/*.{js,ts}")
     |> Path.wildcard()
+    |> Enum.map(&{&1, ftype(&1)})
   end
 
   @impl true
-  def init(state) do
+  def init(%State{} = state) do
     tick_request()
 
-    {:ok, state, {:continue, :start_js}}
+    Temp.track!()
+
+    {:ok, state, {:continue, :start}}
   end
 
   @impl true
-  def handle_continue(:start_js, %State{file: src_file} = state) do
+  def handle_continue(:start, %State{file: {src_file, :ts}} = state) do
+    deno = System.find_executable("deno")
+    {tmp, path} = Temp.open!(%{suffix: ".ts"})
+    {screen_x, screen_y} = Screen.dims()
+
+    src = File.read!(src_file)
+
+    content = """
+    import { writeAllSync } from "https://deno.land/std@0.113.0/streams/conversion.ts";
+    import { pack } from 'https://deno.land/x/msgpackr@v1.3.2/index.js';
+
+    async function readStdin() {
+        const bytes = [];
+
+        while (true) {
+            const buffer = new Uint8Array(1);
+            const readStatus = await Deno.stdin.read(buffer);
+
+            if (readStatus === null || readStatus === 0) {
+                break;
+            }
+
+            const byte = buffer[0];
+
+            if (byte === 10) {
+                break;
+            }
+
+            bytes.push(byte);
+        }
+
+        return Uint8Array.from(bytes);
+    }
+
+    class Display {
+      #buffer: Array<Array<[number, number, number]>>;
+      width: number;
+      height: number;
+
+      constructor(width: number, height: number) {
+        this.width = width;
+        this.height = height;
+
+        this.#buffer = Array.from(Array(width), () => Array.from(Array(height), () => [0, 0, 0]));
+      }
+
+      setPixel(x: number, y: number, [r, g, b]: [number, number, number]) {
+        this.#buffer[x][y] = [r, g, b];
+      }
+
+      flush() {
+        const pixels = this.#buffer.flatMap((col, x) => {
+          return col.map(([r, g, b], y) => ({x: x | 0, y: y | 0, v: [r | 0, g | 0, b | 0]}));
+        });
+
+        const chunkSize = 1000;
+        const len = pixels.length;
+        for (let i = 0; i < len; i += chunkSize) {
+          writeAllSync(Deno.stdout, pack(pixels.slice(i, i + chunkSize)));
+        }
+      }
+    }
+
+    namespace Effect {
+      #{src}
+    }
+
+    const effect = Object.values(Effect)[0];
+
+    interface EffectInterface {
+      update(): null;
+    }
+
+    interface EffectConstructor {
+      new (display: Display): EffectInterface;
+    }
+
+    const inst = new (effect as unknown as EffectConstructor)(new Display(#{screen_x}, #{screen_y}));
+
+    while (true) {
+        let r = new TextDecoder().decode(await readStdin())
+        let {msg: msg} = JSON.parse(r.trim());
+
+        // msg should always be "tick"
+
+        inst.update();
+    }
+
+    """
+
+    IO.write(tmp, content)
+    File.close(tmp)
+
+    port =
+      Port.open(
+        {:spawn_executable, deno},
+        [:binary, :stream, :use_stdio, args: ["run", "-q", path]]
+      )
+
+    state = %State{state | port: port, tmp_file: path}
+
+    {:noreply, state}
+  end
+
+  @impl true
+  def handle_continue(:start, %State{file: {src_file, :js}} = state) do
     deno = System.find_executable("deno")
     {tmp, path} = Temp.open!(%{suffix: ".js"})
     {screen_x, screen_y} = Screen.dims()
@@ -125,7 +240,8 @@ defmodule IdleAnimations.JSImpl do
     const inst = new effect(new Display(#{screen_x}, #{screen_y}));
 
     while (true) {
-        let {msg: msg} = await readStdin();
+        let r = new TextDecoder().decode(await readStdin())
+        let {msg: msg} = JSON.parse(r.trim());
 
         // msg should always be "tick"
 

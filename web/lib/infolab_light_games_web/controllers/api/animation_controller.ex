@@ -45,8 +45,14 @@ defmodule Api.AnimationController do
     security [%{apiKeyAuth: []}]
   end
 
-  def post(conn, %{"code" => %Plug.Upload{path: path} = upload}) do
-    case Coordinator.push_idle_animation(IdleAnimations.JSImpl, path) do
+  def post(conn, %{"code" => %Plug.Upload{path: path, filename: filename} = upload}) do
+    type =
+      case Path.extname(filename) do
+        ".js" -> :js
+        ".ts" -> :ts
+      end
+
+    case Coordinator.push_idle_animation(IdleAnimations.JSImpl, {path, type}) do
       {:ok, pid} ->
         :ok = Plug.Upload.give_away(upload, pid)
 

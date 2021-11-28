@@ -5,53 +5,63 @@ function uniformBetween(min, max) {
 // https://stackoverflow.com/a/49434653
 function normalBetween(min, max) {
   let u = 0, v = 0;
-  while (u === 0) u = Math.random() //Converting [0,1) to (0,1)
-  while (v === 0) v = Math.random()
-  let num = Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v)
+  while (u === 0) u = Math.random(); //Converting [0,1) to (0,1)
+  while (v === 0) v = Math.random();
+  let num = Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
 
-  num = num / 10.0 + 0.5 // Translate to 0 -> 1
-  if (num > 1 || num < 0)
-    num = randn_bm(min, max) // resample between 0 and 1 if out of range
-
-  else {
-    num *= max - min // Stretch to fill range
-    num += min // offset to min
+  num = num / 10.0 + 0.5; // Translate to 0 -> 1
+  if (num > 1 || num < 0) {
+    num = normalBetween(min, max); // resample between 0 and 1 if out of range
+  } else {
+    num *= max - min; // Stretch to fill range
+    num += min; // offset to min
   }
-  return num
+  return num;
 }
 
 /**
-* Converts an HSV color value to RGB. Conversion formula
-* adapted from http://en.wikipedia.org/wiki/HSV_color_space.
-* Assumes h, s, and v are contained in the set [0, 1] and
-* returns r, g, and b in the set [0, 255].
-*
-* @param   Number  h       The hue
-* @param   Number  s       The saturation
-* @param   Number  v       The value
-* @return  Array           The RGB representation
-*/
+ * Converts an HSV color value to RGB. Conversion formula
+ * adapted from http://en.wikipedia.org/wiki/HSV_color_space.
+ * Assumes h, s, and v are contained in the set [0, 1] and
+ * returns r, g, and b in the set [0, 255].
+ *
+ * @param   Number  h       The hue
+ * @param   Number  s       The saturation
+ * @param   Number  v       The value
+ * @return  Array           The RGB representation
+ */
 function hsvToRgb(h, s, v) {
-  var r, g, b;
+  let r, g, b;
 
-  var i = Math.floor(h * 6);
-  var f = h * 6 - i;
-  var p = v * (1 - s);
-  var q = v * (1 - f * s);
-  var t = v * (1 - (1 - f) * s);
+  const i = Math.floor(h * 6);
+  const f = h * 6 - i;
+  const p = v * (1 - s);
+  const q = v * (1 - f * s);
+  const t = v * (1 - (1 - f) * s);
 
   switch (i % 6) {
-    case 0: r = v, g = t, b = p; break;
-    case 1: r = q, g = v, b = p; break;
-    case 2: r = p, g = v, b = t; break;
-    case 3: r = p, g = q, b = v; break;
-    case 4: r = t, g = p, b = v; break;
-    case 5: r = v, g = p, b = q; break;
+    case 0:
+      r = v, g = t, b = p;
+      break;
+    case 1:
+      r = q, g = v, b = p;
+      break;
+    case 2:
+      r = p, g = v, b = t;
+      break;
+    case 3:
+      r = p, g = q, b = v;
+      break;
+    case 4:
+      r = t, g = p, b = v;
+      break;
+    case 5:
+      r = v, g = p, b = q;
+      break;
   }
 
   return [r * 255, g * 255, b * 255];
 }
-
 
 class Buffer {
   /**
@@ -88,17 +98,6 @@ class Buffer {
 
     this.buffer[x][y] = mergeColours(this.buffer[x][y], v);
   }
-
-  // /**
-  //  * @param {Buffer} other
-  //  */
-  // combine(other) {
-  //   for (let x = 0; x < this.buffer.length; x++) {
-  //     for (let y = 0; y < this.buffer[0].length; y++) {
-  //       this.buffer[x][y] = mergeColours(this.buffer[x][y], other.buffer[x][y]);
-  //     }
-  //   }
-  // }
 }
 
 /**
@@ -114,7 +113,7 @@ function mergeColours(x, y) {
     return x;
   }
 
-  const z = (1 - x[3]) * y[3]
+  const z = (1 - x[3]) * y[3];
   const a = z + x[3];
 
   const r = (z * y[0] + x[0] * x[3]) / a;
@@ -140,14 +139,14 @@ class Vector {
   add(other) {
     return new Vector(
       this.x + other.x,
-      this.y + other.y
+      this.y + other.y,
     );
   }
 
   inv() {
     return new Vector(
       -this.x,
-      -this.y
+      -this.y,
     );
   }
 
@@ -167,7 +166,7 @@ class Vector {
   mul(other) {
     return new Vector(
       this.x * other.x,
-      this.y * other.y
+      this.y * other.y,
     );
   }
 
@@ -175,7 +174,7 @@ class Vector {
     const mag = this.mag();
     return new Vector(
       this.x / mag,
-      this.y / mag
+      this.y / mag,
     );
   }
 
@@ -187,7 +186,6 @@ class Vector {
     return Math.sqrt(this.magSquared());
   }
 }
-
 
 // I guess we could also do this by instead drawing curves following the
 // trajectory the firework takes, but I decided on just simulating particles and
@@ -247,10 +245,10 @@ class Tracer {
    * @param {Buffer} buffer
    */
   drawOnto(buffer) {
-    let [r, g, b] = this.colour;
-    let a = this.fadeTimer / 50;
+    const [r, g, b] = this.colour;
+    const a = this.fadeTimer / 50;
 
-    const colour = [r, g, b, a]
+    const colour = [r, g, b, a];
     this.previousPositions.drawOnto(buffer, colour, 0.85);
   }
 
@@ -265,17 +263,18 @@ class Tracer {
     const speed = uniformBetween(0.9, 1.1);
     const vel = new Vector(
       Math.cos(dir) * speed,
-      Math.sin(dir) * speed
+      Math.sin(dir) * speed,
     );
 
     const particle = new Particle(
-      origin, vel, new Vector(0, -0.05)
+      origin,
+      vel,
+      new Vector(0, -0.05),
     );
 
     return new Tracer(particle, colour, timer, scene);
   }
 }
-
 
 class Firework {
   /**
@@ -305,7 +304,12 @@ class Firework {
         const numTracers = uniformBetween(3, 10);
 
         for (let n = 0; n < numTracers; n++) {
-          const tracer = Tracer.newRandom(this.particle.pos, this.colour, this.tracerTimer, this.scene);
+          const tracer = Tracer.newRandom(
+            this.particle.pos,
+            this.colour,
+            this.tracerTimer,
+            this.scene,
+          );
           this.scene.addTracer(tracer);
         }
         this.popped = true;
@@ -313,7 +317,7 @@ class Firework {
         this.fadeTimer -= 1;
 
         if (this.fadeTimer < 0) {
-            this.scene.removeFirework(this);
+          this.scene.removeFirework(this);
         }
       }
     } else {
@@ -323,25 +327,38 @@ class Firework {
     }
   }
 
-  x() { return this.particle.pos.x; }
-  y() { return this.particle.pos.y; }
+  x() {
+    return this.particle.pos.x;
+  }
+
+  y() {
+    return this.particle.pos.y;
+  }
 
   static fireworkPattern = [
-    /* .............. */[0, 2],
-    /* ... */[-1, 1], [0, 1], [1, 1],
-    [-2, 0], [-1, 0], [0, 0], [1, 0], [2, 0],
-    /* ... */[-1, -1], [0, -1], [1, -1],
-    /* .............. */[0, -2]
+    [0, 2],
+    [-1, 1],
+    [0, 1],
+    [1, 1],
+    [-2, 0],
+    [-1, 0],
+    [0, 0],
+    [1, 0],
+    [2, 0],
+    [-1, -1],
+    [0, -1],
+    [1, -1],
+    [0, -2],
   ];
 
   /**
    * @param {Buffer} buffer
    */
   drawOnto(buffer) {
-    let [r, g, b] = this.colour;
-    let a = this.fadeTimer / 50;
+    const [r, g, b] = this.colour;
+    const a = this.fadeTimer / 50;
 
-    const colour = [r, g, b, a]
+    const colour = [r, g, b, a];
     this.previousPositions.drawOnto(buffer, colour, 0.9);
 
     if (this.popped) {
@@ -364,7 +381,7 @@ class Firework {
 
     const startAccel = new Vector(
       Math.cos(startAngle) * startThrust,
-      Math.sin(startAngle) * startThrust
+      Math.sin(startAngle) * startThrust,
     );
 
     const pos = new Vector(startX, 0);
@@ -382,13 +399,13 @@ class Firework {
 }
 
 function* pairwise(iterable) {
-  const iterator = iterable[Symbol.iterator]()
-  let current = iterator.next()
-  let next = iterator.next()
+  const iterator = iterable[Symbol.iterator]();
+  let current = iterator.next();
+  let next = iterator.next();
   while (!next.done) {
-    yield [current.value, next.value]
-    current = next
-    next = iterator.next()
+    yield [current.value, next.value];
+    current = next;
+    next = iterator.next();
   }
 }
 
@@ -416,7 +433,7 @@ class PreviousPositions {
     /**
      * @type {Array<Vector>}
      */
-    this.positions = new Array();
+    this.positions = [];
   }
 
   /**
@@ -435,7 +452,12 @@ class PreviousPositions {
     let [r, g, b, a] = initialColour;
 
     for (const [prev, curr] of pairwise(this.positions.slice().reverse())) {
-      PreviousPositions.drawLine([prev.x, prev.y], [curr.x, curr.y], [r, g, b, a], buffer);
+      PreviousPositions.drawLine([prev.x, prev.y], [curr.x, curr.y], [
+        r,
+        g,
+        b,
+        a,
+      ], buffer);
 
       a *= fadeFactor;
     }
@@ -479,10 +501,20 @@ class PreviousPositions {
 
     if (steep) {
       buffer.paint(ypxl1, xpxl1, [r, g, b, Math.sqrt(a * rfpart(yend) * xgap)]);
-      buffer.paint(ypxl1 + 1, xpxl1, [r, g, b, Math.sqrt(a * fpart(yend) * xgap)]);
+      buffer.paint(ypxl1 + 1, xpxl1, [
+        r,
+        g,
+        b,
+        Math.sqrt(a * fpart(yend) * xgap),
+      ]);
     } else {
       buffer.paint(xpxl1, ypxl1, [r, g, b, Math.sqrt(a * rfpart(yend) * xgap)]);
-      buffer.paint(xpxl1, ypxl1 + 1, [r, g, b, Math.sqrt(a * fpart(yend) * xgap)]);
+      buffer.paint(xpxl1, ypxl1 + 1, [
+        r,
+        g,
+        b,
+        Math.sqrt(a * fpart(yend) * xgap),
+      ]);
     }
 
     let intery = yend + gradient;
@@ -495,10 +527,20 @@ class PreviousPositions {
 
     if (steep) {
       buffer.paint(ypxl2, xpxl2, [r, g, b, Math.sqrt(a * rfpart(yend) * xgap)]);
-      buffer.paint(ypxl2 + 1, xpxl2, [r, g, b, Math.sqrt(a * fpart(yend) * xgap)]);
+      buffer.paint(ypxl2 + 1, xpxl2, [
+        r,
+        g,
+        b,
+        Math.sqrt(a * fpart(yend) * xgap),
+      ]);
     } else {
       buffer.paint(xpxl2, ypxl2, [r, g, b, Math.sqrt(a * rfpart(yend) * xgap)]);
-      buffer.paint(xpxl2, ypxl2 + 1, [r, g, b, Math.sqrt(a * fpart(yend) * xgap)]);
+      buffer.paint(xpxl2, ypxl2 + 1, [
+        r,
+        g,
+        b,
+        Math.sqrt(a * fpart(yend) * xgap),
+      ]);
     }
 
     if (steep) {
@@ -510,7 +552,7 @@ class PreviousPositions {
     } else {
       for (let x = xpxl1 + 1; x < xpxl2; x++) {
         buffer.paint(x, intery, [r, g, b, Math.sqrt(a * rfpart(intery))]);
-        buffer.paint(x, intery + 1, [r, g, Math.sqrt(b, a * fpart(intery))]);
+        buffer.paint(x, intery + 1, [r, g, b, Math.sqrt(a * fpart(intery))]);
         intery += gradient;
       }
     }
@@ -560,7 +602,12 @@ return class FireworksEffect {
       this.fireworks.add(firework);
     }
 
-    const buffer = new Buffer(Array.from(Array(this.display.width), () => Array.from(Array(this.display.height), () => [0, 0, 0, 0])));
+    const buffer = new Buffer(
+      Array.from(
+        Array(this.display.width),
+        () => Array.from(Array(this.display.height), () => [0, 0, 0, 0]),
+      ),
+    );
 
     for (const firework of this.fireworks) {
       firework.drawOnto(buffer);
@@ -575,13 +622,15 @@ return class FireworksEffect {
     for (let x = 0; x < this.display.width; x++) {
       for (let y = 0; y < this.display.height; y++) {
         const [r, g, b, a] = buffer.buffer[x][y];
-        this.display.setPixel(x, (this.display.height - 1) - y, [r * a, g * a, b * a]);
+        this.display.setPixel(x, (this.display.height - 1) - y, [
+          r * a,
+          g * a,
+          b * a,
+        ]);
       }
     }
 
     this.display.flush();
-
-    this.position %= 1;
   }
 
   removeFirework(obj) {
@@ -595,4 +644,4 @@ return class FireworksEffect {
   addTracer(obj) {
     this.tracers.add(obj);
   }
-}
+};

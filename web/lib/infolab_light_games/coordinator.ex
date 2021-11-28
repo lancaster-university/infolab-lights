@@ -1,5 +1,5 @@
 defmodule Coordinator do
-  use GenServer
+  use GenServer, restart: :transient
   require Logger
 
   @type via_tuple() :: {:via, atom(), {atom(), String.t()}}
@@ -175,7 +175,7 @@ defmodule Coordinator do
   end
 
   defp start_idle_animation(%State{} = state, module, mode) do
-    Logger.info("Starting idle animation #{module}:#{mode}")
+    Logger.info("Starting idle animation #{module}:#{inspect(mode)}")
     # stop the idle animation if it exists
     if !is_nil(state.current_idle_animation) and GenServer.whereis(state.current_idle_animation) do
       # we need the idle animation to stop immediately so it doesn't try to draw over us

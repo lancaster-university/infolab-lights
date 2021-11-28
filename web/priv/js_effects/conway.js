@@ -95,9 +95,9 @@ return class MyEffect {
     this.frameDelay = (this.frameDelay || 0) % 2;
     
     if( this.frameDelay == 0 ) {
-      let alive = this.process();
+      const alive = this.process();
       
-      let color = [255, 255, 255];
+      const color = [255, 255, 255];
       
       for (let x = 0; x < this.display.width; x++) {
         for (let y = 0; y < this.display.height; y++) {
