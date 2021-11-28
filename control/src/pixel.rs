@@ -1,9 +1,8 @@
 use std::num::Wrapping;
 
-use serde::Deserialize;
 use zerocopy::AsBytes;
 
-#[derive(Debug, Deserialize, Copy, Clone, PartialOrd, PartialEq, AsBytes)]
+#[derive(Debug, Copy, Clone, PartialOrd, PartialEq, AsBytes)]
 #[repr(packed)]
 pub struct Pixel {
     pub r: u8,

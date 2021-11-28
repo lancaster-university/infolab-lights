@@ -7,19 +7,21 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-serde = { version = "1.0.130", features = ["derive"] }
-serde_json = "1.0.68"
-tungstenite = { version = "0.15.0", features = ["rustls-tls-native-roots"] }
+# serde = { version = "1.0.130", features = ["derive"] }
+# serde_json = "1.0.72"
+tungstenite = { version = "0.16.0", features = ["rustls-tls-native-roots"] }
 url = "2.2.2"
 roxmltree = "0.14.1"
 num-traits = "0.2.14"
 itertools = "0.10.1"
 base64 = "0.13.0"
-getset = "0.1.1"
-zerocopy = "0.6.0"
+getset = "0.1.2"
+zerocopy = "0.6.1"
 speedy = "0.8.0"
 structopt = "0.3.25"
-rmp-serde = "0.15.5"
+# rmp-serde = "0.15.5"
 image = "0.23.14"
+retain_mut = "0.1.4"
+spin_sleep = "1.0.0"
 
 [features]

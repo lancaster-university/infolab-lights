@@ -1,13 +1,14 @@
 use crate::pixel::Pixel;
 use getset::Getters;
 use itertools::Itertools;
-use std::collections::HashMap;
-use std::net::SocketAddrV4;
-use std::io::Write;
-use std::num::Wrapping;
-use num_traits::Zero;
-use std::net::UdpSocket;
+use retain_mut::RetainMut;
 use speedy::Writable;
+use std::collections::HashMap;
+use std::io::Write;
+use std::net::SocketAddrV4;
+use std::net::UdpSocket;
+use std::num::Wrapping;
+use std::time::Duration;
 use zerocopy::AsBytes;
 
 #[derive(Writable)]
@@ -23,11 +24,18 @@ impl PacketHeader {
     fn new(cid: u8, lid: u8, cmd: u8, pixels: &[Pixel]) -> Self {
         let len = pixels.len() as u16 + 6;
         let [len_up, len_low] = len.to_be_bytes();
-        let chk = cid.wrapping_add(lid)
-                     .wrapping_add(len_up)
-                     .wrapping_add(len_low)
-                     .wrapping_add(cmd)
-                     .wrapping_add(pixels.iter().map(Pixel::wrapping_sum).sum::<Wrapping<u8>>().0);
+        let chk = cid
+            .wrapping_add(lid)
+            .wrapping_add(len_up)
+            .wrapping_add(len_low)
+            .wrapping_add(cmd)
+            .wrapping_add(
+                pixels
+                    .iter()
+                    .map(Pixel::wrapping_sum)
+                    .sum::<Wrapping<u8>>()
+                    .0,
+            );
 
         PacketHeader {
             cid,
@@ -41,7 +49,6 @@ impl PacketHeader {
 
 pub struct Controller {
     id: u8,
-    dirty: bool,
     lights: Vec<Light>,
     pixels: Vec<Pixel>,
 }
@@ -50,37 +57,23 @@ impl Controller {
     pub fn new(id: u8, lights: Vec<Light>) -> Self {
         let pixels = vec![Pixel { r: 0, g: 0, b: 40 }; lights.len()];
 
-        Self { id, dirty: true, lights, pixels }
+        Self { id, lights, pixels }
     }
 
-    fn send<'a>(&mut self, addr: SocketAddrV4, sock: &UdpSocket, scratch: &'a mut Vec<u8>) {
+    fn send<'a>(&self, addr: SocketAddrV4, sock: &UdpSocket, scratch: &'a mut Vec<u8>) {
         scratch.clear();
-//        scratch.push(self.id);
-//        scratch.push(255);
-//        scratch.extend_from_slice(&(self.pixels.len() as u16 + 6).to_be_bytes());
-//        scratch.push(0x0C);
-//        scratch.push(0);
-//        scratch.extend_from_slice(self.pixels.as_bytes());
-//
-//        let mut chk = 0u8;
-//
-//        for byte in scratch.as_slice() {
-//            chk = chk.wrapping_add(*byte);
-//        }
-//
-//        scratch[5] = chk;
 
         let hdr = PacketHeader::new(self.id, 255, 0x0C, &self.pixels);
         let mut c = std::io::Cursor::new(scratch);
 
-        hdr.write_to_stream_with_ctx(speedy::BigEndian {}, &mut c).unwrap();
+        hdr.write_to_stream_with_ctx(speedy::BigEndian {}, &mut c)
+            .unwrap();
 
         c.write_all(self.pixels.as_bytes()).unwrap();
 
         let scratch = c.into_inner();
-        println!("sent to {:?} ({} pixels)", addr, self.pixels.len());
+        // println!("sent to {:?} ({} pixels)", addr, self.pixels.len());
         sock.send_to(scratch, addr).unwrap();
-        self.dirty = false;
     }
 }
 
@@ -94,12 +87,16 @@ impl Router {
         Router { addr, controllers }
     }
 
-    fn send<'a>(&mut self, sock: &UdpSocket, scratch: &'a mut Vec<u8>) {
-        for controller in &mut self.controllers {
-//            if controller.dirty {
-                controller.send(self.addr, sock, scratch);
-//            }
-        }
+    fn senders<'a>(
+        &'a self,
+    ) -> impl Iterator<Item = impl for<'b, 'c> FnOnce(&'b UdpSocket, &'c mut Vec<u8>) + 'a> + 'a
+    {
+        self.controllers
+            .iter()
+            .map(move |c| {
+                move |sock: &UdpSocket, scratch: &mut Vec<u8>| c.send(self.addr, sock, scratch)
+            })
+            .fuse()
     }
 
     pub fn lights(&self) -> impl Iterator<Item = (usize, usize, &Light)> {
@@ -113,7 +110,6 @@ impl Router {
 
     pub fn update_at(&mut self, path: (usize, usize), pixel: Pixel) {
         self.controllers[path.0].pixels[path.1] = pixel;
-        self.controllers[path.0].dirty = true;
     }
 }
 
@@ -131,7 +127,6 @@ pub struct Scene {
     routers: Vec<Router>,
     #[getset(get = "pub")]
     index: HashMap<(u16, u16), (usize, usize, usize)>,
-    scratch: Vec<u8>,
 }
 
 impl Scene {
@@ -143,9 +138,25 @@ impl Scene {
         Some(())
     }
 
-    pub fn send(&mut self, sock: &UdpSocket) {
-        for router in &mut self.routers {
-            router.send(sock, &mut self.scratch);
+    pub fn controller_count(&self) -> u32 {
+        self.routers.iter().map(|r| r.controllers.len() as u32).sum()
+    }
+
+    pub fn send(&mut self, sock: &UdpSocket, scratch: &mut Vec<u8>, target_interval: Duration) {
+        let mut senders = self.routers.iter().map(|r| r.senders()).collect_vec();
+
+        while !senders.is_empty() {
+            RetainMut::retain_mut(&mut senders, |it| {
+                if let Some(sender) = it.next() {
+                    (sender)(sock, scratch);
+
+                    spin_sleep::sleep(target_interval);
+
+                    true
+                } else {
+                    false
+                }
+            });
         }
     }
 }
@@ -170,15 +181,7 @@ fn parse_router(router: roxmltree::Node) -> Router {
             let y = light.attribute("y").unwrap().parse().unwrap();
             let z = light.attribute("z").unwrap().parse().unwrap();
 
-            (
-                cid,
-                Light {
-                    id: lid,
-                    x,
-                    y,
-                    z,
-                },
-            )
+            (cid, Light { id: lid, x, y, z })
         })
         .into_group_map();
 
@@ -210,5 +213,5 @@ pub fn parse_scene(scene: &str) -> Scene {
         .map(|(ridx, cidx, lidx, l)| ((l.x, l.y), (ridx, cidx, lidx)))
         .collect();
 
-    Scene { routers, index, scratch: Vec::new() }
+    Scene { routers, index }
 }
