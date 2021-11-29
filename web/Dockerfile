@@ -1,12 +1,11 @@
-FROM elixir:1.12.2-slim AS builder
+FROM elixir:1.12.3-slim AS builder
 
-# install rust
-
+# install rust (this is from rust:buster-slim)
 
 ENV RUSTUP_HOME=/usr/local/rustup \
     CARGO_HOME=/usr/local/cargo \
     PATH=/usr/local/cargo/bin:$PATH \
-    RUST_VERSION=1.53.0
+    RUST_VERSION=1.56.1
 
 RUN set -eux; \
     apt-get update; \
@@ -203,6 +202,6 @@ WORKDIR /opt/app
 
 COPY --from=builder /opt/app/_build .
 
-COPY --from=denoland/deno:bin-1.15.3 /deno /usr/local/bin/deno
+COPY --from=denoland/deno:bin-1.16.3 /deno /usr/local/bin/deno
 
 CMD ["./prod/rel/infolab_light_games/bin/infolab_light_games", "start"]

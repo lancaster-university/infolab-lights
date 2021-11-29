@@ -22,7 +22,7 @@ struct PacketHeader {
 
 impl PacketHeader {
     fn new(cid: u8, lid: u8, cmd: u8, pixels: &[Pixel]) -> Self {
-        let len = pixels.len() as u16 + 6;
+        let len = (pixels.len() * 3) as u16 + 6;
         let [len_up, len_low] = len.to_be_bytes();
         let chk = cid
             .wrapping_add(lid)
@@ -73,7 +73,7 @@ impl Controller {
 
         let scratch = c.into_inner();
         // println!("sent to {:?} ({} pixels)", addr, self.pixels.len());
-        sock.send_to(scratch, addr).unwrap();
+        let _ = sock.send_to(scratch, addr);
     }
 }
 
@@ -139,7 +139,10 @@ impl Scene {
     }
 
     pub fn controller_count(&self) -> u32 {
-        self.routers.iter().map(|r| r.controllers.len() as u32).sum()
+        self.routers
+            .iter()
+            .map(|r| r.controllers.len() as u32)
+            .sum()
     }
 
     pub fn send(&mut self, sock: &UdpSocket, scratch: &mut Vec<u8>, target_interval: Duration) {
@@ -185,10 +188,12 @@ fn parse_router(router: roxmltree::Node) -> Router {
         })
         .into_group_map();
 
-    let controllers = controllers_map
+    let mut controllers = controllers_map
         .into_iter()
         .map(|(id, lights)| Controller::new(id, lights))
-        .collect();
+        .collect_vec();
+
+    controllers.sort_by_key(|c| c.id);
 
     Router::new(addr, controllers)
 }
@@ -205,6 +210,8 @@ pub fn parse_scene(scene: &str) -> Scene {
         }
         routers.push(parse_router(node));
     }
+
+    routers.sort_by_key(|r| r.addr);
 
     let index = routers
         .iter()
