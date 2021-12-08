@@ -26,11 +26,11 @@ be rejected.
 
 # Current effects
 
-| Author                                       | Effect                                        | Description                                        |
-|----------------------------------------------|-----------------------------------------------|----------------------------------------------------|
-| [@simmsb](https://github.com/simmsb)         | [Rainbow](web/priv/js_effects/rainbow.js)     | Just a simple rainbow effect to demo things        |
-| [@JohnVidler](https://github.com/JohnVidler) | [Conway](web/priv/js_effects/conway.js)       | The classic Conway's Game of Life sim              |
-| [@JohnVidler](https://github.com/JohnVidler) | [Colorway](web/priv/js_effects/colorway.js)   | Another Conway's Game of Life sim, with trails!    |
-| [@simmsb](https://github.com/simmsb)         | [Fireworks](web/priv/js_effects/fireworks.js) | A fireworks simulation.                            |
-| [@JohnVidler](https://github.com/JohnVidler) | [Colorway](web/priv/js_effects/cheerworks.js) | A web-connected fireworks simulation (cheerlights) |
-| [@simmsb](https://github.com/simmsb)         | [Fireworks](web/priv/js_effects/snow.ts)      | A nice snowman                                     |
+| Author                                       | Effect                                          | Description                                        |
+|----------------------------------------------|-------------------------------------------------|----------------------------------------------------|
+| [@simmsb](https://github.com/simmsb)         | [Rainbow](web/priv/js_effects/rainbow.js)       | Just a simple rainbow effect to demo things        |
+| [@JohnVidler](https://github.com/JohnVidler) | [Conway](web/priv/js_effects/conway.js)         | The classic Conway's Game of Life sim              |
+| [@JohnVidler](https://github.com/JohnVidler) | [Colorway](web/priv/js_effects/colorway.js)     | Another Conway's Game of Life sim, with trails!    |
+| [@simmsb](https://github.com/simmsb)         | [Fireworks](web/priv/js_effects/fireworks.js)   | A fireworks simulation.                            |
+| [@JohnVidler](https://github.com/JohnVidler) | [Cheerworks](web/priv/js_effects/cheerworks.js) | A web-connected fireworks simulation (cheerlights) |
+| [@simmsb](https://github.com/simmsb)         | [Fireworks](web/priv/js_effects/snow.ts)        | A nice snowman                                     |
