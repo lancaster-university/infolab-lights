@@ -617,14 +617,14 @@ return class FireworksEffect {
 
     if( this.tick % 300 === 0 ) { // Keep this low rate, otherwise we'll hammer the cheerlights service!
       this.syncWebRgb();
-      console.log( "Checking..." );
+      console.error( "Checking..." );
       if(
         this.flurryColour === undefined ||
         this.cachedWebColour[0] !== this.flurryColour[0] || 
         this.cachedWebColour[1] !== this.flurryColour[1] ||
         this.cachedWebColour[2] !== this.flurryColour[2]
       ) {
-        console.log( "changed!", this.flurryColour, this.cachedWebColour );
+        console.error( "changed!", this.flurryColour, this.cachedWebColour );
         this.flurryColour = this.cachedWebColour;
         for( let i=0; i<10; i++ )
           this.fireworks.add( Firework.newRandom(this, this.flurryColour) );

@@ -163,7 +163,7 @@ defmodule IdleAnimations.JSImpl do
     port =
       Port.open(
         {:spawn_executable, deno},
-        [:binary, :stream, :use_stdio, args: ["run", "-q", path]]
+        [:binary, :stream, :use_stdio, args: ["run", "--allow-net", "-q", path]]
       )
 
     state = %State{state | port: port, tmp_file: path}
@@ -256,7 +256,7 @@ defmodule IdleAnimations.JSImpl do
     port =
       Port.open(
         {:spawn_executable, deno},
-        [:binary, :stream, :use_stdio, args: ["run", "-q", path]]
+        [:binary, :stream, :use_stdio, args: ["run", "--allow-net", "-q", path]]
       )
 
     state = %State{state | port: port, tmp_file: path}
