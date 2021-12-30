@@ -32,7 +32,7 @@ defmodule Games.Pong do
 
   @paddle_size 20
   @paddle_move_amount 3
-  @x_vel_mult_on_hit 1.03
+  @x_vel_mult_on_hit 1.01
   @max_ball_x_vel 10
   @max_ball_y_vel 4
   @initial_x_vel 0.6

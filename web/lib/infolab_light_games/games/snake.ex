@@ -19,7 +19,13 @@ defmodule Games.Snake do
 
       field :snake_direction, :up | :down | :left | :right, default: :right
       field :snake_desired_direction, :up | :down | :left | :right, default: :right
-      field :snake_head_pos, {non_neg_integer(), non_neg_integer()}, default: Screen.centre_pos()
+
+      field :snake_head_pos, {non_neg_integer(), non_neg_integer()},
+        default:
+          then(Screen.centre_pos(), fn {a, b} ->
+            {Integer.floor_div(a, 2), Integer.floor_div(b, 2)}
+          end)
+
       field :snake_pieces, Qex.t({non_neg_integer(), non_neg_integer()}), default: Qex.new()
       field :snake_length, non_neg_integer(), default: 3
 
@@ -32,6 +38,9 @@ defmodule Games.Snake do
   @tick_ms Integer.floor_div(1000, 8)
   @snake_colour Pixel.blue()
   @food_colour Pixel.green()
+  @snake_board_size then(Screen.dims(), fn {a, b} ->
+                      {Integer.floor_div(a, 2), Integer.floor_div(b, 2)}
+                    end)
 
   def start_link(options) do
     state = %State{
@@ -232,7 +241,7 @@ defmodule Games.Snake do
     # we are dead if the head collides with a tail piece, or at the edge of the
     # screen
 
-    {screen_x, screen_y} = Screen.dims()
+    {screen_x, screen_y} = @snake_board_size
 
     {x, y} = state.snake_head_pos
 
@@ -266,10 +275,9 @@ defmodule Games.Snake do
   end
 
   defmodule FoodPositions do
-    @spec generate_initial_food_positions() :: MapSet.t({non_neg_integer(), non_neg_integer()})
-    def generate_initial_food_positions do
-      {screen_x, screen_y} = Screen.dims()
-
+    @spec generate_initial_food_positions({non_neg_integer(), non_neg_integer()}) ::
+            MapSet.t({non_neg_integer(), non_neg_integer()})
+    def generate_initial_food_positions({screen_x, screen_y}) do
       for x <- erange(0..screen_x),
           y <- erange(0..screen_y),
           reduce: MapSet.new() do
@@ -278,7 +286,7 @@ defmodule Games.Snake do
     end
   end
 
-  @initial_food_positions FoodPositions.generate_initial_food_positions()
+  @initial_food_positions FoodPositions.generate_initial_food_positions(@snake_board_size)
 
   defp add_new_food(%State{} = state) do
     invalid_food_positions =
@@ -309,12 +317,29 @@ defmodule Games.Snake do
     end
   end
 
+  defp in_range({x, y}) do
+    {screen_x, screen_y} = @snake_board_size
+
+    x in erange(0..screen_x) and y in erange(0..screen_y)
+  end
+
+  defp draw_scaled_pixel(screen, {x, y}, %Pixel{} = colour) do
+    NativeMatrix.set_from_list(
+      screen,
+      for(
+        dx <- [0, 1],
+        dy <- [0, 1],
+        do: {x * 2 + dx, y * 2 + dy, Pixel.as_tuple(colour)}
+      )
+    )
+  end
+
   defp draw_snake(screen, %State{} = state) do
     colour = Fader.apply(@snake_colour, state.fader)
-    screen = Enum.reduce(state.snake_pieces, screen, &NativeMatrix.set_at(&2, &1, colour))
+    screen = Enum.reduce(state.snake_pieces, screen, &draw_scaled_pixel(&2, &1, colour))
 
-    if Screen.in_range(state.snake_head_pos) do
-      NativeMatrix.set_at(screen, state.snake_head_pos, colour)
+    if in_range(state.snake_head_pos) do
+      draw_scaled_pixel(screen, state.snake_head_pos, colour)
     else
       screen
     end
@@ -324,7 +349,7 @@ defmodule Games.Snake do
     colour = Fader.apply(@food_colour, state.fader)
 
     if state.food_location do
-      NativeMatrix.set_at(screen, state.food_location, colour)
+      draw_scaled_pixel(screen, state.food_location, colour)
     else
       screen
     end

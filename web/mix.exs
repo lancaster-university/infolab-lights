@@ -54,7 +54,7 @@ defmodule InfolabLightGames.MixProject do
       {:temp, "~> 0.4"},
       {:msgpax, "~> 2.0"},
       {:phoenix_swagger, "~> 0.8"},
-      {:ex_json_schema, "~> 0.5"},
+      {:ex_json_schema, "~> 0.7"},
       {:credo, "~> 1.5", only: [:dev, :test], runtime: false}
     ]
   end

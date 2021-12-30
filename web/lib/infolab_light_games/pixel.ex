@@ -50,4 +50,6 @@ defmodule Pixel do
     {:ok, col} = Tint.RGB.from_hex(hex)
     %Pixel{r: col.red, g: col.green, b: col.blue}
   end
+
+  def as_tuple(%Pixel{r: r, g: g, b: b}), do: {r, g, b}
 end
