@@ -1,11 +1,11 @@
-FROM elixir:1.12.3-slim AS builder
+FROM hexpm/elixir:1.13.1-erlang-22.3.4.24-debian-bullseye-20210902-slim AS builder
 
 # install rust (this is from rust:buster-slim)
 
 ENV RUSTUP_HOME=/usr/local/rustup \
     CARGO_HOME=/usr/local/cargo \
     PATH=/usr/local/cargo/bin:$PATH \
-    RUST_VERSION=1.56.1
+    RUST_VERSION=1.57.0
 
 RUN set -eux; \
     apt-get update; \
@@ -43,7 +43,7 @@ RUN set -eux; \
 RUN groupadd --gid 1000 node \
   && useradd --uid 1000 --gid node --shell /bin/bash --create-home node
 
-ENV NODE_VERSION 16.4.0
+ENV NODE_VERSION 17.3.0
 
 RUN ARCH= && dpkgArch="$(dpkg --print-architecture)" \
     && case "${dpkgArch##*-}" in \
@@ -95,7 +95,7 @@ RUN ARCH= && dpkgArch="$(dpkg --print-architecture)" \
     && node --version \
     && npm --version
 
-ENV YARN_VERSION 1.22.5
+ENV YARN_VERSION 1.22.17
 
 RUN set -ex \
   && savedAptMark="$(apt-mark showmanual)" \
@@ -184,7 +184,7 @@ RUN \
     mix release
 
 # From this line onwards, we're in a new image, which will be the image used in production
-FROM debian:buster-slim
+FROM debian:bullseye-slim
 LABEL org.opencontainers.image.source https://github.com/lancaster-university/infolab-lights
 
 ENV LANG C.UTF-8
