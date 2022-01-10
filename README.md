@@ -33,4 +33,4 @@ be rejected.
 | [@JohnVidler](https://github.com/JohnVidler) | [Colorway](web/priv/js_effects/colorway.js)     | Another Conway's Game of Life sim, with trails!    |
 | [@simmsb](https://github.com/simmsb)         | [Fireworks](web/priv/js_effects/fireworks.js.disabled)   | A fireworks simulation.                            |
 | [@JohnVidler](https://github.com/JohnVidler) | [Cheerworks](web/priv/js_effects/cheerworks.js) | A web-connected fireworks simulation (cheerlights) |
-| [@simmsb](https://github.com/simmsb)         | [Snowman](web/priv/js_effects/snow.ts)          | A nice snowman                                     |
+| [@simmsb](https://github.com/simmsb)         | [Snowman](web/priv/js_effects/snow.ts.disabled)          | A nice snowman                                     |
