@@ -49,7 +49,6 @@ fn sender_thread(
     mut scene: Scene,
 ) {
     let socket = UdpSocket::bind("0.0.0.0:0").unwrap();
-    socket.set_nonblocking(true).unwrap();
     let mut scratch = Vec::new();
     println!("okay, connected to udp");
 
