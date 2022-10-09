@@ -1,6 +1,5 @@
 _build/
 .elixir_ls
-assets/yarn.lock
 assets/node_modules
 native/matrix/target/
 deps/
