@@ -112,7 +112,7 @@
                         <%= for entry <- @uploads.static_image.entries do %>
                             <article class="upload-entry">
                                 <figure>
-                                    <%= live_img_preview entry %>
+                                    <.live_img_preview entry={entry} />
                                     <figcaption><%= entry.client_name %></figcaption>
                                 </figure>
 
@@ -125,7 +125,7 @@
                             </article>
                         <% end %>
                     </section>
-                    <%= live_file_input @uploads.static_image %>
+                    <.live_file_input upload={@uploads.static_image} />
                     <button type="submit">Upload</button>
                 </form>
             </nav>

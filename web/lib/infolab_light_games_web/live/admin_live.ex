@@ -65,7 +65,7 @@ defmodule InfolabLightGamesWeb.AdminLive do
     [images] =
       consume_uploaded_entries(socket, :static_image, fn %{path: path}, _entry ->
         img = File.read!(path)
-        NativeMatrix.load_from_image(img, width, height)
+        {:ok, NativeMatrix.load_from_image(img, width, height)}
       end)
 
     # a bit of a hack to have zero player games, but w/e
