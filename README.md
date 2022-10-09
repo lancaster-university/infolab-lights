@@ -35,3 +35,4 @@ be rejected.
 | [@JohnVidler](https://github.com/JohnVidler) | [Cheerworks](web/priv/js_effects/cheerworks.js) | A web-connected fireworks simulation (cheerlights) |
 | [@simmsb](https://github.com/simmsb)         | [Snowman](web/priv/js_effects/snow.ts.disabled)          | A nice snowman                                     |
 | [@LukesterWad](https://github.com/LukesterWad) | [Sine Wave](web/priv/js_effects/sine.js)      | A moving sine wave that changes amplitude and spins. |
+| [@NinjaMandalorian](https://github.com/NinjaMandalorian) | [Gradients](web/priv/js_effects/gradients.js) | Uses current time values to generate gradients over blue diagonal strips, using trigonometric functions and the date object. |
