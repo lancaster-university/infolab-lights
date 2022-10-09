@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use image::{AnimationDecoder, DynamicImage, EncodableLayout, ImageFormat, Rgb, RgbImage};
+use image::{AnimationDecoder, DynamicImage, EncodableLayout, ImageEncoder, ImageFormat, Rgb, RgbImage};
 use rustler::{Binary, Env, Error, OwnedBinary, ResourceArc, Term};
 
 mod atoms {
@@ -190,7 +190,7 @@ fn load_from_image<'a>(
     if image::guess_format(binary.as_bytes()).map_err(|e| Error::Term(Box::new(e.to_string())))?
         == ImageFormat::Gif
     {
-        let decoder = image::gif::GifDecoder::new(binary.as_bytes())
+        let decoder = image::codecs::gif::GifDecoder::new(binary.as_bytes())
             .map_err(|e| Error::Term(Box::new(e.to_string())))?;
 
         let mut out = vec![];
@@ -236,10 +236,10 @@ fn to_png(mat: ResourceArc<MatrixResource>) -> Result<OwnedBinary, Error> {
 
     image::codecs::png::PngEncoder::new_with_quality(
         &mut bytes,
-        image::png::CompressionType::Default,
-        image::png::FilterType::Paeth,
+        image::codecs::png::CompressionType::Default,
+        image::codecs::png::FilterType::Paeth,
     )
-    .encode(
+    .write_image(
         image.as_bytes(),
         image.width(),
         image.height(),

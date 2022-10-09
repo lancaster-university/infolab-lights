@@ -7,17 +7,15 @@
     "deploy": "NODE_ENV=production sh -c 'npm run cpx & npm run esbuild'"
   },
   "dependencies": {
-    "@codemirror/closebrackets": "^0.19.0",
-    "@codemirror/commands": "^0.19.5",
-    "@codemirror/gutter": "^0.19.2",
-    "@codemirror/highlight": "^0.19.6",
-    "@codemirror/history": "^0.19.0",
-    "@codemirror/lang-javascript": "^0.19.2",
-    "@codemirror/language": "^0.19.3",
-    "@codemirror/text": "^0.19.4",
-    "@codemirror/view": "^0.19.9",
+    "@codemirror/commands": "^6.1.1",
+    "@lezer/highlight": "^1.1.1",
+    "@lezer/javascript": "^1.0.2",
+    "@codemirror/lang-javascript": "^6.1.0",
+    "@codemirror/language": "^6.2.1",
+    "@codemirror/state": "^6.1.2",
+    "@codemirror/view": "^6.3.0",
     "@ddietr/codemirror-themes": "^1.0.8",
-    "@fortawesome/fontawesome-free": "^5.15.4",
+    "@fortawesome/fontawesome-free": "^6.2.0",
     "phoenix": "file:../deps/phoenix",
     "phoenix_html": "file:../deps/phoenix_html",
     "phoenix_live_view": "file:../deps/phoenix_live_view",
@@ -26,8 +24,8 @@
   "devDependencies": {
     "bulma": "^0.9.3",
     "cpx": "^1.5.0",
-    "esbuild": "^0.13.9",
-    "esbuild-sass-plugin": "^1.4.8"
+    "esbuild": "^0.15.10",
+    "esbuild-sass-plugin": "^2.3.3"
   },
   "engines": {
     "node": ">=14.x"

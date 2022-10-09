@@ -1,12 +1,21 @@
-import { Text } from "@codemirror/text";
-import { closeBrackets, closeBracketsKeymap } from "@codemirror/closebrackets";
-import { standardKeymap, indentWithTab } from "@codemirror/commands";
-import { lineNumbers } from "@codemirror/gutter";
-import { defaultHighlightStyle } from "@codemirror/highlight";
-import { history, historyKeymap } from "@codemirror/history";
-import { EditorState, Compartment } from "@codemirror/state";
-import { EditorView, keymap } from "@codemirror/view";
-import { githubLight } from '@ddietr/codemirror-themes/theme/github-light.js';
+import {
+  autocompletion,
+  closeBrackets,
+  closeBracketsKeymap,
+} from "@codemirror/autocomplete";
+import {
+  history,
+  historyKeymap,
+  indentWithTab,
+  standardKeymap,
+} from "@codemirror/commands";
+import {
+  defaultHighlightStyle,
+  syntaxHighlighting,
+} from "@codemirror/language";
+import { EditorState, Text } from "@codemirror/state";
+import { EditorView, keymap, lineNumbers } from "@codemirror/view";
+import { githubLight } from "@ddietr/codemirror-themes/theme/github-light.js";
 import { javascript } from "@codemirror/lang-javascript";
 
 const effect_template = `// Writing effects:
@@ -56,13 +65,15 @@ return class MyEffect {
 `;
 
 function getCode() {
-  const saved = localStorage.getItem('savedCode');
+  const saved = localStorage.getItem("savedCode");
+
+  console.log("loading saved code", saved);
 
   if (saved) {
     return Text.of(JSON.parse(saved));
   }
 
-  return effect_template;
+  return Text.of(effect_template.split("\n"));
 }
 
 class MockDisplay {
@@ -72,7 +83,10 @@ class MockDisplay {
     this.width = width;
     this.height = height;
 
-    this.#buffer = Array.from(Array(width), () => Array.from(Array(height), () => [0, 0, 0]));
+    this.#buffer = Array.from(
+      Array(width),
+      () => Array.from(Array(height), () => [0, 0, 0]),
+    );
   }
 
   setPixel(x, y, [r, g, b]) {
@@ -95,32 +109,39 @@ class MockDisplay {
 
 scrollTheme = EditorView.theme({
   "&": { height: "80vh" },
-  ".cm-scroller": { overflow: "auto" }
+  ".cm-scroller": { overflow: "auto" },
 });
 
 window.onload = () => {
-  const language = new Compartment;
-
   const editor = new EditorView({
     parent: document.getElementById("editor"),
     state: EditorState.create({
       doc: getCode(),
       extensions: [
-        defaultHighlightStyle,
+        autocompletion(),
         closeBrackets(),
         history(),
-        keymap.of([...closeBracketsKeymap, ...historyKeymap, indentWithTab, ...standardKeymap]),
+        keymap.of([
+          ...closeBracketsKeymap,
+          ...historyKeymap,
+          indentWithTab,
+          ...standardKeymap,
+        ]),
         lineNumbers(),
+        syntaxHighlighting(defaultHighlightStyle),
         githubLight,
         scrollTheme,
-        language.of(javascript()),
+        javascript(),
         EditorView.updateListener.of((v) => {
           if (v.docChanged) {
-            localStorage.setItem('savedCode', JSON.stringify(v.state.doc.toJSON()))
+            localStorage.setItem(
+              "savedCode",
+              JSON.stringify(v.state.doc.toJSON()),
+            );
           }
-        })
-      ]
-    })
+        }),
+      ],
+    }),
   });
 
   editor.contentDOM.setAttribute("data-gramm", "false");
@@ -128,15 +149,20 @@ window.onload = () => {
   let nextEffect = null;
   let currentEffect = null;
 
-  document.getElementById("reload-effect-button").addEventListener("click", () => {
-    const body = [...editor.state.doc.iter()].join("\n");
-    const mod = Function(body)();
-    nextEffect = mod;
-  });
+  document.getElementById("reload-effect-button").addEventListener(
+    "click",
+    () => {
+      const body = [...editor.state.doc.iter()].join("\n");
+      const mod = Function(body)();
+      nextEffect = mod;
+    },
+  );
 
   document.getElementById("reset-code-button").addEventListener("click", () => {
     const new_content = Text.of(effect_template.split("\n"));
-    const update = editor.state.update({ changes: { from: 0, to: editor.state.doc.length, insert: new_content } });
+    const update = editor.state.update({
+      changes: { from: 0, to: editor.state.doc.length, insert: new_content },
+    });
     editor.dispatch(update);
   });
 
@@ -160,5 +186,5 @@ window.onload = () => {
         currentEffect = null;
       }
     }
-  }, (1000 / 20));
+  }, 1000 / 20);
 };

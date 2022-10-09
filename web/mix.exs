@@ -20,7 +20,7 @@ defmodule InfolabLightGames.MixProject do
   def application do
     [
       mod: {InfolabLightGames.Application, []},
-      extra_applications: [:logger, :runtime_tools, :os_mon]
+      extra_applications: [:logger, :runtime_tools, :os_mon, :ex_json_schema]
     ]
   end
 
@@ -38,24 +38,24 @@ defmodule InfolabLightGames.MixProject do
       {:floki, ">= 0.0.0", only: :test},
       {:phoenix_html, "~> 3.1"},
       {:phoenix_live_reload, "~> 1.3", only: :dev},
-      {:phoenix_live_view, "~> 0.17"},
-      {:phoenix_live_dashboard, "~> 0.6"},
+      {:phoenix_live_view, "~> 0.18"},
+      {:phoenix_live_dashboard, "~> 0.7"},
       {:telemetry_metrics, "~> 0.6.1"},
       {:telemetry_poller, "~> 1.0"},
       {:circular_buffer, "~> 0.4"},
-      {:jason, "~> 1.2"},
+      {:jason, "~> 1.4"},
       {:plug_cowboy, "~> 2.4"},
-      {:typed_struct, "~> 0.2"},
+      {:typed_struct, "~> 0.3"},
       {:qex, "~> 0.5"},
       {:ok, "~> 2.3"},
-      {:rustler, "~> 0.22"},
+      {:rustler, "~> 0.26"},
       {:remote_ip, "~> 1.0"},
       {:tint, "~> 1.1"},
       {:temp, "~> 0.4"},
       {:msgpax, "~> 2.0"},
       {:phoenix_swagger, "~> 0.8"},
-      {:ex_json_schema, "~> 0.7"},
-      {:credo, "~> 1.5", only: [:dev, :test], runtime: false}
+      {:ex_json_schema, "~> 0.9.2"},
+      {:credo, "~> 1.6", only: [:dev, :test], runtime: false}
     ]
   end
 
