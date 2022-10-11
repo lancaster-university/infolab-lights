@@ -153,8 +153,20 @@ window.onload = () => {
     "click",
     () => {
       const body = [...editor.state.doc.iter()].join("\n");
-      const mod = Function(body)();
-      nextEffect = mod;
+      try {
+        const f = Function(body);
+        const mod = f();
+        console.log("setting effect to", f, mod);
+        if (mod === undefined) {
+          window.alert(
+            "Couldn't seem to load your effect, make sure you have `return class MyEffect`",
+          );
+        }
+        nextEffect = mod;
+      } catch (error) {
+        window.alert(`Building effect failed: ${error}`);
+        console.error(error);
+      }
     },
   );
 
@@ -172,7 +184,8 @@ window.onload = () => {
         currentEffect = new nextEffect(new MockDisplay(120, 80));
       } catch (error) {
         window.alert(`Starting effect failed: ${error}`);
-        currentEffect = null;
+        console.error(error);
+        console.log("the effect", nextEffect);
       }
       nextEffect = null;
     }

@@ -15,8 +15,8 @@
 
             <div id="navbarmenu" class="navbar-menu">
                 <div class="navbar-start">
-                    <%= link "home", to: Routes.page_path(@socket, :index), class: "navbar-item" %>
-                    <%= link "playground", to: Routes.playground_path(@socket, :index), class: "navbar-item" %>
+                    <%= link "home", to: Routes.page_path(@conn, :index), class: "navbar-item" %>
+                    <%= link "playground", to: Routes.playground_path(@conn, :index), class: "navbar-item" %>
                 </div>
 
                 <div class="navbar-end">
@@ -39,7 +39,7 @@
 
 <section class="section">
     <div class="columns">
-        <div id="playground_screen" class="column is-two-fifths" phx-update="ignore">
+        <div id="playground_screen" class="column is-two-fifths">
             <svg viewbox={"0 0 #{@width * 4} #{@height * 4}"}>
                 <rect width={@width * 4} height={@height * 4} fill="#000000" />
                 <%= for x <- 0..@width-1,
@@ -62,7 +62,7 @@
             </nav>
         </div>
 
-        <div id="editor" class="column is-three-fifths" phx-update="ignore">
+        <div id="editor" class="column is-three-fifths">
         </div>
     </div>
 
