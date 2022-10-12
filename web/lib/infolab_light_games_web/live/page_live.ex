@@ -19,6 +19,9 @@ defmodule InfolabLightGamesWeb.PageLive do
       |> assign(remote_ip: remote_ip)
       |> assign(banned: Bans.is_banned?(remote_ip))
       |> assign(animation_names: Coordinator.possible_idle_animations())
+      |> assign(:scripts, [
+        Routes.static_path(socket, "/assets/app.js")
+      ])
 
     Logger.info("mounted #{inspect(self())}/#{inspect(remote_ip)} on main page")
     {:ok, _} = Presence.track_user(self(), remote_ip)
@@ -108,7 +111,6 @@ defmodule InfolabLightGamesWeb.PageLive do
         %{"animation-name" => animation_name},
         socket
       ) do
-
     Logger.info("Queueing #{animation_name}")
 
     {module, {mode, name}} = Coordinator.idle_animation_for_name(animation_name)

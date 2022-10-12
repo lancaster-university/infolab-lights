@@ -23,14 +23,15 @@ const Hooks = {
       this.el.addEventListener("click", (event) => {
         event.stopPropagation();
         this.el.closest(".dropdown").classList.toggle("is-active");
-      })
-    }
-  }
+      });
+    },
+  },
 };
 
-const csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute(
-  "content",
-);
+const csrfToken = document.querySelector("meta[name='csrf-token']")
+  .getAttribute(
+    "content",
+  );
 const liveSocket = new LiveSocket("/live", Socket, {
   params: { _csrf_token: csrfToken },
   hooks: Hooks,
@@ -154,7 +155,7 @@ function setupBurgers() {
   });
 }
 
-window.onload = () => {
+addEventListener("DOMContentLoaded", () => {
   setupBurgers();
 
   if (document.getElementById("game_screen") !== null) {
@@ -198,7 +199,9 @@ window.onload = () => {
       screen.style.height = `${(height / width) * containerWidth}px`;
     });
 
-    const socket = new Socket("/socket", { params: { _csrf_token: csrfToken } });
+    const socket = new Socket("/socket", {
+      params: { _csrf_token: csrfToken },
+    });
     socket.connect();
 
     const screen_channel = socket.channel("screen", {});
@@ -224,4 +227,4 @@ window.onload = () => {
         console.log("Unable to join", resp);
       });
   }
-};
+});

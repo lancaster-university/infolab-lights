@@ -18,6 +18,9 @@ defmodule InfolabLightGamesWeb.AdminLive do
       |> assign(uploaded_files: [])
       |> assign(mat_pow: MatrixPow.get())
       |> allow_upload(:static_image, accept: ~w(.png .jpg .jpeg .gif), max_entries: 1)
+      |> assign(:scripts, [
+        Routes.static_path(socket, "/assets/app.js")
+      ])
 
     {:ok, socket}
   end

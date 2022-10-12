@@ -5,7 +5,7 @@ const args = process.argv.slice(2);
 const watch = args.includes("--watch");
 
 let opts = {
-  entryPoints: ["js/app.js", "js/playground.js"],
+  entryPoints: ["js/app.js", "js/playground.js", "js/app-nonlive.js"],
   bundle: true,
   target: "es2016",
   outdir: "../priv/static/assets",

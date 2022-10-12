@@ -112,7 +112,7 @@ scrollTheme = EditorView.theme({
   ".cm-scroller": { overflow: "auto" },
 });
 
-window.onload = () => {
+addEventListener("DOMContentLoaded", () => {
   const editor = new EditorView({
     parent: document.getElementById("editor"),
     state: EditorState.create({
@@ -200,4 +200,4 @@ window.onload = () => {
       }
     }
   }, 1000 / 20);
-};
+});
