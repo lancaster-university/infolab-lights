@@ -22,6 +22,28 @@
                 <div class="navbar-end">
                     <div class="navbar-item">
                         <div class="buttons">
+                            <%= if @coordinator_status.queued_idle_animation do %>
+                                <button class="button is-primary" disabled>
+                                    <span>Queued: <%= elem(@coordinator_status.queued_idle_animation, 2) %></span>
+                                </button>
+                            <% else %>
+                                <div class="dropdown dropdown-button">
+                                    <div class="dropdown-trigger">
+                                        <button id="anim-dropdown-button" class="button is-primary" aria-haspopup="true" aria-controls="anim-queue-dropdown-menu" phx-hook="AnimDropdown">
+                                            <strong>Queue animation</strong>
+                                        </button>
+                                    </div>
+                                    <div class="dropdown-menu" id="anim-queue-dropdown-menu" role="menu">
+                                        <div class="dropdown-content">
+                                            <%= for opt <- @animation_names do %>
+                                                <a class="dropdown-item" phx-click="queue-animation" phx-value-animation-name={opt}>
+                                                    <%= opt %>
+                                                </a>
+                                            <% end %>
+                                        </div>
+                                    </div>
+                                </div>
+                            <% end %>
                             <button class="button is-primary" phx-click="queue" phx-value-game-name="snake" {if @game_id, do: [disabled: ""], else: []}>
                                 <strong>Play snake</strong>
                             </button>

@@ -1,4 +1,6 @@
 defmodule IdleAnimations.JSImpl do
+  @behaviour IdleAnimations.IdleAnimation
+
   use GenServer, restart: :temporary
   require Logger
 
@@ -50,11 +52,12 @@ defmodule IdleAnimations.JSImpl do
     end
   end
 
+  @impl true
   def possible_modes do
     Application.app_dir(:infolab_light_games, "priv")
     |> Path.join("js_effects/*.{js,ts}")
     |> Path.wildcard()
-    |> Enum.map(&{&1, ftype(&1)})
+    |> Enum.map(&{{&1, ftype(&1)}, Path.basename(&1, Path.extname(&1))})
   end
 
   @impl true

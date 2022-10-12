@@ -9,6 +9,7 @@ defmodule Coordinator do
 
     typedstruct enforce: true do
       field(:current_idle_animation, Coordinator.via_tuple() | none())
+      field(:queued_idle_animation, {module(), any(), binary()} | none())
       field(:current_game, Coordinator.via_tuple() | none())
       field(:queue, Qex.t(Coordinator.via_tuple()))
     end
@@ -17,7 +18,12 @@ defmodule Coordinator do
   def start_link(_opts) do
     GenServer.start_link(
       __MODULE__,
-      %State{current_idle_animation: nil, current_game: nil, queue: Qex.new()},
+      %State{
+        current_idle_animation: nil,
+        queued_idle_animation: nil,
+        current_game: nil,
+        queue: Qex.new()
+      },
       name: __MODULE__
     )
   end
@@ -98,6 +104,26 @@ defmodule Coordinator do
   end
 
   @impl true
+  def handle_call(
+        {:queue_idle_animation, module, mode, name},
+        _from,
+        %State{queued_idle_animation: nil} = state
+      ) do
+    state = %State{state | queued_idle_animation: {module, mode, name}}
+
+    {:reply, :ok, state, {:continue, :tick}}
+  end
+
+  @impl true
+  def handle_call(
+        {:queue_idle_animation, _module, _mode, _name},
+        _from,
+        state
+      ) do
+    {:reply, {:error, :queue_full}, state}
+  end
+
+  @impl true
   def handle_call({:join_game, id, player}, _from, state) do
     try do
       :ok = GenServer.call(via_tuple(id), {:add_player, player})
@@ -129,7 +155,7 @@ defmodule Coordinator do
     if is_nil(state.current_game) do
       {state, pid} = start_idle_animation(state, module, mode)
 
-      {:reply, {:ok, pid}, state}
+      {:reply, {:ok, pid}, state, {:continue, :tick}}
     else
       {:reply, {:error, :active_game}, state}
     end
@@ -169,7 +195,6 @@ defmodule Coordinator do
   defp modes_for_modules(modules) do
     modules
     |> Enum.flat_map(fn mod ->
-      # TODO: protocol this
       Enum.map(apply(mod, :possible_modes, []), &{mod, &1})
     end)
   end
@@ -195,9 +220,19 @@ defmodule Coordinator do
 
   defp maybe_start_idle_animation(state) do
     if is_nil(state.current_idle_animation) do
-      {module, mode} =
-        modes_for_modules([IdleAnimations.Ant, IdleAnimations.GOL, IdleAnimations.JSImpl])
-        |> Enum.random()
+      {state, module, mode} =
+        case state.queued_idle_animation do
+          {module, mode, _} ->
+            state = %State{state | queued_idle_animation: nil}
+            {state, module, mode}
+
+          _ ->
+            {module, {mode, _}} =
+              modes_for_modules([IdleAnimations.Ant, IdleAnimations.GOL, IdleAnimations.JSImpl])
+              |> Enum.random()
+
+            {state, module, mode}
+        end
 
       {state, _pid} = start_idle_animation(state, module, mode)
       state
@@ -222,7 +257,7 @@ defmodule Coordinator do
     end
   end
 
-  defp push_status(state) do
+  defp push_status(%State{} = state) do
     Phoenix.PubSub.broadcast!(
       InfolabLightGames.PubSub,
       "coordinator:status",
@@ -230,14 +265,18 @@ defmodule Coordinator do
     )
   end
 
-  defp get_status(state) do
+  defp get_status(%State{} = state) do
     current =
       if state.current_game,
         do: GenServer.call(state.current_game, :get_status)
 
     queue = Enum.map(state.queue, &GenServer.call(&1, :get_status))
 
-    %CoordinatorStatus{current_game: current, queue: queue}
+    %CoordinatorStatus{
+      current_game: current,
+      queue: queue,
+      queued_idle_animation: state.queued_idle_animation
+    }
   end
 
   defp handle_terminated_game(id, state) do
@@ -289,6 +328,10 @@ defmodule Coordinator do
     GenServer.call(__MODULE__, {:queue_game, game, initial_player, meta})
   end
 
+  def queue_idle_animation(module, mode, name) do
+    GenServer.call(__MODULE__, {:queue_idle_animation, module, mode, name})
+  end
+
   def join_game(id, player) do
     Logger.info("#{inspect(player)} joining game #{id}")
     GenServer.call(__MODULE__, {:join_game, id, player})
@@ -301,6 +344,16 @@ defmodule Coordinator do
 
   def status do
     GenServer.call(__MODULE__, :get_status)
+  end
+
+  def possible_idle_animations do
+    modes_for_modules([IdleAnimations.Ant, IdleAnimations.GOL, IdleAnimations.JSImpl])
+    |> Enum.map(fn {_, {_, name}} -> name end)
+  end
+
+  def idle_animation_for_name(name) do
+    modes_for_modules([IdleAnimations.Ant, IdleAnimations.GOL, IdleAnimations.JSImpl])
+    |> Enum.find(fn {_, {_, n}} -> name == n end)
   end
 
   def push_idle_animation(module, mode) do

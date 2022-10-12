@@ -18,6 +18,7 @@ defmodule InfolabLightGamesWeb.PageLive do
       |> assign(coordinator_status: coordinator_status)
       |> assign(remote_ip: remote_ip)
       |> assign(banned: Bans.is_banned?(remote_ip))
+      |> assign(animation_names: Coordinator.possible_idle_animations())
 
     Logger.info("mounted #{inspect(self())}/#{inspect(remote_ip)} on main page")
     {:ok, _} = Presence.track_user(self(), remote_ip)
@@ -94,6 +95,30 @@ defmodule InfolabLightGamesWeb.PageLive do
   def handle_event("queue", _params, socket) do
     # already in a game
     {:noreply, put_flash(socket, :error, "You're already in a game")}
+  end
+
+  @impl true
+  def handle_event("queue-animation", _params, %{assigns: %{banned: true}} = socket) do
+    {:noreply, put_flash(socket, :error, "You're banned mate")}
+  end
+
+  @impl true
+  def handle_event(
+        "queue-animation",
+        %{"animation-name" => animation_name},
+        socket
+      ) do
+
+    Logger.info("Queueing #{animation_name}")
+
+    {module, {mode, name}} = Coordinator.idle_animation_for_name(animation_name)
+    :ok = Coordinator.queue_idle_animation(module, mode, name)
+
+    socket =
+      socket
+      |> put_flash(:info, "Queued #{name}")
+
+    {:noreply, socket}
   end
 
   @impl true
