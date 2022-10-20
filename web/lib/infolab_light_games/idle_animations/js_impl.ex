@@ -320,12 +320,23 @@ defmodule IdleAnimations.JSImpl do
     Coordinator.notify_idle_animation_terminated(state.id)
   end
 
+  defp fix_int(num) do
+
+    max(min(trunc(num), 255), 0)
+  end
+
   defp process_input(msg, %State{} = state) do
+    {screen_x, screen_y} = Screen.dims()
+
     case Msgpax.unpack_slice(msg) do
       {:ok, parsed, rest} ->
         pixels =
-          Enum.map(parsed, fn %{"x" => x, "y" => y, "v" => [r, g, b]} ->
-            {x, y, {trunc(r), trunc(g), trunc(b)}}
+          parsed
+          |> Enum.map(fn %{"x" => x, "y" => y, "v" => [r, g, b]} ->
+            {x, y, {fix_int(r), fix_int(g), fix_int(b)}}
+          end)
+          |> Enum.filter(fn {x, y, _} ->
+            x >= 0 and x < screen_x and y >= 0 and y < screen_y
           end)
 
         state = %State{state | matrix: NativeMatrix.set_from_list(state.matrix, pixels)}
