@@ -3,6 +3,15 @@ return class MartixEffect {
   constructor(display) {
     this.display = display;
     this.frame = 0;
+
+    //Choose a random color mode each time it's started
+    let colorModes = [
+      [0,255,0],   //Matrix
+      [0,255,255], //Cyan
+      [255,0,255], //Purple
+    ]
+
+    this.colorMode = colorModes[Math.floor(Math.random() * colorModes.length)];
     
     //Create buffer
     this.buffer = [];
@@ -43,9 +52,9 @@ return class MartixEffect {
       if (Math.floor(Math.random() * Math.max(500 - (this.frame / 4),20)) == 0) { //Increase placement chance each frame
         let randomX = Math.floor(Math.random() * this.buffer[0].length);
         this.buffer[0][randomX] = [
-            Math.floor(Math.random() * 0),   //Starting color
-            Math.floor(Math.random() * 255), 
-            Math.floor(Math.random() * 0), 
+            Math.floor(Math.random() * this.colorMode[0]),   //Starting color
+            Math.floor(Math.random() * this.colorMode[1]), 
+            Math.floor(Math.random() * this.colorMode[2]), 
         ];
       }
     }
