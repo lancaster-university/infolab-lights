@@ -1,5 +1,5 @@
-blob_count = 15;
-t = 0;
+const blob_count = 15;
+let t = 0;
 
 class Blob{
   constructor(display){
