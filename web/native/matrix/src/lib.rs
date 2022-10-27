@@ -1,6 +1,8 @@
 use std::time::Duration;
 
-use image::{AnimationDecoder, DynamicImage, EncodableLayout, ImageEncoder, ImageFormat, Rgb, RgbImage};
+use image::{
+    AnimationDecoder, DynamicImage, EncodableLayout, ImageEncoder, ImageFormat, Rgb, RgbImage,
+};
 use rustler::{Binary, Env, Error, OwnedBinary, ResourceArc, Term};
 
 mod atoms {

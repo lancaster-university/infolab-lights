@@ -1,4 +1,6 @@
 defmodule IdleAnimations.GOL do
+  @behaviour IdleAnimations.IdleAnimation
+
   use GenServer, restart: :temporary
 
   @moduledoc "A GOL idle animation"
@@ -7,15 +9,15 @@ defmodule IdleAnimations.GOL do
     use TypedStruct
 
     typedstruct enforce: true do
-      field :id, String.t()
+      field(:id, String.t())
 
-      field :gol_state, Matrix.t(boolean())
+      field(:gol_state, Matrix.t(boolean()))
 
-      field :fading_out, boolean(), default: false
-      field :fader, Fader.t(), default: Fader.new(8)
+      field(:fading_out, boolean(), default: false)
+      field(:fader, Fader.t(), default: Fader.new(8))
 
-      field :steps, non_neg_integer(), default: 0
-      field :max_steps, non_neg_integer()
+      field(:steps, non_neg_integer(), default: 0)
+      field(:max_steps, non_neg_integer())
     end
   end
 
@@ -70,7 +72,10 @@ defmodule IdleAnimations.GOL do
     Coordinator.notify_idle_animation_terminated(state.id)
   end
 
-  def possible_modes, do: [:random, :random, :glider]
+  @impl true
+  def possible_modes do
+    [{:random, "Random GOL"}, {:glider, "Glider GOL"}]
+  end
 
   defp get_initial_state(mode) do
     {screen_x, screen_y} = Screen.dims()

@@ -29,7 +29,7 @@ defmodule InfolabLightGamesWeb.Router do
     pipe_through :browser
 
     live "/", PageLive, :index
-    live "/playground", PlaygroundLive, :index
+    get "/playground", PlaygroundController, :index
   end
 
   # Other scopes may use custom stacks.

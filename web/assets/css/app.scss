@@ -29,6 +29,7 @@ $fa-font-path: "../node_modules/@fortawesome/fontawesome-free/webfonts/";
 @import "~bulma/sass/elements/tag.sass";
 @import "~bulma/sass/elements/title.sass";
 @import "~bulma/sass/components/level.sass";
+@import "~bulma/sass/components/dropdown.sass";
 @import "~bulma/sass/components/navbar.sass";
 @import "~bulma/sass/components/panel.sass";
 @import "~bulma/sass/grid/columns.sass";
@@ -36,6 +37,10 @@ $fa-font-path: "../node_modules/@fortawesome/fontawesome-free/webfonts/";
 @import "~bulma/sass/layout/section.sass";
 @import "../node_modules/@fortawesome/fontawesome-free/scss/fontawesome";
 @import "../node_modules/@fortawesome/fontawesome-free/scss/solid";
+
+.dropdown-button {
+  margin-right: 0.5rem;
+}
 
 /* LiveView specific classes for your customizations */
 .phx-no-feedback.invalid-feedback,
@@ -137,7 +142,7 @@ canvas {
   margin: auto;
   padding-bottom: 1.5rem;
 
-  @media(min-width: $desktop) {
+  @media (min-width: $desktop) {
     display: none;
   }
 }

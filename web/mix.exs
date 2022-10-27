@@ -53,9 +53,11 @@ defmodule InfolabLightGames.MixProject do
       {:tint, "~> 1.1"},
       {:temp, "~> 0.4"},
       {:msgpax, "~> 2.0"},
-      {:phoenix_swagger, "~> 0.8"},
+      # {:phoenix_swagger, "~> 0.8"},
+      {:phoenix_swagger, git: "https://github.com/fastjames/phoenix_swagger", branch: "update_deps"},
       {:ex_json_schema, "~> 0.9.2"},
-      {:credo, "~> 1.6", only: [:dev, :test], runtime: false}
+      {:credo, "~> 1.6", only: [:dev, :test], runtime: false},
+      {:dialyxir, "~> 1.1.0", only: [:dev], runtime: false}
     ]
   end
 
@@ -67,8 +69,8 @@ defmodule InfolabLightGames.MixProject do
   # See the documentation for `Mix` for more info on aliases.
   defp aliases do
     [
-      setup: ["deps.get", "cmd npm install --prefix assets"],
-      "assets.deploy": ["cmd npm run deploy --prefix assets", "phx.digest"]
+      setup: ["deps.get", "cmd --cwd assets yarn install"],
+      "assets.deploy": ["cmd yarn --cwd assets run deploy", "phx.digest"]
     ]
   end
 end

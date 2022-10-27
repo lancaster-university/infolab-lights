@@ -12,17 +12,10 @@ config :infolab_light_games, InfolabLightGamesWeb.Endpoint,
   code_reloader: true,
   check_origin: false,
   watchers: [
-    node: [
-      "build.js",
+    yarn: [
+      "watch",
       cd: Path.expand("../assets", __DIR__)
     ],
-    node: [
-      "./node_modules/.bin/cpx",
-      "'static/**/*'",
-      "../priv/static",
-      "--watch",
-      cd: Path.expand("../assets", __DIR__)
-    ]
   ]
 
 config :infolab_light_games, InfolabLightGamesWeb.Router,

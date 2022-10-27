@@ -12,8 +12,7 @@
     <%= for script <- assigns[:extra_styles] || [] do %>
         <link defer phx-track-static rel="stylesheet" href={script} />
     <% end %>
-    <script defer phx-track-static type="text/javascript" src={Routes.static_path(@conn, "/assets/app.js")}></script>
-    <%= for script <- assigns[:extra_scripts] || [] do %>
+    <%= for script <- assigns[:scripts] || [] do %>
         <script defer phx-track-static type="text/javascript" src={script} />
     <% end %>
   </head>

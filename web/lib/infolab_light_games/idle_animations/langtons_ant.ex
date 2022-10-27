@@ -1,4 +1,6 @@
 defmodule IdleAnimations.Ant do
+  @behaviour IdleAnimations.IdleAnimation
+
   use GenServer, restart: :temporary
 
   @moduledoc "A langton's ant idle animation"
@@ -97,7 +99,10 @@ defmodule IdleAnimations.Ant do
     %State{state | fading_out: true, fader: %Fader{state.fader | direction: :dec}}
   end
 
-  def possible_modes, do: [:original, :random, :random, :random]
+  @impl true
+  def possible_modes do
+    [{:original, "Langtons ant"}, {:random, "Langtons ant (random ruleset)"}]
+  end
 
   defp get_ruleset(mode) do
     case mode do
