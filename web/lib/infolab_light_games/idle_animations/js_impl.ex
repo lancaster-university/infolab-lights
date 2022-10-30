@@ -186,6 +186,10 @@ defmodule IdleAnimations.JSImpl do
     import { writeAllSync } from "https://deno.land/std@0.113.0/streams/conversion.ts";
     import { pack } from 'https://deno.land/x/msgpackr@v1.3.2/index.js';
 
+    console.log = console.trace;
+    console.debug = console.trace;
+    console.info = console.trace;
+
     async function readStdin() {
         const bytes = [];
 

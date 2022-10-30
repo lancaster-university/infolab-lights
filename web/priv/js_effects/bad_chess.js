@@ -983,7 +983,6 @@ return class MyEffect {
         }
       }
     }
-    this.display.flush();
   }
 
   update() {
