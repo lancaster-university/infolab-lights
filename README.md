@@ -41,4 +41,4 @@ be rejected.
 | [@mrgwbland](https://github.com/mrgwbland)                 | [Colour changing spiral](web/priv/js_effects/colour_changing_spiral.js) | Spiral works inwards changing colour, when it reaches the end (near centre) it goes back to the start.                 |                                                                                                                                                                        |
 | [@james1236](https://github.com/james1236)                 | [Matrix rain](web/priv/js_effects/matrix.js)                      | Matrix style falling rain that gets longer and more frequent with time                                                       |
 | [@SuitYourselfGames](https://github.com/SuitYourselfGames) | [Blobs](web/priv/js_effects/Blobs.js) | Some colourful blobs!                                                                                         |
-| [@lcjb360][https://github.com/lcjb360] | [Bad Chess][web/priv/js_effects/bad_chess.js] | Google en passant |
+| [@lcjb360](https://github.com/lcjb360) | [Bad Chess](web/priv/js_effects/bad_chess.js) | Google en passant |
