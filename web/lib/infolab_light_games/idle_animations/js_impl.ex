@@ -9,6 +9,8 @@ defmodule IdleAnimations.JSImpl do
   @fps 20
   # about 10 minutes at 20fps
   @max_steps 12_000
+  # 10 seconds at 20fps
+  @no_frame_timeout @fps * 10
 
   defmodule State do
     use TypedStruct
@@ -26,6 +28,7 @@ defmodule IdleAnimations.JSImpl do
       field(:fader, Fader.t(), default: Fader.new(20))
 
       field(:steps, non_neg_integer(), default: 0)
+      field(:steps_since_last_frame, non_neg_integer(), default: 0)
     end
   end
 
@@ -274,16 +277,27 @@ defmodule IdleAnimations.JSImpl do
   @impl true
   def handle_info(:tick, %State{} = state) do
     render(state)
-    cmd = Jason.encode!(%{msg: :tick})
-    send(state.port, {self(), {:command, "#{cmd}\n"}})
 
-    state = %State{state | steps: state.steps + 1, fader: Fader.step(state.fader)}
+    # don't have tons of in-flight frame requests
+    if state.steps_since_last_frame < 2 do
+      cmd = Jason.encode!(%{msg: :tick})
+      send(state.port, {self(), {:command, "#{cmd}\n"}})
+    end
 
-    if state.steps < @max_steps and not (state.fading_out and Fader.done(state.fader)) do
+    state = %State{
+      state
+      | steps: state.steps + 1,
+        fader: Fader.step(state.fader),
+        steps_since_last_frame: state.steps_since_last_frame + 1
+    }
+
+    if state.steps_since_last_frame < @no_frame_timeout and state.steps < @max_steps and
+         not (state.fading_out and Fader.done(state.fader)) do
       tick_request()
 
       {:noreply, state}
     else
+      # trigger the fade out
       {:stop, :normal, state}
     end
   end
@@ -325,7 +339,6 @@ defmodule IdleAnimations.JSImpl do
   end
 
   defp fix_int(num) do
-
     max(min(trunc(num), 255), 0)
   end
 
@@ -343,7 +356,11 @@ defmodule IdleAnimations.JSImpl do
             x >= 0 and x < screen_x and y >= 0 and y < screen_y
           end)
 
-        state = %State{state | matrix: NativeMatrix.set_from_list(state.matrix, pixels)}
+        state = %State{
+          state
+          | steps_since_last_frame: 0,
+            matrix: NativeMatrix.set_from_list(state.matrix, pixels)
+        }
 
         process_input(rest, state)
 
