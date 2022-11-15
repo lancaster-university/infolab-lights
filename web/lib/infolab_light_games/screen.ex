@@ -34,10 +34,12 @@ defmodule Screen do
 
   @impl true
   def handle_cast({:update_frame, frame}, _) do
-    frame = NativeMatrix.pow(frame, MatrixPow.get())
+    multiplied_frame = NativeMatrix.pow(frame, MatrixPow.get())
     img = NativeMatrix.to_png(frame)
+    multiplied_img = NativeMatrix.to_png(multiplied_frame)
 
     # this is where we push out screen updates to the rest of the application
+    PubSub.broadcast!(InfolabLightGames.PubSub, "screen:update_multipled", {:screen_update, multiplied_img})
     PubSub.broadcast!(InfolabLightGames.PubSub, "screen:update", {:screen_update, img})
 
     {:noreply, {frame}}

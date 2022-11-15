@@ -57,7 +57,7 @@ defmodule InfolabLightGames.MixProject do
       {:phoenix_swagger, git: "https://github.com/fastjames/phoenix_swagger", branch: "update_deps"},
       {:ex_json_schema, "~> 0.9.2"},
       {:credo, "~> 1.6", only: [:dev, :test], runtime: false},
-      {:dialyxir, "~> 1.1.0", only: [:dev], runtime: false}
+      {:dialyxir, "~> 1.2.0", only: [:dev], runtime: false}
     ]
   end
 
