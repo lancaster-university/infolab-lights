@@ -39,7 +39,7 @@ defmodule Screen do
     multiplied_img = NativeMatrix.to_png(multiplied_frame)
 
     # this is where we push out screen updates to the rest of the application
-    PubSub.broadcast!(InfolabLightGames.PubSub, "screen:update_multipled", {:screen_update, multiplied_img})
+    PubSub.broadcast!(InfolabLightGames.PubSub, "screen:update_multiplied", {:screen_update, multiplied_img})
     PubSub.broadcast!(InfolabLightGames.PubSub, "screen:update", {:screen_update, img})
 
     {:noreply, {frame}}
