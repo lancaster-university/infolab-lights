@@ -29,6 +29,7 @@ defmodule IdleAnimations.JSImpl do
 
       field(:steps, non_neg_integer(), default: 0)
       field(:steps_since_last_frame, non_neg_integer(), default: 0)
+      field(:last_frame_time, non_neg_integer(), default: 0)
     end
   end
 
@@ -250,8 +251,12 @@ defmodule IdleAnimations.JSImpl do
     const inst = new effect(new Display(#{screen_x}, #{screen_y}));
 
     while (true) {
-        let r = new TextDecoder().decode(await readStdin())
-        let {msg: msg} = JSON.parse(r.trim());
+        let r = new TextDecoder().decode(await readStdin()).trim();
+        if (!r) {
+          console.log("Empty string received, quitting");
+          break;
+        }
+        let {msg: msg} = JSON.parse(r);
 
         // msg should always be "tick"
 
@@ -279,7 +284,9 @@ defmodule IdleAnimations.JSImpl do
     render(state)
 
     # don't have tons of in-flight frame requests
-    if state.steps_since_last_frame < 2 do
+    time_since_last_frame = System.monotonic_time(:millisecond) - state.last_frame_time
+
+    if state.steps_since_last_frame < 6 or time_since_last_frame > 500 do
       cmd = Jason.encode!(%{msg: :tick})
       send(state.port, {self(), {:command, "#{cmd}\n"}})
     end
@@ -291,12 +298,18 @@ defmodule IdleAnimations.JSImpl do
         steps_since_last_frame: state.steps_since_last_frame + 1
     }
 
-    if state.steps_since_last_frame < @no_frame_timeout and state.steps < @max_steps and
+    frame_timeout_reached = state.steps_since_last_frame > @no_frame_timeout
+
+    if not frame_timeout_reached and state.steps < @max_steps and
          not (state.fading_out and Fader.done(state.fader)) do
       tick_request()
 
       {:noreply, state}
     else
+      if frame_timeout_reached do
+        Logger.info("Terminating animation because it didn't produce frames: #{state.id}:#{inspect(state.file)}")
+      end
+
       # trigger the fade out
       {:stop, :normal, state}
     end
@@ -359,6 +372,7 @@ defmodule IdleAnimations.JSImpl do
         state = %State{
           state
           | steps_since_last_frame: 0,
+            last_frame_time: System.monotonic_time(:millisecond),
             matrix: NativeMatrix.set_from_list(state.matrix, pixels)
         }
 

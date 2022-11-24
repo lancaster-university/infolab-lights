@@ -25,6 +25,7 @@ return class GradientsEffect {
 
     // Higher frameRate values -> less updates/sec
     if (this.tick % this.frameRate == 1) {
+      this.display.flush();
       return;
     };
 

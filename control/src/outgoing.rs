@@ -170,6 +170,9 @@ fn parse_router(router: roxmltree::Node) -> Router {
 
     let addr = SocketAddrV4::new(hostname.parse().unwrap(), port.parse().unwrap());
 
+    let mut last_lid = 0;
+    let mut last_y = 0;
+
     let controllers_map = router
         .children()
         .filter(|n| n.has_tag_name("Light"))
@@ -183,6 +186,17 @@ fn parse_router(router: roxmltree::Node) -> Router {
             let x = light.attribute("x").unwrap().parse().unwrap();
             let y = light.attribute("y").unwrap().parse().unwrap();
             let z = light.attribute("z").unwrap().parse().unwrap();
+
+            // if lid as isize != last_lid + 1 {
+            //     println!("Non seq lid: {lid}, {x}, {y}");
+            //
+
+            if y != 79 && y as isize != last_y - 1 {
+                println!("Non seq y: {lid}:{cid}, {x}, {y}")
+            }
+
+            last_lid = lid as isize;
+            last_y = y as isize;
 
             (cid, Light { id: lid, x, y, z })
         })

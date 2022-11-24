@@ -633,6 +633,8 @@ return class FireworksEffect {
 
     // limit our fps a bit
     if (this.tick % 3 !== 0) {
+      // flush so we return a frame
+      this.display.flush();
       return;
     }
 

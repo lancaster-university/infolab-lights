@@ -54,6 +54,7 @@ return class RainbowEffect {
     this.tick += 1;
 
     if (this.tick < 3) {
+      this.display.flush();
       return;
     }
 
