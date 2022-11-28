@@ -42,3 +42,4 @@ be rejected.
 | [@james1236](https://github.com/james1236)                 | [Matrix rain](web/priv/js_effects/matrix.js)                      | Matrix style falling rain that gets longer and more frequent with time                                                       |
 | [@SuitYourselfGames](https://github.com/SuitYourselfGames) | [Blobs](web/priv/js_effects/Blobs.js) | Some colourful blobs!                                                                                         |
 | [@lcjb360](https://github.com/lcjb360) | [Bad Chess](web/priv/js_effects/bad_chess.js) | Google en passant |
+| [@james1236](https://github.com/james1236) | [Word Game](web/priv/js_effects/word_game.js) | Word game animation |
