@@ -37,6 +37,10 @@ class BaseVector implements VectorProps {
     this.x = other.x;
     this.y = other.y;
   }
+
+  asTuple(): [number, number] {
+    return [this.x, this.y];
+  }
 }
 
 class ScaledVector<T extends VectorProps = Vector> implements VectorProps {
@@ -142,6 +146,10 @@ class Vector<T extends VectorProps = BaseVector> {
   get y() {
     return this.inner.y;
   }
+
+  asTuple(): [number, number] {
+    return [this.x, this.y];
+  }
 }
 
 class Particle<Acc extends VectorProps = BaseVector> {
@@ -183,6 +191,13 @@ class Snowflake {
 
     if (this.particle.pos.y < -(this.length + 2)) {
       this.scene.removeSnowflake(this);
+
+      if (
+        this.particle.pos.x > 0 &&
+        this.particle.pos.x < this.scene.display.width
+      ) {
+        this.scene.collectSnow(this.particle.pos.x);
+      }
     }
 
     if (
@@ -198,10 +213,27 @@ class Snowflake {
     windVector: Vector,
   ) {
     const startX = uniformBetween(
-      -0.5 * scene.display.width,
-      1.5 * scene.display.width,
+      -0.5,
+      1.5,
     );
-    const origin = new Vector(new BaseVector(startX, scene.display.height));
+
+    // have snowflakes spawned outside the display start lower
+    // so that when the wind is high we don't get gaps
+    let startY: number;
+    if (startX < 0.0) {
+      startY = 1 + startX;
+    } else if (startX > 1.0) {
+      startY = 1 - (startX - 1);
+    } else {
+      startY = 1.0;
+    }
+
+    const origin = new Vector(
+      new BaseVector(
+        startX * scene.display.width,
+        startY * scene.display.height,
+      ),
+    );
 
     const depth = uniformBetween(0, 1);
     const scaleFactor = 0.3 + depth;
@@ -481,7 +513,12 @@ function snowman(buffer: Buffer, width: number) {
   // nose
   drawCircle([midX, 46], 1.3, [237, 145, 33, 1], buffer);
 
-  function mouthPiece(x: number, y: number, colour: [number, number, number, number], buffer: Buffer) {
+  function mouthPiece(
+    x: number,
+    y: number,
+    colour: [number, number, number, number],
+    buffer: Buffer,
+  ) {
     drawSquare([x, y], [x + 1, y - 1], colour, buffer);
   }
 
@@ -517,6 +554,7 @@ interface Display {
 export class SnowEffect {
   display: Display;
   snowflakes: Set<Snowflake>;
+  snowheights: number[];
   windVector: Vector;
   windJitter: Vector;
   tick: number;
@@ -530,6 +568,7 @@ export class SnowEffect {
       0.000001,
     ]);
     this.snowflakes = new Set();
+    this.snowheights = new Array(display.width).fill(0.0);
 
     this.clear();
     this.tick = 0;
@@ -558,6 +597,8 @@ export class SnowEffect {
     this.windVector.inner.copyFrom(this.windVector.add(this.windJitter));
     this.windJitter = Vector.randomNormal([-0.002, 0.002], [-0.00001, 0.00001]);
 
+    // console.trace(`wind vector ${this.windVector.asTuple()}\r\n`)
+
     if (this.snowflakes.size < 300) {
       const snowflake = Snowflake.newRandom(this, this.windVector);
       this.snowflakes.add(snowflake);
@@ -577,6 +618,24 @@ export class SnowEffect {
       snowflake.step();
     }
 
+    this.snowheights.forEach((e, i) => {
+      const flakes_per_pixel = 2.0;
+      let y = 0;
+
+      while (e > 0) {
+        const e_ = e - flakes_per_pixel;
+        let brightness: number;
+        if (e_ < 0.0) {
+          brightness = e / flakes_per_pixel;
+        } else {
+          brightness = 1.0;
+        }
+        e = e_;
+        buffer.paint(i, y, [255, 255, 255, brightness]);
+        y += 1;
+      }
+    });
+
     for (let x = 0; x < this.display.width; x++) {
       for (let y = 0; y < this.display.height; y++) {
         const [r, g, b, a] = buffer.buffer[x][y];
@@ -589,6 +648,10 @@ export class SnowEffect {
     }
 
     this.display.flush();
+  }
+
+  collectSnow(x: number) {
+    this.snowheights[x | 0] += 1.0;
   }
 
   removeSnowflake(obj: Snowflake) {

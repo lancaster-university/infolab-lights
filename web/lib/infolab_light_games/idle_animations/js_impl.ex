@@ -343,6 +343,8 @@ defmodule IdleAnimations.JSImpl do
 
   @impl true
   def terminate(_reason, %State{} = state) do
+    Logger.info("Idle animation is terminating")
+
     case state.port do
       nil -> nil
       port -> send(port, {self(), :close})
@@ -384,6 +386,8 @@ defmodule IdleAnimations.JSImpl do
   end
 
   defp start_fading_out(%State{} = state) do
+    tick_request()
+
     %State{state | fading_out: true, fader: %Fader{state.fader | direction: :dec}}
   end
 

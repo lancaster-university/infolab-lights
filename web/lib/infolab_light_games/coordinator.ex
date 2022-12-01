@@ -182,9 +182,12 @@ defmodule Coordinator do
     if state.current_game do
       # if there's a current game ready and an idle anim, tell the idle anim to
       # stop, otherwise if there's no idle animation we can start the game
-      if state.current_idle_animation,
-        do: GenServer.cast(state.current_idle_animation, :terminate),
-        else: GenServer.call(state.current_game, :start_if_ready)
+      if state.current_idle_animation do
+        Logger.info("Requesting idle animation quits")
+        GenServer.cast(state.current_idle_animation, :terminate)
+      else
+        GenServer.call(state.current_game, :start_if_ready)
+      end
     end
 
     push_status(state)
