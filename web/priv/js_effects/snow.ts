@@ -502,16 +502,16 @@ function snowman(buffer: Buffer, width: number) {
   const midX = Math.floor(width / 2.0);
 
   // body
-  drawCircle([midX, 10], 15, [255, 255, 255, 1], buffer);
-  drawCircle([midX, 31], 10, [255, 255, 255, 1], buffer);
-  drawCircle([midX, 45], 8, [255, 255, 255, 1], buffer);
+  drawCircle([midX, 20], 18, [255, 255, 255, 1], buffer);
+  drawCircle([midX, 42], 14, [255, 255, 255, 1], buffer);
+  drawCircle([midX, 58], 10, [255, 255, 255, 1], buffer);
 
   // eyes
-  drawCircle([midX - 3, 48], 1.5, [0, 0, 0, 1], buffer);
-  drawCircle([midX + 4, 48], 1.5, [0, 0, 0, 1], buffer);
+  drawCircle([midX - 3, 63], 1.5, [0, 0, 0, 1], buffer);
+  drawCircle([midX + 4, 63], 1.5, [0, 0, 0, 1], buffer);
 
   // nose
-  drawCircle([midX, 46], 1.3, [237, 145, 33, 1], buffer);
+  drawCircle([midX, 59], 1.3, [237, 145, 33, 1], buffer);
 
   function mouthPiece(
     x: number,
@@ -523,24 +523,26 @@ function snowman(buffer: Buffer, width: number) {
   }
 
   // mouth
-  mouthPiece(midX - 5, 43, [0, 0, 0, 1], buffer);
-  mouthPiece(midX - 2, 41, [0, 0, 0, 1], buffer);
-  mouthPiece(midX + 1, 41, [0, 0, 0, 1], buffer);
-  mouthPiece(midX + 4, 43, [0, 0, 0, 1], buffer);
+  mouthPiece(midX - 5, 56, [0, 0, 0, 1], buffer);
+  mouthPiece(midX - 2, 54, [0, 0, 0, 1], buffer);
+  mouthPiece(midX + 1, 54, [0, 0, 0, 1], buffer);
+  mouthPiece(midX + 4, 56, [0, 0, 0, 1], buffer);
 
   // buttons
-  const buttonStart = 32;
+  const buttonStart = 44;
   drawCircle([midX, buttonStart], 1.5, [0, 0, 0, 1], buffer);
-  drawCircle([midX, buttonStart - 6], 1.5, [0, 0, 0, 1], buffer);
-  drawCircle([midX, buttonStart - 12], 1.5, [0, 0, 0, 1], buffer);
-  drawCircle([midX, buttonStart - 18], 1.5, [0, 0, 0, 1], buffer);
+  drawCircle([midX, buttonStart - 8], 1.5, [0, 0, 0, 1], buffer);
+  drawCircle([midX, buttonStart - 16], 1.5, [0, 0, 0, 1], buffer);
+  drawCircle([midX, buttonStart - 24], 1.5, [0, 0, 0, 1], buffer);
 
   // arms
-  drawLine([midX + 7, 32], [midX + 7 + 20, 32 + 6], [150, 70, 0, 1], buffer);
-  drawLine([midX + 7, 33], [midX + 7 + 20, 32 + 6], [150, 70, 0, 1], buffer);
+  drawLine([midX + 7, 41], [midX + 7 + 30, 41 + 6], [150, 70, 0, 1], buffer);
+  drawLine([midX + 7, 42], [midX + 7 + 30, 41 + 6], [150, 70, 0, 1], buffer);
+  drawLine([midX + 7, 43], [midX + 7 + 30, 42 + 6], [150, 70, 0, 1], buffer);
 
-  drawLine([midX - 7, 31], [midX - 7 - 20, 32 + 5], [150, 70, 0, 1], buffer);
-  drawLine([midX - 7, 32], [midX - 7 - 20, 32 + 5], [150, 70, 0, 1], buffer);
+  drawLine([midX - 7, 41], [midX - 7 - 30, 41 + 5], [150, 70, 0, 1], buffer);
+  drawLine([midX - 7, 42], [midX - 7 - 30, 41 + 5], [150, 70, 0, 1], buffer);
+  drawLine([midX - 7, 43], [midX - 7 - 30, 41 + 5], [150, 70, 0, 1], buffer);
 }
 
 interface Display {
