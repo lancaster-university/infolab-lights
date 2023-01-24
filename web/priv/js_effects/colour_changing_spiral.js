@@ -55,56 +55,48 @@ return class MyEffect
       this.y=0;
       this.layer=0;
     }
-    if (this.y==this.layer)
-    {      
-      if (this.x==this.display.width-this.layer-1)
-      {
-        this.y+=this.ldir;
-        if (this.ldir==1)
-        {
-          this.justarted=false;
-        }
-        else
-        {
-          this.juststarted=true;
-        }
-      }
-      else
-      {
-        this.x+=this.ldir;
-      }
-    }
-    else if (this.x==this.display.width-this.layer-1)
+    if (this.y == this.layer)
     {
-      if (this.y==this.display.height-this.layer-1)
+      if (this.x == this.display.width - this.layer - this.ldir)
       {
-        this.x-=this.ldir;
+        this.y += this.ldir;
       }
       else
       {
-        this.y+=this.ldir;
+        this.x += this.ldir;
       }
     }
-    else if (this.y==this.display.height-this.layer-1)
-    {      
-      if (this.x==this.layer)
+    else if (this.x == this.display.width - this.layer - this.ldir)
+    {
+      if (this.y == this.display.height - this.layer - this.ldir)
       {
-        this.y-=this.ldir;
+        this.x -= this.ldir;
       }
       else
       {
-        this.x-=this.ldir;
+        this.y += this.ldir;
       }
     }
-    else if (this.x==this.layer)
-    {      
-      if (this.y==this.layer+1)
+    else if (this.y == this.display.height - this.layer - this.ldir)
+    {
+      if (this.x == this.layer)
       {
-        this.layer+=this.ldir;
+        this.y -= this.ldir;
       }
       else
       {
-        this.y-=this.ldir;
+        this.x -= this.ldir;
+      }
+    }
+    else if (this.x == this.layer)
+    {
+      if (this.y == this.layer + this.ldir)
+      {
+        this.layer += this.ldir;
+      }
+      else
+      {
+        this.y -= this.ldir;
       }
     }
   }
