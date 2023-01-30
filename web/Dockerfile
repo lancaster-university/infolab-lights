@@ -176,9 +176,16 @@ RUN apt-get update; \
     && update-ca-certificates
 
 # This copies our app source code into the build container
-COPY . .
+COPY assets/ assets/
+COPY config/ config/
+COPY lib/ lib/
+COPY native/ native/
+COPY rel/ rel/
+COPY mix.exs mix.lock .
 
 RUN mix do deps.get, deps.compile, compile
+
+COPY priv/ priv/
 
 # This step builds assets for the Phoenix app (if there is one)
 # If you aren't building a Phoenix app, pass `--build-arg SKIP_PHOENIX=true`
