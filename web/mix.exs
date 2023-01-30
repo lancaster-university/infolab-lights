@@ -48,7 +48,7 @@ defmodule InfolabLightGames.MixProject do
       {:typed_struct, "~> 0.3"},
       {:qex, "~> 0.5"},
       {:ok, "~> 2.3"},
-      {:rustler, "~> 0.26"},
+      {:rustler, "~> 0.27"},
       {:remote_ip, "~> 1.0"},
       {:tint, "~> 1.1"},
       {:temp, "~> 0.4"},
