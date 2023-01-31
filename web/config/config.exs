@@ -17,6 +17,11 @@ config :infolab_light_games, InfolabLightGamesWeb.Endpoint,
 
 config :infolab_light_games, Screen, dims: {120, 80}
 
+config :infolab_light_games, Scheduler,
+  jobs: [
+    {"0 17 * * FRI", {Utils.StaticLoader, :display_static, ["luhack.png"]}}
+  ]
+
 # Configures Elixir's Logger
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",

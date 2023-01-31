@@ -44,7 +44,7 @@ defmodule InfolabLightGamesWeb do
   def live_view do
     quote do
       use Phoenix.LiveView,
-        layout: {InfolabLightGamesWeb.LayoutView, "live.html"}
+        layout: {InfolabLightGamesWeb.LayoutView, :live}
 
       unquote(view_helpers())
     end
