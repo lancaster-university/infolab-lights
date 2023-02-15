@@ -171,7 +171,7 @@ defmodule IdleAnimations.JSImpl do
 
     me = self()
 
-    Task.async(fn ->
+    Task.start_link(fn ->
       Logger.info("starting up js process reader")
       Stream.unfold(nil, fn _ ->
         case Exile.Process.read(s) do
@@ -285,7 +285,7 @@ defmodule IdleAnimations.JSImpl do
 
     me = self()
 
-    Task.async(fn ->
+    Task.start_link(fn ->
       Stream.unfold(nil, fn _ ->
         case Exile.Process.read(s) do
           {:ok, data} ->
@@ -358,11 +358,6 @@ defmodule IdleAnimations.JSImpl do
   def handle_cast(:terminate, %State{} = state) do
     Logger.info("Forcing js effect termination")
 
-    case state.process do
-      nil -> nil
-      process -> Exile.Process.stop(process)
-    end
-
     {:noreply, start_fading_out(state)}
   end
 
@@ -372,7 +367,11 @@ defmodule IdleAnimations.JSImpl do
 
     case state.process do
       nil -> nil
-      process -> Exile.Process.stop(process)
+      process -> try do
+                   Exile.Process.stop(process)
+                 rescue
+                   _ -> nil
+                 end
     end
 
     Coordinator.notify_idle_animation_terminated(state.id)
