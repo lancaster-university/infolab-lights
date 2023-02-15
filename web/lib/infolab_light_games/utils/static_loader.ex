@@ -1,7 +1,8 @@
 defmodule Utils.StaticLoader do
   def display_static(filename, duration_fn) do
     {width, height} = Screen.dims()
-    duration = duration_fn.()
+    {duration_fn_m, duration_fn_n, duration_fn_a} = duration_fn
+    duration = apply(duration_fn_m, duration_fn_n, duration_fn_a)
 
     filepath =
       Application.app_dir(:infolab_light_games, "priv")
