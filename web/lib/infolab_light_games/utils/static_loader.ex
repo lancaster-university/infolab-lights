@@ -1,6 +1,7 @@
 defmodule Utils.StaticLoader do
-  def display_static(filename) do
+  def display_static(filename, duration_fn) do
     {width, height} = Screen.dims()
+    duration = duration_fn.()
 
     filepath =
       Application.app_dir(:infolab_light_games, "priv")
@@ -12,7 +13,7 @@ defmodule Utils.StaticLoader do
     id = Coordinator.queue_game(Games.Static, nil, images: images)
 
     :timer.apply_after(
-      Timex.Duration.from_hours(2) |> Timex.Duration.to_milliseconds(truncate: true),
+      duration |> Timex.Duration.to_milliseconds(truncate: true),
       Coordinator,
       :terminate_game,
       [id]

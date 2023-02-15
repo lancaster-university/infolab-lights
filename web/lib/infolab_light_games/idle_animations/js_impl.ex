@@ -20,7 +20,7 @@ defmodule IdleAnimations.JSImpl do
       field(:file, {Path.t(), :js | :ts})
 
       field(:matrix, NativeMatrix.t())
-      field(:port, port() | nil, default: nil)
+      field(:process, Exile.Process.process() | nil, default: nil)
       field(:tmp_file, Path.t() | nil, default: nil)
       field(:working_input, iodata(), default: "")
 
@@ -167,13 +167,26 @@ defmodule IdleAnimations.JSImpl do
     IO.write(tmp, content)
     File.close(tmp)
 
-    port =
-      Port.open(
-        {:spawn_executable, deno},
-        [:binary, :stream, :use_stdio, args: ["run", "--allow-net", "-q", path]]
-      )
+    {:ok, s} = Exile.Process.start_link(~w(#{deno} run --allow-net -q #{path}))
 
-    state = %State{state | port: port, tmp_file: path}
+    me = self()
+
+    Task.async(fn ->
+      Logger.info("starting up js process reader")
+      Stream.unfold(nil, fn _ ->
+        case Exile.Process.read(s) do
+          {:ok, data} ->
+            send(me, {:data_from_js, data})
+            {nil, nil}
+
+          _ ->
+            send(me, {:terminate})
+        end
+      end)
+      |> Stream.run()
+    end)
+
+    state = %State{state | process: s, tmp_file: path}
 
     {:noreply, state}
   end
@@ -268,13 +281,30 @@ defmodule IdleAnimations.JSImpl do
     IO.write(tmp, content)
     File.close(tmp)
 
-    port =
-      Port.open(
-        {:spawn_executable, deno},
-        [:binary, :stream, :use_stdio, args: ["run", "--allow-net", "-q", path]]
-      )
+    {:ok, s} = Exile.Process.start_link(~w(#{deno} run --allow-net -q #{path}))
 
-    state = %State{state | port: port, tmp_file: path}
+    me = self()
+
+    Task.async(fn ->
+      Stream.unfold(nil, fn _ ->
+        case Exile.Process.read(s) do
+          {:ok, data} ->
+            send(me, {:data_from_js, data})
+            {nil, nil}
+
+          :eof ->
+            Logger.info("JS sent EOF")
+            send(me, :terminate)
+
+          {:error, e} ->
+            Logger.error("JS sent error: #{e}")
+            send(me, :terminate)
+        end
+      end)
+      |> Stream.run()
+    end)
+
+    state = %State{state | process: s, tmp_file: path}
 
     {:noreply, state}
   end
@@ -288,7 +318,7 @@ defmodule IdleAnimations.JSImpl do
 
     if state.steps_since_last_frame < 6 or time_since_last_frame > 500 do
       cmd = Jason.encode!(%{msg: :tick})
-      send(state.port, {self(), {:command, "#{cmd}\n"}})
+      Exile.Process.write(state.process, "#{cmd}\n")
     end
 
     state = %State{
@@ -307,7 +337,9 @@ defmodule IdleAnimations.JSImpl do
       {:noreply, state}
     else
       if frame_timeout_reached do
-        Logger.info("Terminating animation because it didn't produce frames: #{state.id}:#{inspect(state.file)}")
+        Logger.info(
+          "Terminating animation because it didn't produce frames: #{state.id}:#{inspect(state.file)}"
+        )
       end
 
       # trigger the fade out
@@ -316,26 +348,19 @@ defmodule IdleAnimations.JSImpl do
   end
 
   @impl true
-  def handle_info({port, {:data, msg}}, %State{port: port, working_input: working_input} = state) do
+  def handle_info({:data_from_js, msg}, %State{working_input: working_input} = state) do
     state = process_input([working_input, msg], state)
 
     {:noreply, state}
   end
 
   @impl true
-  def handle_info({port, :closed}, %State{port: port} = state) do
-    Logger.info("Js effect exited")
-
-    {:noreply, start_fading_out(state)}
-  end
-
-  @impl true
   def handle_cast(:terminate, %State{} = state) do
     Logger.info("Forcing js effect termination")
 
-    case state.port do
+    case state.process do
       nil -> nil
-      port -> send(port, {self(), :close})
+      process -> Exile.Process.stop(process)
     end
 
     {:noreply, start_fading_out(state)}
@@ -345,9 +370,9 @@ defmodule IdleAnimations.JSImpl do
   def terminate(_reason, %State{} = state) do
     Logger.info("Idle animation is terminating")
 
-    case state.port do
+    case state.process do
       nil -> nil
-      port -> send(port, {self(), :close})
+      process -> Exile.Process.stop(process)
     end
 
     Coordinator.notify_idle_animation_terminated(state.id)

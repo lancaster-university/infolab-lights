@@ -58,6 +58,7 @@ defmodule InfolabLightGames.MixProject do
       {:ex_json_schema, "~> 0.9.2"},
       {:quantum, "~> 3.5"},
       {:timex, "~> 3.7.9"},
+      {:exile, "~> 0.1.0"},
       {:credo, "~> 1.6", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.2.0", only: [:dev], runtime: false}
     ]

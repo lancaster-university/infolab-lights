@@ -19,7 +19,8 @@ config :infolab_light_games, Screen, dims: {120, 80}
 
 config :infolab_light_games, Scheduler,
   jobs: [
-    {"0 17 * * FRI", {Utils.StaticLoader, :display_static, ["luhack.png"]}}
+    {"0 17 * * FRI", {Utils.StaticLoader, :display_static, ["luhack.png", fn -> Timex.Duration.from_hours(2) end]}},
+    {"*/20 * * * *", {Utils.StaticLoader, :display_static, ["light_festival.gif", fn -> Timex.Duration.from_minutes(5) end]}}
   ]
 
 # Configures Elixir's Logger
