@@ -180,7 +180,7 @@ defmodule IdleAnimations.JSImpl do
             {nil, nil}
 
           _ ->
-            send(me, {:terminate})
+            send(me, :terminate)
         end
       end)
       |> Stream.run()
@@ -356,20 +356,20 @@ defmodule IdleAnimations.JSImpl do
 
   @impl true
   def handle_cast(:terminate, %State{} = state) do
-    Logger.info("Forcing js effect termination")
+    Logger.info("Beginning js effect termination")
 
     {:noreply, start_fading_out(state)}
   end
 
   @impl true
   def terminate(_reason, %State{} = state) do
-    Logger.info("Idle animation is terminating")
+    Logger.info("Finalizing js effect termination")
 
     case state.process do
       nil -> nil
       process -> try do
                    Exile.Process.stop(process)
-                 rescue
+                 catch
                    _ -> nil
                  end
     end
