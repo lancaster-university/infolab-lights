@@ -1,3 +1,8 @@
+// Wolframs Rule 30 feeding into Conways Game of Life
+// inspired by https://www.youtube.com/watch?v=IK7nBOLYzdE
+// Slowed using code snippet from John Vidlers colorway
+// Author: Dexter Latcham
+
 return class MyEffect {
   constructor(display) {
     this.display = display;
