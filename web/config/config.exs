@@ -21,6 +21,8 @@ config :infolab_light_games, Scheduler,
   jobs: [
     {"0 17 * * FRI",
      {Utils.StaticLoader, :display_static, ["luhack.png", {Timex.Duration, :from_hours, [2]}]}},
+    {"0 18 * * MON",
+     {Utils.StaticLoader, :display_static, ["compsoc.png", {Timex.Duration, :from_hours, [2]}]}},
     {"*/30 */1 * 6 *",
      {Utils.StaticLoader, :display_static, ["pride.png", {Timex.Duration, :from_minutes, [10]}]}}
   ]
