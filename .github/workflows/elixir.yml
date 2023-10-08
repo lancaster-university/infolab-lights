@@ -76,8 +76,8 @@ jobs:
       - name: Build and Push Container
         uses: docker/build-push-action@v4
         with:
-          context: .
-          file: Dockerfile
+          context: web
+          file: web/Dockerfile
           build-args: |
             APP_VSN=${{ steps.Version.outputs.version }}
           push: true
