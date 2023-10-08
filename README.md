@@ -23,7 +23,7 @@ If you're submitting an effect, please make sure it follows these rules:
 For obvious reasons, PRs containing effects that violate these restrictions will
 be rejected.
 
-# Current effects
+## Current effects
 
 | Author                                                     | Effect                                                                  | Description                                                                                                                  |
 | ---------------------------------------------------------- | ----------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
@@ -43,3 +43,19 @@ be rejected.
 | [@lcjb360](https://github.com/lcjb360)                     | [Bad Chess](web/priv/js_effects/bad_chess.js)                           | Google en passant                                                                                                            |
 | [@james1236](https://github.com/james1236)                 | [Word Game](web/priv/js_effects/word_game.js)                           | Word game animation                                                                                                          |
 | [@DOmBuRnAdOwl](https://github.com/DOmBuRnAdOwl)           | [Cellular Automata](web/priv/js_effects/cellularAutomata.js)            | Wolframs rule 30 feeding into Conways Game of Life                                                                           |
+
+## Image Overrides 
+
+Open a pull request with an edit to [web/config/config.exs](https://github.com/lancaster-university/infolab-lights/blob/master/web/config/config.exs) to add an override for your needs, and place the image in `.png` format (or animated `.gif`) in `/web/priv/`. 
+
+Can't code? No problem, open an [issue](https://github.com/lancaster-university/infolab-lights/issues) and a maintainer will help you. 
+
+### Current Override Schedule:
+
+| Override          |  Schedule   |
+| ----------------- | ----------- |
+| Pride Month       | June Yearly        |
+| Halloween         | 31st October Yearly        |
+| LU LGBT+ Society  | Monday Evening    17:00 - 20:00 |
+| LU Hack Society   | Friday Evening    17:00 - 19:00 |
+| Baby Loss Awareness Week (dates varies yearly) | 09/10/23 - 15/10/23 |

@@ -17,12 +17,19 @@ config :infolab_light_games, InfolabLightGamesWeb.Endpoint,
 
 config :infolab_light_games, Screen, dims: {120, 80}
 
+# See table in the repo README 
 config :infolab_light_games, Scheduler,
   jobs: [
     {"0 17 * * FRI",
      {Utils.StaticLoader, :display_static, ["luhack.png", {Timex.Duration, :from_hours, [2]}]}},
+    {"0 17 * * MON",
+     {Utils.StaticLoader, :display_static, ["pide.png", {Timex.Duration, :from_hours, [3]}]}},
     {"*/30 */1 * 6 *",
-     {Utils.StaticLoader, :display_static, ["pride.png", {Timex.Duration, :from_minutes, [10]}]}}
+     {Utils.StaticLoader, :display_static, ["pride.png", {Timex.Duration, :from_minutes, [10]}]}},
+    {"0 */1 9-15 10 *",
+     {Utils.StaticLoader, :display_static, ["infolab-babyloss.gif", {Timex.Duration, :from_hours, [1]}]}},
+    {"0 */1 31 10 *",
+     {Utils.StaticLoader, :display_static, ["halloween_pumpkin.gif", {Timex.Duration, :from_hours, [1]}]}}
   ]
 
 # Configures Elixir's Logger
