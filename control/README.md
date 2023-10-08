@@ -5,7 +5,7 @@ This goes somewhere connected to the LED network
 ## Usage
 
 ```bash
-cargo run -- --pixels wss://infolab21-lights.lancs.ac.uk/live/websocket --scene InfoLab.xml
+cargo run -- --pixels wss://infolab21-lights.lancaster.ac.uk/live/websocket --scene InfoLab.xml
 ```
 
 ## Building for rpi
