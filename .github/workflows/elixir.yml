@@ -78,7 +78,7 @@ jobs:
         with:
           context: .
           file: Dockerfile
-          build-arg: |
+          build-args: |
             APP_VSN=${{ steps.Version.outputs.version }}
           push: true
           platforms: linux/amd64
