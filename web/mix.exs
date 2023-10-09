@@ -7,7 +7,7 @@ defmodule InfolabLightGames.MixProject do
       version: "0.1.0",
       elixir: "~> 1.12",
       elixirc_paths: elixirc_paths(Mix.env()),
-      compilers: [:phoenix] ++ Mix.compilers() ++ [:phoenix_swagger],
+      compilers: Mix.compilers() ++ [:phoenix_swagger],
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
       deps: deps()
@@ -34,12 +34,13 @@ defmodule InfolabLightGames.MixProject do
   defp deps do
     [
       {:phoenix, "~> 1.6"},
+      {:phoenix_view, "~> 2.0"},
       # {:phoenix, git: "https://github.com/phoenixframework/phoenix", override: true},
       {:floki, ">= 0.0.0", only: :test},
       {:phoenix_html, "~> 3.1"},
       {:phoenix_live_reload, "~> 1.3", only: :dev},
-      {:phoenix_live_view, "~> 0.18"},
-      {:phoenix_live_dashboard, "~> 0.7"},
+      {:phoenix_live_view, "~> 0.20"},
+      {:phoenix_live_dashboard, "~> 0.8"},
       {:telemetry_metrics, "~> 0.6.1"},
       {:telemetry_poller, "~> 1.0"},
       {:circular_buffer, "~> 0.4"},
@@ -54,13 +55,13 @@ defmodule InfolabLightGames.MixProject do
       {:temp, "~> 0.4"},
       {:msgpax, "~> 2.0"},
       # {:phoenix_swagger, "~> 0.8"},
-      {:phoenix_swagger, git: "https://github.com/fastjames/phoenix_swagger", branch: "update_deps"},
-      {:ex_json_schema, "~> 0.9.2"},
+      {:phoenix_swagger, git: "https://github.com/fastjames/phoenix_swagger", branch: "update_deps_2"},
+      {:ex_json_schema, "~> 0.10.1"},
       {:quantum, "~> 3.5"},
       {:timex, "~> 3.7.9"},
-      {:exile, "~> 0.1.0"},
+      {:exile, "~> 0.7.0"},
       {:credo, "~> 1.6", only: [:dev, :test], runtime: false},
-      {:dialyxir, "~> 1.2.0", only: [:dev], runtime: false}
+      {:dialyxir, "~> 1.4.1", only: [:dev], runtime: false}
     ]
   end
 

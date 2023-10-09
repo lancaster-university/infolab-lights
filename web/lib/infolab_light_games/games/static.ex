@@ -89,11 +89,6 @@ defmodule Games.Static do
     {:noreply, state}
   end
 
-  @impl true
-  def terminate(_reason, state) do
-    Coordinator.notify_game_terminated(state.id)
-  end
-
   defp next_frame(%State{} = state) do
     {{delay, _} = image, images} = Qex.pop!(state.images)
     state = %State{state | images: Qex.push(images, image)}

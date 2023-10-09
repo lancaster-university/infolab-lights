@@ -168,11 +168,6 @@ defmodule Games.Snake do
     end
   end
 
-  @impl true
-  def terminate(_reason, state) do
-    Coordinator.notify_game_terminated(state.id)
-  end
-
   defp tick(%State{} = state) do
     state =
       state

@@ -68,11 +68,6 @@ defmodule IdleAnimations.GOL do
   end
 
   @impl true
-  def terminate(_reason, state) do
-    Coordinator.notify_idle_animation_terminated(state.id)
-  end
-
-  @impl true
   def possible_modes do
     [{:random, "Random GOL"}, {:glider, "Glider GOL"}]
   end

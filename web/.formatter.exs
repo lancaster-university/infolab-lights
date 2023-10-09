@@ -24,5 +24,6 @@
     consumes: 1
   ],
   import_deps: [:phoenix, :typed_struct],
-  inputs: ["*.{ex,exs}", "{config,lib,test}/**/*.{ex,exs}"]
+  inputs: ["*.{ex,exs}", "{config,lib,test}/**/*.{ex,exs}"],
+  plugins: [Phoenix.LiveView.HTMLFormatter]
 ]

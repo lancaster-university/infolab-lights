@@ -2,6 +2,7 @@
   description = "Dev deps for stuff";
 
   inputs = {
+    nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
     flake-utils.url = "github:numtide/flake-utils";
     fenix.url = "github:nix-community/fenix";
   };
@@ -18,10 +19,11 @@
             nodejs
             yarn
             rustComponents
-            beam.packages.erlangR25.elixir_1_14
             beam.packages.erlang.rebar3
-            beam.packages.erlangR25.hex
-            erlangR25
+            beam.packages.erlang.hex
+            beam.packages.erlang.erlang
+            beam.packages.erlang.elixir
+            elixir-ls
             git
           ];
       in

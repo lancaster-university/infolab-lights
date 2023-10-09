@@ -90,11 +90,6 @@ defmodule IdleAnimations.Ant do
     {:noreply, start_fading_out(state)}
   end
 
-  @impl true
-  def terminate(_reason, state) do
-    Coordinator.notify_idle_animation_terminated(state.id)
-  end
-
   defp start_fading_out(%State{} = state) do
     %State{state | fading_out: true, fader: %Fader{state.fader | direction: :dec}}
   end

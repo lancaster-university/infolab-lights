@@ -10,6 +10,6 @@ path = "src/lib.rs"
 crate-type = ["dylib"]
 
 [dependencies]
-rustler = "0.27.0"
+rustler = "0.29.1"
 lazy_static = "1.4.0"
-image = "0.24.5"
+image = { version = "0.24.7", default-features = false, features = ["gif", "jpeg", "png"] }

@@ -182,11 +182,6 @@ defmodule Games.Pong do
     end
   end
 
-  @impl true
-  def terminate(_reason, state) do
-    Coordinator.notify_game_terminated(state.id)
-  end
-
   defp tick(state) do
     {dx, dy} = state.ball_vel
 

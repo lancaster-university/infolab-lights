@@ -1,1 +1,1 @@
-((elixir-mode . ((lsp-elixir-project-dir . "web/"))))
+((elixir-ts-mode . ((lsp-elixir-project-dir . "web/"))))

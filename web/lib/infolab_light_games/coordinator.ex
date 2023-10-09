@@ -34,24 +34,33 @@ defmodule Coordinator do
   end
 
   @impl true
-  def handle_cast({:terminate, id}, state) do
-    GenServer.stop(via_tuple(id))
+  def handle_info({:force_kill_game, id}, %State{} = state) do
+    try_stop(via_tuple(id))
 
-    state = handle_terminated_game(id, state)
+    {:noreply, handle_terminated_game(id, state)}
+  end
+
+  @impl true
+  def handle_info({:force_kill_idle_animation, pid}, %State{} = state) do
+    try_stop(pid)
 
     {:noreply, state}
   end
 
   @impl true
-  def handle_cast(:terminate_idle_animation, %State{} = state) do
-    if !is_nil(state.current_idle_animation) and GenServer.whereis(state.current_idle_animation) do
-      GenServer.stop(state.current_idle_animation)
-    end
+  def handle_cast({:idle_animation_terminated, id}, %State{} = state) do
+    state =
+      if state.current_idle_animation == via_tuple(id) do
+        %State{state | current_idle_animation: nil}
+      else
+        state
+      end
 
-    {:noreply, state}
+    {:noreply, state, {:continue, :tick}}
   end
 
-  def handle_cast({:terminated, id}, state) do
+  @impl true
+  def handle_cast({:game_terminated, id}, %State{} = state) do
     state = handle_terminated_game(id, state)
 
     Phoenix.PubSub.broadcast!(
@@ -66,17 +75,33 @@ defmodule Coordinator do
   end
 
   @impl true
-  def handle_cast({:terminated_idle_animation, id}, %State{} = state) do
-    Logger.info("Idle animation quit #{id}")
+  def handle_cast({:terminate, id}, state) do
+    try do
+      pid = via_tuple(id)
+      GenServer.cast(pid, :terminate)
 
-    state =
-      if state.current_idle_animation == via_tuple(id) do
-        %State{state | current_idle_animation: nil}
-      else
-        state
+      Process.send_after(self(), {:force_kill_game, id}, 5_000)
+    catch
+      _ -> :ok
+    end
+
+    {:noreply, state}
+  end
+
+  @impl true
+  def handle_cast(:terminate_idle_animation, %State{} = state) do
+    if !is_nil(state.current_idle_animation) do
+      try do
+        pid = state.current_idle_animation
+        GenServer.cast(pid, :terminate)
+
+        Process.send_after(self(), {:force_kill_idle_animation, pid}, 5_000)
+      catch
+        _ -> :ok
       end
+    end
 
-    {:noreply, state, {:continue, :tick}}
+    {:noreply, state}
   end
 
   @impl true
@@ -94,7 +119,16 @@ defmodule Coordinator do
 
     opts = meta ++ [game_id: id, name: via_tuple(id)]
 
-    {:ok, _pid} = DynamicSupervisor.start_child(GameManager, {game, opts})
+    {:ok, pid} = DynamicSupervisor.start_child(GameManager, {game, opts})
+
+    Task.start_link(fn ->
+      ref = Process.monitor(pid)
+
+      receive do
+        {:DOWN, ^ref, :process, ^pid, _reason} ->
+          GenServer.cast(__MODULE__, {:game_terminated, id})
+      end
+    end)
 
     :ok = GenServer.call(via_tuple(id), {:add_player, initial_player})
 
@@ -184,7 +218,7 @@ defmodule Coordinator do
       # stop, otherwise if there's no idle animation we can start the game
       if state.current_idle_animation do
         Logger.info("Requesting idle animation quits")
-        GenServer.cast(state.current_idle_animation, :terminate)
+        terminate_idle_animation()
       else
         GenServer.call(state.current_game, :start_if_ready)
       end
@@ -205,9 +239,9 @@ defmodule Coordinator do
   defp start_idle_animation(%State{} = state, module, mode) do
     Logger.info("Starting idle animation #{module}:#{inspect(mode)}")
     # stop the idle animation if it exists
-    if !is_nil(state.current_idle_animation) and GenServer.whereis(state.current_idle_animation) do
+    if !is_nil(state.current_idle_animation) do
       # we need the idle animation to stop immediately so it doesn't try to draw over us
-      GenServer.stop(state.current_idle_animation)
+      try_stop(state.current_idle_animation)
     end
 
     id = random_id()
@@ -217,6 +251,15 @@ defmodule Coordinator do
         GameManager,
         {module, game_id: id, name: via_tuple(id), mode: mode}
       )
+
+    Task.start_link(fn ->
+      ref = Process.monitor(pid)
+
+      receive do
+        {:DOWN, ^ref, :process, ^pid, _reason} ->
+          GenServer.cast(__MODULE__, {:idle_animation_terminated, id})
+      end
+    end)
 
     {%State{state | current_idle_animation: via_tuple(id)}, pid}
   end
@@ -300,6 +343,12 @@ defmodule Coordinator do
     {:via, Registry, {GameRegistry, id}}
   end
 
+  defp try_stop(pid) do
+    if GenServer.whereis(pid) do
+      GenServer.stop(pid)
+    end
+  end
+
   def terminate_game(id) do
     Logger.info("terminating game #{id}")
     GenServer.cast(__MODULE__, {:terminate, id})
@@ -307,14 +356,6 @@ defmodule Coordinator do
 
   def terminate_idle_animation() do
     GenServer.cast(__MODULE__, :terminate_idle_animation)
-  end
-
-  def notify_game_terminated(id) do
-    GenServer.cast(__MODULE__, {:terminated, id})
-  end
-
-  def notify_idle_animation_terminated(id) do
-    GenServer.cast(__MODULE__, {:terminated_idle_animation, id})
   end
 
   def route_input(player, input) do

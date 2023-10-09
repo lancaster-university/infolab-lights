@@ -8,7 +8,7 @@ defmodule IdleAnimations.JSImpl do
 
   @fps 20
   # about 10 minutes at 20fps
-  @max_steps 12_000
+  @max_steps 400 # 12_000
   # 10 seconds at 20fps
   @no_frame_timeout @fps * 10
 
@@ -174,6 +174,8 @@ defmodule IdleAnimations.JSImpl do
     Task.start_link(fn ->
       Logger.info("starting up js process reader")
 
+      Exile.Process.change_pipe_owner(s, :stdout, self())
+
       Stream.unfold(nil, fn _ ->
         case Exile.Process.read(s) do
           {:ok, data} ->
@@ -181,7 +183,7 @@ defmodule IdleAnimations.JSImpl do
             {nil, nil}
 
           _ ->
-            send(me, :terminate)
+            GenServer.call(me, :terminate)
         end
       end)
       |> Stream.run()
@@ -287,6 +289,8 @@ defmodule IdleAnimations.JSImpl do
     me = self()
 
     Task.start_link(fn ->
+      Exile.Process.change_pipe_owner(s, :stdout, self())
+
       Stream.unfold(nil, fn _ ->
         try do
           case Exile.Process.read(s) do
@@ -296,12 +300,12 @@ defmodule IdleAnimations.JSImpl do
 
             :eof ->
               Logger.info("JS sent EOF")
-              send(me, :terminate)
+              GenServer.call(me, :terminate)
               nil
 
             {:error, e} ->
               Logger.error("JS sent error: #{e}")
-              send(me, :terminate)
+              GenServer.call(me, :terminate)
               nil
           end
         catch
@@ -338,20 +342,15 @@ defmodule IdleAnimations.JSImpl do
 
     frame_timeout_reached = state.steps_since_last_frame > @no_frame_timeout
 
-    if not frame_timeout_reached and state.steps < @max_steps and
-         not (state.fading_out and Fader.done(state.fader)) do
-      tick_request()
-
-      {:noreply, state}
-    else
-      if frame_timeout_reached do
-        Logger.info(
-          "Terminating animation because it didn't produce frames: #{state.id}:#{inspect(state.file)}"
-        )
-      end
-
-      # trigger the fade out
+    if frame_timeout_reached or state.fading_out and Fader.done(state.fader) do
       {:stop, :normal, state}
+    else
+      if state.steps < @max_steps do
+        tick_request()
+        {:noreply, state}
+      else
+        {:noreply, start_fading_out(state)}
+      end
     end
   end
 
@@ -367,25 +366,6 @@ defmodule IdleAnimations.JSImpl do
     Logger.info("Beginning js effect termination")
 
     {:noreply, start_fading_out(state)}
-  end
-
-  @impl true
-  def terminate(_reason, %State{} = state) do
-    Logger.info("Finalizing js effect termination")
-
-    case state.process do
-      nil ->
-        nil
-
-      process ->
-        try do
-          Exile.Process.stop(process)
-        catch
-          _ -> nil
-        end
-    end
-
-    Coordinator.notify_idle_animation_terminated(state.id)
   end
 
   defp fix_int(num) do

@@ -26,6 +26,8 @@ defmodule InfolabLightGamesWeb.ConnCase do
 
       alias InfolabLightGamesWeb.Router.Helpers, as: Routes
 
+      use InfolabLightGamesWeb, :verified_routes
+
       # The default endpoint for testing
       @endpoint InfolabLightGamesWeb.Endpoint
     end

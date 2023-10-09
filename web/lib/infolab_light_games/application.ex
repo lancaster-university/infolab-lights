@@ -6,28 +6,37 @@ defmodule InfolabLightGames.Application do
   use Application
 
   def start(_type, _args) do
-    children = [
-      # Start the Telemetry supervisor
-      InfolabLightGamesWeb.Telemetry,
-      # Start the PubSub system
-      {Phoenix.PubSub, name: InfolabLightGames.PubSub},
-      # Start the Endpoint (http/https)
-      Presence,
-      InfolabLightGamesWeb.Endpoint,
-      # Start a worker by calling: InfolabLightGames.Worker.start_link(arg)
-      # {InfolabLightGames.Worker, arg}
-      GameSupervisor,
-      Screen,
-      Coordinator,
-      Bans,
-      MatrixPow,
-      Scheduler
-    ]
+    children =
+      [
+        # Start the Telemetry supervisor
+        InfolabLightGamesWeb.Telemetry,
+        # Start the PubSub system
+        {Phoenix.PubSub, name: InfolabLightGames.PubSub},
+        # Start the Endpoint (http/https)
+        Presence,
+        InfolabLightGamesWeb.Endpoint
+        # Start a worker by calling: InfolabLightGames.Worker.start_link(arg)
+        # {InfolabLightGames.Worker, arg}
+      ] ++
+        if in_phoenix?(),
+          do: [
+            GameSupervisor,
+            Screen,
+            Coordinator,
+            Bans,
+            MatrixPow,
+            Scheduler
+          ],
+          else: []
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
     opts = [strategy: :one_for_one, name: InfolabLightGames.Supervisor]
     Supervisor.start_link(children, opts)
+  end
+
+  defp in_phoenix?() do
+    Application.get_env(:phoenix, :serve_endpoints)
   end
 
   # Tell Phoenix to update the endpoint configuration

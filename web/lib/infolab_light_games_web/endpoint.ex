@@ -28,7 +28,7 @@ defmodule InfolabLightGamesWeb.Endpoint do
     at: "/",
     from: :infolab_light_games,
     gzip: true,
-    only: ~w(assets favicon.ico robots.txt)
+    only: InfolabLightGamesWeb.static_paths()
 
   # Code reloading can be explicitly enabled under the
   # :code_reloader configuration of your endpoint.
