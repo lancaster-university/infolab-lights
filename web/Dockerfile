@@ -226,6 +226,6 @@ COPY --from=denoland/deno:bin-1.16.3 /deno /usr/local/bin/deno
 
 RUN rm prod/lib/exile/priv && \
     mkdir prod/lib/exile/priv/ && \
-    cp prod/rel/infolab_light_games/lib/exile-0.1.0/priv/spawner prod/lib/exile/priv/spawner
+    cp prod/rel/infolab_light_games/lib/exile-0.7.0/priv/spawner prod/lib/exile/priv/spawner
 
 CMD ["./prod/rel/infolab_light_games/bin/infolab_light_games", "start"]
