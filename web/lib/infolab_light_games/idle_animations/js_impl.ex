@@ -8,7 +8,7 @@ defmodule IdleAnimations.JSImpl do
 
   @fps 20
   # about 10 minutes at 20fps
-  @max_steps 400 # 12_000
+  @max_steps 12_000
   # 10 seconds at 20fps
   @no_frame_timeout @fps * 10
 
