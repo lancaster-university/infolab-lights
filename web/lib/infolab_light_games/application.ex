@@ -3,6 +3,8 @@ defmodule InfolabLightGames.Application do
   # for more information on OTP Applications
   @moduledoc false
 
+  require Logger
+
   use Application
 
   def start(_type, _args) do
@@ -29,6 +31,8 @@ defmodule InfolabLightGames.Application do
           ],
           else: []
 
+    Logger.info("Starting up lights, is phoenix running? #{in_phoenix?()}")
+
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
     opts = [strategy: :one_for_one, name: InfolabLightGames.Supervisor]
@@ -36,7 +40,7 @@ defmodule InfolabLightGames.Application do
   end
 
   defp in_phoenix?() do
-    Application.get_env(:phoenix, :serve_endpoints)
+    Phoenix.Endpoint.server?(:infolab_light_games, InfolabLightGamesWeb.Endpoint)
   end
 
   # Tell Phoenix to update the endpoint configuration

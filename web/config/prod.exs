@@ -19,6 +19,11 @@ config :infolab_light_games, InfolabLightGamesWeb.Endpoint,
 # Do not print debug messages in production
 config :logger, level: :info
 
+config :infolab_light_games, NativeMatrix.NifBridge,
+  crate: :matrix,
+  skip_compilation?: true,
+  load_from: {:infolab_light_games, "priv/native/libmatrix"}
+
 # ## SSL Support
 #
 # To get SSL working, you will need to add the `https` key
