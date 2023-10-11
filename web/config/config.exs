@@ -29,7 +29,9 @@ config :infolab_light_games, Scheduler,
     {"0 */1 9-15 10 *",
      {Utils.StaticLoader, :display_static, ["infolab-babyloss.gif", {Timex.Duration, :from_hours, [1]}]}},
     {"0 */1 31 10 *",
-     {Utils.StaticLoader, :display_static, ["halloween_pumpkin.gif", {Timex.Duration, :from_hours, [1]}]}}
+     {Utils.StaticLoader, :display_static, ["halloween_pumpkin.gif", {Timex.Duration, :from_hours, [1]}]}},
+    {"0 */1 5 11 *",
+     {Utils.StaticLoader, :display_static, ["fire.gif", {Timex.Duration, :from_hours, [1]}]}}
   ]
 
 # Configures Elixir's Logger
