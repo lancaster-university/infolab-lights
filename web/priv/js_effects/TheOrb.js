@@ -17,12 +17,12 @@ return class TheOrb {
   }
 
   update() {
-    t+=0.1;
+    t+=0.08;
     for (let x = 0; x < this.display.width; x++) {
       for (let y = 0; y < this.display.height; y++) {
         let x1 = x + Math.sin(t)*this.display.width/2;
         let y1 = y + Math.cos(t)*this.display.height/5;
-        let value = [this.dist(x1,y1)*(Math.sin(t)+1), Math.sin(t)*255, this.dist(x,y)*(Math.cos(t)+1)]
+        let value = [this.dist(x1,y1)*(Math.sin(t/3)+1), Math.sin(t/2)*255, this.dist(x,y)*(Math.cos(t)+1)]
         for (let index = 0; index < 3; index++) {
           value[index] = value[index] - 1.05**(this.dist(x,y)/8);
         }
