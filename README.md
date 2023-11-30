@@ -60,3 +60,6 @@ Can't code? No problem, open an [issue](https://github.com/lancaster-university/
 | LU LGBT+ Society  | Monday Evening    17:00 - 20:00 |
 | LU Hack Society   | Friday Evening    17:00 - 19:00 |
 | Baby Loss Awareness Week (dates varies yearly) | 09/10/23 - 15/10/23 |
+| St Andrews Day    | 30th November Yearly |
+| St Davids Day     | 1st March Yearly     |
+| Europe Day        | 9th May Yearly     |
