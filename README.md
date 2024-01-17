@@ -1,4 +1,4 @@
-# InfolabLightGames
+# Infolab-Lights
 
 ![Rust](https://github.com/lancaster-university/infolab-lights/workflows/Rust/badge.svg)
 ![Elixir CI](https://github.com/lancaster-university/infolab-lights/workflows/Elixir%20CI/badge.svg)
@@ -43,6 +43,7 @@ be rejected.
 | [@lcjb360](https://github.com/lcjb360)                     | [Bad Chess](web/priv/js_effects/bad_chess.js)                           | Google en passant                                                                                                            |
 | [@james1236](https://github.com/james1236)                 | [Word Game](web/priv/js_effects/word_game.js)                           | Word game animation                                                                                                          |
 | [@DOmBuRnAdOwl](https://github.com/DOmBuRnAdOwl)           | [Cellular Automata](web/priv/js_effects/cellularAutomata.js)            | Wolframs rule 30 feeding into Conways Game of Life                                                                           |
+| [@moolordking](https://github.com/moolordking)             | [Trigonometric Sinusoidal](web/priv/js_effects/TheStrings.js)           | Trigonometric sinusoidal strings changing colour across the screen.
 
 ## Image Overrides 
 
@@ -59,7 +60,8 @@ Can't code? No problem, open an [issue](https://github.com/lancaster-university/
 | Bonfire Night     | 5th November Yearly        |
 | LU LGBT+ Society  | Monday Evening    17:00 - 20:00 |
 | LU Hack Society   | Friday Evening    17:00 - 19:00 |
-| Baby Loss Awareness Week (dates varies yearly) | 09/10/23 - 15/10/23 |
+| Baby Loss Awareness Week (dates varies yearly) | Week 09/10/23 - 15/10/23 |
 | St Andrews Day    | 30th November Yearly |
 | St Davids Day     | 1st March Yearly     |
 | Europe Day        | 9th May Yearly     |
+| Holocaust Awareness Week (dates vary yearly) | Week 22/01/24 - 28/01/24 |
