@@ -65,3 +65,4 @@ Can't code? No problem, open an [issue](https://github.com/lancaster-university/
 | St Davids Day     | 1st March Yearly     |
 | Europe Day        | 9th May Yearly     |
 | Holocaust Awareness Week (dates vary yearly) | Week 23/01/24 - 28/01/24 |
+| Ukraine Flag      | 23 - 24 Feb |

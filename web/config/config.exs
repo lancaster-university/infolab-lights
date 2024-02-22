@@ -41,7 +41,9 @@ config :infolab_light_games, Scheduler,
     {"0 */1 1 3 *",
       {Utils.StaticLoader, :display_static, ["wales.png", {Timex.Duration, :from_hours, [1]}]}},
     {"0 */1 9 5 *",
-      {Utils.StaticLoader, :display_static, ["eu.png", {Timex.Duration, :from_hours, [1]}]}}
+      {Utils.StaticLoader, :display_static, ["eu.png", {Timex.Duration, :from_hours, [1]}]}},
+    {"0 */1 23-24 2 *",
+      {Utils.StaticLoader, :display_static, ["ukraine.png", {Timex.Duration, :from_minutes, [10]}]}}
   ]
 
 # Configures Elixir's Logger
