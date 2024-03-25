@@ -43,7 +43,9 @@ be rejected.
 | [@lcjb360](https://github.com/lcjb360)                     | [Bad Chess](web/priv/js_effects/bad_chess.js)                           | Google en passant                                                                                                            |
 | [@james1236](https://github.com/james1236)                 | [Word Game](web/priv/js_effects/word_game.js)                           | Word game animation                                                                                                          |
 | [@DOmBuRnAdOwl](https://github.com/DOmBuRnAdOwl)           | [Cellular Automata](web/priv/js_effects/cellularAutomata.js)            | Wolframs rule 30 feeding into Conways Game of Life                                                                           |
-| [@moolordking](https://github.com/moolordking)             | [Trigonometric Sinusoidal](web/priv/js_effects/TheStrings.js)           | Trigonometric sinusoidal strings changing colour across the screen.
+| [@moolordking](https://github.com/moolordking)             | [Trigonometric Sinusoidal](web/priv/js_effects/TheStrings.js)           | Trigonometric sinusoidal strings changing colour across the screen.                                                          |
+| [@PeanutbutterWarrior](https://github.com/PeanutbutterWarrior) | [DVD Logo Screensaver](web/priv/js_effects/dvd_logo.js)             | The classic DVD Logo Screensaver!                                                                                            |
+
 
 ## Image Overrides 
 
