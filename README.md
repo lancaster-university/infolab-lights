@@ -46,6 +46,7 @@ be rejected.
 | [@moolordking](https://github.com/moolordking)             | [Trigonometric Sinusoidal](web/priv/js_effects/TheStrings.js)           | Trigonometric sinusoidal strings changing colour across the screen.                                                          |
 | [@PeanutbutterWarrior](https://github.com/PeanutbutterWarrior) | [DVD Logo Screensaver](web/priv/js_effects/dvd_logo.js)             | The classic DVD Logo Screensaver!                                                                                            |
 | [@tomaustn](https://github.com/tomaustn) | [Walkies](web/priv/js_effects/walkies.js)             | A labrador going for a walk, in honour of Coco :)                                                                                            |
+| [@Brumus14](https://github.com/Brumus14) | [Mandelbrot](web/priv/js_effects/Mandelbrot.js)             | Mandelbrot set effect                                                                                            |
 
 
 
