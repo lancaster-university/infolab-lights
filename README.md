@@ -48,7 +48,7 @@ be rejected.
 | [@tomaustn](https://github.com/tomaustn) | [Walkies](web/priv/js_effects/walkies.js)             | A labrador going for a walk, in honour of Coco :)                                                                                            |
 | [@Brumus14](https://github.com/Brumus14) | [Mandelbrot](web/priv/js_effects/Mandelbrot.js)             | Mandelbrot set effect                                                                                            |
 | [@Brumus14](https://github.com/Brumus14) | [Falling Sand](web/priv/js_effects/Sand.js)             | Falling sand set effect                                                                                            |
-| [@Brumus14](https://github.com/IMB11) | [Patches](web/priv/js_effects/patches.js)             |  Patches effect - kinda like the bubbles screensaver on windows vista!                                                                                            |
+| [@IMB11](https://github.com/IMB11) | [Patches](web/priv/js_effects/patches.js)             |  Patches effect - kinda like the bubbles screensaver on windows vista!                                                                                            |
 
 
 
