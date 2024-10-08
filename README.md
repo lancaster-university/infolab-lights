@@ -65,7 +65,7 @@ Can't code? No problem, open an [issue](https://github.com/lancaster-university/
 | Pride Month       | June Yearly        |
 | Halloween         | 31st October Yearly        |
 | Bonfire Night     | 5th November Yearly        |
-| LU LGBT+ Society  | Monday Evening    17:00 - 20:00 |
+| LU LGBT+ Society  | Tuesday Evening    17:00 - 20:00 |
 | LU Hack Society   | Friday Evening    17:00 - 19:00 |
 | Baby Loss Awareness Week (dates varies yearly) | Week 09/10/23 - 15/10/23 |
 | St Andrews Day    | 30th November Yearly |
