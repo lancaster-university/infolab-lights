@@ -22,7 +22,7 @@ config :infolab_light_games, Scheduler,
   jobs: [
     {"0 17 * * FRI",
      {Utils.StaticLoader, :display_static, ["luhack.png", {Timex.Duration, :from_hours, [2]}]}},
-    {"0 17 * * MON",
+    {"0 17 * * TUE",
      {Utils.StaticLoader, :display_static, ["lgbt.gif", {Timex.Duration, :from_hours, [3]}]}},
     {"*/30 */1 * 6 *",
      {Utils.StaticLoader, :display_static, ["pride.png", {Timex.Duration, :from_minutes, [10]}]}},
