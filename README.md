@@ -67,7 +67,7 @@ Can't code? No problem, open an [issue](https://github.com/lancaster-university/
 | Bonfire Night     | 5th November Yearly        |
 | LU LGBT+ Society  | Tuesday Evening    17:00 - 20:00 |
 | LU Hack Society   | Friday Evening    17:00 - 19:00 |
-| Baby Loss Awareness Week (dates varies yearly) | Week 09/10/23 - 15/10/23 |
+| Baby Loss Awareness Week (dates varies yearly) | Week 09/10/24 - 15/10/24 |
 | St Andrews Day    | 30th November Yearly |
 | St Davids Day     | 1st March Yearly     |
 | Europe Day        | 9th May Yearly     |
