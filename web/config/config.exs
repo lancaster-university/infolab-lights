@@ -17,8 +17,11 @@ config :infolab_light_games, InfolabLightGamesWeb.Endpoint,
 
 config :infolab_light_games, Screen, dims: {120, 80}
 
+config :elixir, :time_zone_database, Tzdata.TimeZoneDatabase
+
 # See table in the repo README 
 config :infolab_light_games, Scheduler,
+  timezone: "Europe/London",
   jobs: [
     {"0 17 * * FRI",
      {Utils.StaticLoader, :display_static, ["luhack.png", {Timex.Duration, :from_hours, [2]}]}},

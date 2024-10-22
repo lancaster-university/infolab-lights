@@ -28,8 +28,10 @@ impl MatrixResource {
     }
 }
 
-fn on_load(env: Env, _info: Term) -> bool {
-    rustler::resource!(MatrixResource, env);
+#[rustler::resource_impl]
+impl rustler::Resource for MatrixResource {}
+
+fn on_load(_env: Env, _info: Term) -> bool {
     true
 }
 
@@ -139,7 +141,7 @@ fn as_pairs(mat: ResourceArc<MatrixResource>) -> Vec<(usize, usize, Pixel)> {
     out
 }
 
-#[rustler::nif]
+#[rustler::nif(schedule = "DirtyCpu")]
 fn mul(mat: ResourceArc<MatrixResource>, by: f64) -> ResourceArc<MatrixResource> {
     let mut new_mat: MatrixResource = (&*mat).clone();
 
@@ -183,7 +185,7 @@ fn process_frame(img: RgbImage, width: usize, height: usize) -> ResourceArc<Matr
     ResourceArc::new(mat)
 }
 
-#[rustler::nif]
+#[rustler::nif(schedule = "DirtyCpu")]
 fn load_from_image<'a>(
     binary: Binary<'a>,
     width: usize,
@@ -192,7 +194,7 @@ fn load_from_image<'a>(
     if image::guess_format(binary.as_bytes()).map_err(|e| Error::Term(Box::new(e.to_string())))?
         == ImageFormat::Gif
     {
-        let decoder = image::codecs::gif::GifDecoder::new(binary.as_bytes())
+        let decoder = image::codecs::gif::GifDecoder::new(std::io::Cursor::new(binary.as_bytes()))
             .map_err(|e| Error::Term(Box::new(e.to_string())))?;
 
         let mut out = vec![];
@@ -223,7 +225,7 @@ fn load_from_image<'a>(
     }
 }
 
-#[rustler::nif]
+#[rustler::nif(schedule = "DirtyCpu")]
 fn to_png(mat: ResourceArc<MatrixResource>) -> Result<OwnedBinary, Error> {
     let mut image = RgbImage::new(mat.width as u32, mat.height as u32);
 
@@ -245,7 +247,7 @@ fn to_png(mat: ResourceArc<MatrixResource>) -> Result<OwnedBinary, Error> {
         image.as_bytes(),
         image.width(),
         image.height(),
-        image::ColorType::Rgb8,
+        image::ExtendedColorType::Rgb8,
     )
     .map_err(|e| Error::Term(Box::new(e.to_string())))?;
 
@@ -256,7 +258,7 @@ fn to_png(mat: ResourceArc<MatrixResource>) -> Result<OwnedBinary, Error> {
     Ok(binary)
 }
 
-#[rustler::nif]
+#[rustler::nif(schedule = "DirtyCpu")]
 fn pow(mat: ResourceArc<MatrixResource>, p: f64) -> ResourceArc<MatrixResource> {
     let mut new_mat: MatrixResource = (&*mat).clone();
 
@@ -280,18 +282,5 @@ fn pow(mat: ResourceArc<MatrixResource>, p: f64) -> ResourceArc<MatrixResource> 
 
 rustler::init!(
     "Elixir.NativeMatrix.NifBridge",
-    [
-        of_dims,
-        set_at,
-        set_from_list,
-        get_at,
-        draw_rect_at,
-        diff,
-        as_pairs,
-        mul,
-        load_from_image,
-        to_png,
-        pow
-    ],
     load = on_load
 );
