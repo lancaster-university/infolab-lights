@@ -21,7 +21,7 @@ return class MyEffect {
       'cocktailShakerSort',
       'gnomeSort',
       'bitonicSort',
-      'bogoSort',
+//      'bogoSort',
     ];
     this.ROYGBIV = [
       [255, 0, 0],      // Red
