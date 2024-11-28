@@ -93,7 +93,8 @@ return class MyEffect {
   }
 
   selectRandomAlgorithm() {
-    return Math.random() < 0.01 ? 'bogoSort' : this.getRandomAlgorithm(); // set to 1 to get guaranteed bogoSort
+    return this.getRandomAlgorithm();
+ //   return Math.random() < 0.01 ? 'bogoSort' : this.getRandomAlgorithm(); // set to 1 to get guaranteed bogoSort
   }
 
   getRandomAlgorithm() {
