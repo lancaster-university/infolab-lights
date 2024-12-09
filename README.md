@@ -51,6 +51,8 @@ be rejected.
 | [@IMB11](https://github.com/IMB11) | [Patches](web/priv/js_effects/patches.js)             |  Patches effect - kinda like the bubbles screensaver on windows vista!                                                                                            |
 | [@Orlando-PB](https://github.com/Orlando-PB) | [Planets](web/priv/js_effects/planets.js)             |  Planets Effect - uses known orbital periods and locations to estimate and display planet positions over a 100 year period, pausing on the positions from the current date.                                                                                            |
 | [@Orlando-PB](https://github.com/Orlando-PB) | [Sorting](web/priv/js_effects/sorting.js)             |  Displays several sorting algorithms ~~with a 1/100 chance of bogoSort~~ |
+| [@Tom0267](https://github.com/Tom0267) | [Flowers](web/priv/js_effects/flowers.js)             |  The Lancashire red rose!   |
+
 
 
 ## Image Overrides 
