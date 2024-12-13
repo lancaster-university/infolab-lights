@@ -52,6 +52,7 @@ be rejected.
 | [@Orlando-PB](https://github.com/Orlando-PB) | [Planets](web/priv/js_effects/planets.js)             |  Planets Effect - uses known orbital periods and locations to estimate and display planet positions over a 100 year period, pausing on the positions from the current date.                                                                                            |
 | [@Orlando-PB](https://github.com/Orlando-PB) | [Sorting](web/priv/js_effects/sorting.js)             |  Displays several sorting algorithms ~~with a 1/100 chance of bogoSort~~ |
 | [@Tom0267](https://github.com/Tom0267) | [Flowers](web/priv/js_effects/flowers.js)             |  The Lancashire red rose!   |
+| [@mavi0](https://github.com/mavi0) | [Binary Clock](web/priv/js_effects/binaryClock.js)             |  The time but harder to read ⏰    |
 
 
 
