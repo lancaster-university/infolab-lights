@@ -4,11 +4,11 @@ return class MyEffect {
 
         //initialise random shapes
         this.randomShapes = Array.from({ length: 10 }, () =>
-            this.#generateRandomCentre()
+            this.generateRandomCentre()
         );
     }
 
-    #generateRandomCentre() {
+    generateRandomCentre() {
         const shapes = ["triangle", "ellipse", "pointed"]; //available shapes
         return {
             x: Math.random() * this.display.width, //random x-coordinate
@@ -27,7 +27,7 @@ return class MyEffect {
         };
     }
 
-    #clearDisplay() {
+    clearDisplay() {
         for (let x = 0; x < this.display.width; x++) {
             for (let y = 0; y < this.display.height; y++) {
                 this.display.setPixel(x, y, [0, 0, 0]); //set all pixels to black
@@ -35,7 +35,7 @@ return class MyEffect {
         }
     }
 
-    #drawRandomShape() {
+    drawRandomShape() {
         for (const shape of this.randomShapes) {
             if (
                 shape.x >= 0 && //check if the shape is within the display bounds
@@ -43,12 +43,12 @@ return class MyEffect {
                 shape.y >= 0 &&
                 shape.y < this.display.height
             ) {
-                this.#drawShape(shape); //draw the shape if it is on-screen
+                this.drawShape(shape); //draw the shape if it is on-screen
             }
         }
     }
 
-    #drawShape(object) {
+    drawShape(object) {
         const cx = Math.floor(object.x); //centre x-coordinate
         const cy = Math.floor(object.y); //centre y-coordinate
 
@@ -62,22 +62,22 @@ return class MyEffect {
             //choose the shape of the shape
             switch (object.shape) {
                 case "triangle":
-                    this.#drawTriangleShape(cx, cy, rad, object, 3); //draw a triangular shape with thickness 3
+                    this.drawTriangleShape(cx, cy, rad, object, 3); //draw a triangular shape with thickness 3
                     break;
                 case "ellipse":
-                    this.#drawFunkyShape(cx, cy, rad, object, 3); //draw an elliptical shape with thickness 3
+                    this.drawFunkyShape(cx, cy, rad, object, 3); //draw an elliptical shape with thickness 3
                     break;
                 case "pointed":
-                    this.#drawPointedShape(cx, cy, rad, object, 3); //draw a pointed shape with thickness 3
+                    this.drawPointedShape(cx, cy, rad, object, 3); //draw a pointed shape with thickness 3
                     break;
             }
         }
 
         //draw the object's centre
-        this.#drawFilledCircle(cx, cy, Math.floor(object.shapeRadius / 4), [255, 255, 0], 3); //yellow centre with thickness 3
+        this.drawFilledCircle(cx, cy, Math.floor(object.shapeRadius / 4), [255, 255, 0], 3); //yellow centre with thickness 3
     }
 
-    #drawTriangleShape(cx, cy, rad, object, thickness) {
+    drawTriangleShape(cx, cy, rad, object, thickness) {
         const gradientSteps = 2; //number of gradient layers for the triangle
         const colorStep = Math.floor(255 / gradientSteps); //colour increment for gradient
 
@@ -95,7 +95,7 @@ return class MyEffect {
                 Math.min(object.color[2] + step * colorStep, 255),
             ];
 
-            this.#drawThickTriangle(
+            this.drawThickTriangle(
                 shapeBase1X,
                 shapeBase1Y,
                 shapeBase2X,
@@ -114,7 +114,7 @@ return class MyEffect {
         const innerBase2X = Math.round(cx + (object.shapeRadius / 2) * Math.cos(rad - Math.PI / 6));
         const innerBase2Y = Math.round(cy + (object.shapeRadius / 2) * Math.sin(rad - Math.PI / 6));
 
-        this.#drawThickTriangle(
+        this.drawThickTriangle(
             innerBase1X,
             innerBase1Y,
             innerBase2X,
@@ -126,7 +126,7 @@ return class MyEffect {
         );
     }
 
-    #drawFunkyShape(cx, cy, rad, object, thickness) {       //draw a pattern with a funky shape
+    drawFunkyShape(cx, cy, rad, object, thickness) {       //draw a pattern with a funky shape
         for (let t = 0; t <= Math.PI * 2; t += 0.05) {
             const px = Math.round(
                 cx + object.shapeLength * Math.cos(rad) * Math.cos(t) -
@@ -136,11 +136,11 @@ return class MyEffect {
                 cy + object.shapeLength * Math.sin(rad) * Math.cos(t) +
                 object.shapeRadius * Math.cos(rad) * Math.sin(t)
             );
-            this.#drawThickPixel(px, py, object.color, thickness);
+            this.drawThickPixel(px, py, object.color, thickness);
         }
     }
 
-    #drawPointedShape(cx, cy, rad, object, thickness) {
+    drawPointedShape(cx, cy, rad, object, thickness) {
         const shapeTipX = Math.round(cx + object.shapeLength * Math.cos(rad));
         const shapeTipY = Math.round(cy + object.shapeLength * Math.sin(rad));
         const shapeBase1X = Math.round(cx + object.shapeRadius * Math.cos(rad + Math.PI / 6));
@@ -148,7 +148,7 @@ return class MyEffect {
         const shapeBase2X = Math.round(cx + object.shapeRadius * Math.cos(rad - Math.PI / 6));
         const shapeBase2Y = Math.round(cy + object.shapeRadius * Math.sin(rad - Math.PI / 6));
 
-        this.#drawThickTriangle(
+        this.drawThickTriangle(
             shapeBase1X,
             shapeBase1Y,
             shapeBase2X,
@@ -160,21 +160,21 @@ return class MyEffect {
         );
     }
 
-    #drawThickTriangle(x1, y1, x2, y2, x3, y3, color, thickness) {
+    drawThickTriangle(x1, y1, x2, y2, x3, y3, color, thickness) {
         //draw a triangle with thick edges
-        this.#drawThickLine(x1, y1, x2, y2, color, thickness);
-        this.#drawThickLine(x2, y2, x3, y3, color, thickness);
-        this.#drawThickLine(x3, y3, x1, y1, color, thickness);
+        this.drawThickLine(x1, y1, x2, y2, color, thickness);
+        this.drawThickLine(x2, y2, x3, y3, color, thickness);
+        this.drawThickLine(x3, y3, x1, y1, color, thickness);
     }
 
-    #drawThickLine(x1, y1, x2, y2, color, thickness) {
+    drawThickLine(x1, y1, x2, y2, color, thickness) {
         //draw a thick line between two points
         for (let offset = -Math.floor(thickness / 2); offset <= Math.floor(thickness / 2); offset++) {
-            this.#drawLine(x1 + offset, y1 + offset, x2 + offset, y2 + offset, color);
+            this.drawLine(x1 + offset, y1 + offset, x2 + offset, y2 + offset, color);
         }
     }
 
-    #drawLine(x1, y1, x2, y2, color) {
+    drawLine(x1, y1, x2, y2, color) {
         //draw a line between two points using Bresenham's algorithm
         const dx = Math.abs(x2 - x1);
         const dy = Math.abs(y2 - y1);
@@ -199,7 +199,7 @@ return class MyEffect {
         }
     }
 
-    #drawThickPixel(x, y, color, thickness) {
+    drawThickPixel(x, y, color, thickness) {
         //draw a pixel with a specified thickness
         for (let dx = -Math.floor(thickness / 2); dx <= Math.floor(thickness / 2); dx++) {
             for (let dy = -Math.floor(thickness / 2); dy <= Math.floor(thickness / 2); dy++) {
@@ -212,18 +212,18 @@ return class MyEffect {
         }
     }
 
-    #drawFilledCircle(cx, cy, r, color, thickness) {
+    drawFilledCircle(cx, cy, r, color, thickness) {
         //draw a filled circle with a specified thickness
         for (let x = -r; x <= r; x++) {
             for (let y = -r; y <= r; y++) {
                 if (x * x + y * y <= r * r) {
-                    this.#drawThickPixel(cx + x, cy + y, color, thickness);
+                    this.drawThickPixel(cx + x, cy + y, color, thickness);
                 }
             }
         }
     }
 
-    #updateRandomShapes() {
+    updateRandomShapes() {
         //update the position and rotation of each object
         for (const object of this.randomShapes) {
             object.x += object.vx; //move horizontally
@@ -234,9 +234,9 @@ return class MyEffect {
     }
 
     update() {
-        this.#clearDisplay(); //clear the display
-        this.#updateRandomShapes(); //update object positions and rotations
-        this.#drawRandomShape(); //draw all objects
+        this.clearDisplay(); //clear the display
+        this.updateRandomShapes(); //update object positions and rotations
+        this.drawRandomShape(); //draw all objects
         this.display.flush(); //render the updated display
     }
 };
