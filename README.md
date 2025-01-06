@@ -53,6 +53,7 @@ be rejected.
 | [@Orlando-PB](https://github.com/Orlando-PB) | [Sorting](web/priv/js_effects/sorting.js)             |  Displays several sorting algorithms ~~with a 1/100 chance of bogoSort~~ |
 | [@Tom0267](https://github.com/Tom0267) | [Flowers](web/priv/js_effects/flowers.js)             |  The Lancashire red rose!   |
 | [@mavi0](https://github.com/mavi0) | [Binary Clock](web/priv/js_effects/binaryClock.js)             |  The time but harder to read ⏰    |
+| [@Ditchfit](https://github.com/Ditchfit) | [Shapes](web/priv/js_effects/Shapes.js)             |  Randomly generated shapes.   |
 
 
 
