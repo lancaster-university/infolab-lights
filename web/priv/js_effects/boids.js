@@ -34,8 +34,8 @@ class BoidGroup {
     this.height = height;
 
     this.cohesion_factor = 1;
-    this.separation_factor = 20;
-    this.align_factor = 2;
+    this.separation_factor = 1;
+    this.align_factor = 1;
     this.separation_distance = 2;
     this.boid_max_speed = 2;
     this.boid_min_speed = 1;
@@ -95,6 +95,7 @@ class BoidGroup {
         curBoid.setVel(curBoid.getVelX() + ((px_avg - px) * this.cohesion_factor) + ((vx_avg - vx) * this.align_factor) * dt, curBoid.getVelY() + ((py_avg - py) * this.cohesion_factor) + ((vy_avg - vy) * this.align_factor) * dt);
       }
 
+      console.log(sep_x, sep_y)
       curBoid.setVel(curBoid.getVelX() + (sep_x * this.separation_factor) * dt, curBoid.getVelY() + (sep_y * this.separation_factor) * dt);
 
       if (px > this.width) {curBoid.setVel(curBoid.getVelX() - 10 * dt, curBoid.getVelY());}
@@ -162,12 +163,19 @@ return class MyEffect {
   constructor(display) {
     this.display = display;
 
-    this.group = new BoidGroup([0,255,0], this.display.width, this.display.height)
+    this.groups = [
+      new BoidGroup([0,255,0], this.display.width, this.display.height),
+      new BoidGroup([255,0,0], this.display.width, this.display.height),
+      new BoidGroup([0,0,255], this.display.width, this.display.height)
+    ];
 
-    for (let i = 0; i < 20; i++) {
-      const rx = Math.random() * ((this.display.width - 20) - 20) + 20, ry = Math.random() * ((this.display.height - 20) - 20) + 20;
-      this.group.addBoid(rx, ry);
+    for (let i = 0; i < 3; i++) {
+      for (let j = 0; j < 20; j++) {
+        const rx = Math.random() * ((this.display.width - 20) - 20) + 20, ry = Math.random() * ((this.display.height - 20) - 20) + 20;
+        this.groups[i].addBoid(rx, ry);
+      }
     }
+   
 
     this.#clear();
   }
@@ -185,18 +193,21 @@ return class MyEffect {
   update() {
     this.#clear();
 
-    const boids = this.group.getBoids();
-    for (let i = 0; i < this.group.numBoids(); i++) {
-      const boid = boids[i];
-      const x = Math.floor(boid.getPosX()), y = Math.floor(boid.getPosY());
+    for (let i = 0; i < 3; i++) {
+      const boids = this.groups[i].getBoids();
+      for (let j = 0; j < this.groups[i].numBoids(); j++) {
+        const boid = boids[j];
+        const x = Math.floor(boid.getPosX()), y = Math.floor(boid.getPosY());
 
-      if (x >= this.display.width || x < 0 || isNaN(x)) {continue;}
-      if (y >= this.display.height || y < 0 || isNaN(y)) {continue;}
+        if (x >= this.display.width || x < 0 || isNaN(x)) {continue;}
+        if (y >= this.display.height || y < 0 || isNaN(y)) {continue;}
 
-      this.display.setPixel(x, y, this.group.getGroupColour());
+        this.display.setPixel(x, y, this.groups[i].getGroupColour());
+      }
+      this.groups[i].update(1/30);
     }
     
-    this.group.update(1/30);
+    
     this.display.flush();
   }
 }
