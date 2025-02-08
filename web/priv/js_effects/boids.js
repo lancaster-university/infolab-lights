@@ -33,11 +33,13 @@ class BoidGroup {
     this.width = width;
     this.height = height;
 
-    this.cohesion_factor = 1;
-    this.separation_factor = 1;
-    this.align_factor = 1;
-    this.separation_distance = 2;
-    this.boid_max_speed = 2;
+    //best not to play with these and just leave them
+    this.cohesion_favour = 0.005;
+    this.separation_favour = 0.05;
+    this.align_favour = 0.05;
+    this.bound_favour = 25;
+    this.separation_distance = 3;
+    this.boid_max_speed = 2.5;
     this.boid_min_speed = 1;
   }
 
@@ -89,19 +91,22 @@ class BoidGroup {
       }
 
       if (neighbours > 0) {
-        px_avg = (px_avg) / neighbours; py_avg = (py_avg) / neighbours;
-        vx_avg = (vx_avg) / neighbours; vy_avg = (vy_avg) / neighbours;
+        px_avg = px_avg / neighbours; py_avg = py_avg / neighbours;
+        vx_avg = vx_avg / neighbours; vy_avg = vy_avg / neighbours;
 
-        curBoid.setVel(curBoid.getVelX() + ((px_avg - px) * this.cohesion_factor) + ((vx_avg - vx) * this.align_factor) * dt, curBoid.getVelY() + ((py_avg - py) * this.cohesion_factor) + ((vy_avg - vy) * this.align_factor) * dt);
+        curBoid.setVel(
+          curBoid.getVelX() + (sep_x * this.separation_favour) + 
+          ((px_avg - px) * this.cohesion_favour) + 
+          ((vx_avg - vx) * this.align_favour) * dt, 
+          curBoid.getVelY() + (sep_y * this.separation_favour) + 
+          ((py_avg - py) * this.cohesion_favour) + 
+          ((vy_avg - vy) * this.align_favour) * dt);
       }
 
-      console.log(sep_x, sep_y)
-      curBoid.setVel(curBoid.getVelX() + (sep_x * this.separation_factor) * dt, curBoid.getVelY() + (sep_y * this.separation_factor) * dt);
-
-      if (px > this.width) {curBoid.setVel(curBoid.getVelX() - 10 * dt, curBoid.getVelY());}
-      if (px < 0) {curBoid.setVel(curBoid.getVelX() + 10 * dt, curBoid.getVelY());}
-      if (py > this.height) {curBoid.setVel(curBoid.getVelX(), curBoid.getVelY() - 10 * dt);}
-      if (py < 0) {curBoid.setVel(curBoid.getVelX(), curBoid.getVelY() + 10 * dt);}
+      if (px > this.width) {curBoid.setVel(curBoid.getVelX() - this.bound_favour * dt, curBoid.getVelY());}
+      if (px < 0) {curBoid.setVel(curBoid.getVelX() + this.bound_favour * dt, curBoid.getVelY());}
+      if (py > this.height) {curBoid.setVel(curBoid.getVelX(), curBoid.getVelY() - this.bound_favour * dt);}
+      if (py < 0) {curBoid.setVel(curBoid.getVelX(), curBoid.getVelY() + this.bound_favour * dt);}
 
       const speed = Math.sqrt((curBoid.getVelX() ** 2) + (curBoid.getVelY() ** 2));
 
