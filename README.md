@@ -55,7 +55,7 @@ be rejected.
 | [@mavi0](https://github.com/mavi0) | [Binary Clock](web/priv/js_effects/binaryClock.js)             |  The time but harder to read ⏰    |
 | [@Tom0267](https://github.com/Tom0267) | [Shapes](web/priv/js_effects/Shapes.js)             |  Randomly generated shapes.   |
 | [@pengzxD](https://github.com/pengzxD) | [Rainbow Donut](web/priv/js_effects/RainbowDonut.js)             |  A classic donut animation with added 🏳️‍🌈✨   |
-
+| [@etmuzzr](https://github.com/etmuzzr) | [boids](web/priv/js_effects/boids.js)             |  Sparkley colourful boids!   |
 
 ## Image Overrides 
 
