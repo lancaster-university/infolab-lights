@@ -56,6 +56,7 @@ be rejected.
 | [@Tom0267](https://github.com/Tom0267) | [Shapes](web/priv/js_effects/Shapes.js)             |  Randomly generated shapes.   |
 | [@pengzxD](https://github.com/pengzxD) | [Rainbow Donut](web/priv/js_effects/RainbowDonut.js)             |  A classic donut animation with added 🏳️‍🌈✨   |
 | [@etmuzzr](https://github.com/etmuzzr) | [boids](web/priv/js_effects/boids.js)             |  Sparkley colourful boids!   |
+| [@moolordking](https://github.com/moolordking) | [LavaLamp](web/priv/js_effects/LavaLamp.js)             |  Gentle moving shapes, akin to a Lava Lamp.   |
 
 ## Image Overrides 
 
