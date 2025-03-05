@@ -48,10 +48,6 @@ return class GossipNetwork {
     this.#draw();
   }
 
-  // ─────────────────────────────────────────────────────────────────────────────
-  //  Initialization
-  // ─────────────────────────────────────────────────────────────────────────────
-
   #initNodes() {
     // For nodeSize > 1, you may want to subtract nodeSize instead of 2
     const maxX = this.display.width - 2;
@@ -176,12 +172,12 @@ return class GossipNetwork {
         destinationNode.received = true;
         destinationNode.color = [0, 255, 0]; // green
 
-        // Spread to neighbors, skipping the one we came from
+        // Spread to neighbors, skipping the sender
         destinationNode.neighbors.forEach((neighborIdx) => {
-          // Skip the node that just infected me
+          
           if (neighborIdx === packet.from) return;
 
-          // Also skip if neighbor is already infected
+          // Also skip if neighbor is already received
           if (this.nodes[neighborIdx].received) return;
 
           // Create new packet
