@@ -57,6 +57,8 @@ be rejected.
 | [@pengzxD](https://github.com/pengzxD) | [Rainbow Donut](web/priv/js_effects/RainbowDonut.js)             |  A classic donut animation with added 🏳️‍🌈✨   |
 | [@etmuzzr](https://github.com/etmuzzr) | [boids](web/priv/js_effects/boids.js)             |  Sparkley colourful boids!   |
 | [@moolordking](https://github.com/moolordking) | [LavaLamp](web/priv/js_effects/LavaLamp.js)             |  Gentle moving shapes, akin to a Lava Lamp.   |
+| [@calmKyle](https://github.com/calmKyle)                   | [Heap Sort Visualiser](web/priv/js_effects/heapSortVisualiser)          |  Heap sort algorithms visualiser                                                                                             |
+| [@calmKyle](https://github.com/calmKyle)                   | [Heap Sort Visualiser](web/priv/js_effects/heapSortVisualiser)          |  Gossip Distribution visualiser                                                                                             |
 
 ## Image Overrides 
 

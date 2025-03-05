@@ -3,8 +3,8 @@ return class heapSortVisualiser {
         this.display = display;
 
         // Visualization/array setup
-        this.arraySize = 20;             // Number of elements to sort
-        this.maxValue = 100;             // Max random value for array elements
+        this.arraySize = 100;         // Number of elements to sort
+        this.maxValue = 100;          // Max random value for array elements
         this.array = this.#generateArray(this.arraySize, this.maxValue);
         this.heapSize = this.array.length;
 
@@ -26,8 +26,8 @@ return class heapSortVisualiser {
         this.flashDelay = 10;  // Slower delay specifically for flashing
 
         // Action delay
-        this.delay = 5;      // Delay between updates
-        this.counter = 0;     // Counter to manage delay
+        this.delay = 5;        // Delay between updates
+        this.counter = 0;      // Counter to manage delay
 
         this.#clear();
         this.#draw();
@@ -36,7 +36,8 @@ return class heapSortVisualiser {
     #generateArray(size, maxVal) {
         const arr = [];
         for (let i = 0; i < size; i++) {
-            arr.push(Math.floor(Math.random() * maxVal));
+            // Now includes the value 'maxVal'
+            arr.push(Math.floor(Math.random() * (maxVal + 1)));
         }
         return arr;
     }
@@ -74,36 +75,56 @@ return class heapSortVisualiser {
     }
 
     #draw() {
-        this.#clear();
+    this.#clear();
+    
+    const w = this.display.width;
+    const h = this.display.height;
+    const exactBarWidth = w / this.array.length; // float width
+    let currentXFloat = 0;                       // running "float" x position
 
-        const w = this.display.width;
-        const h = this.display.height;
-        const barWidth = Math.floor(w / this.array.length);
+    for (let i = 0; i < this.array.length; i++) {
+        const nextXFloat = currentXFloat + exactBarWidth;
 
-        for (let i = 0; i < this.array.length; i++) {
-            const barHeight = Math.floor((this.array[i] / this.maxValue) * h);
-            let color = [255, 255, 255]; // default white
-            if (this.state === "flash" && i >= this.heapSize) {
-                color = this.flashOn ? [0, 255, 0] : [255, 255, 255]; // Flash entire sorted portion
-            } else if (i >= this.heapSize) {
-                color = [0, 255, 0]; // static green for sorted elements outside flash state
-            } else if (this.swapIndices.includes(i)) {
-                color = [255, 0, 0]; // red for swapped elements
-            }
+        // Round the positions to get integer pixel indices
+        const xStart = Math.round(currentXFloat);
+        let xEnd   = Math.round(nextXFloat);
 
-            const xStart = i * barWidth;
-            for (let x = xStart; x < xStart + barWidth; x++) {
-                for (let y = h - 1; y >= h - barHeight; y--) {
-                    this.display.setPixel(x, y, color);
-                }
+        // Make sure we don't exceed the display width
+        if (xEnd > w) xEnd = w;
+
+        // Calculate bar height (unchanged):
+        const barHeight = Math.floor((this.array[i] / this.maxValue) * h);
+
+        // Determine the color
+        let color = [255, 255, 255]; 
+        if (this.state === "flash" && i >= this.heapSize) {
+            color = this.flashOn ? [0, 255, 0] : [255, 255, 255];
+        } else if (i >= this.heapSize) {
+            color = [0, 255, 0];
+        } else if (this.swapIndices.includes(i)) {
+            color = [255, 0, 0];
+        }
+
+        // Draw the bar
+        for (let x = xStart; x < xEnd; x++) {
+            for (let y = h - 1; y >= h - barHeight; y--) {
+                this.display.setPixel(x, y, color);
             }
         }
-        this.display.flush();
-        this.swapIndices = []; // Clear swap indicators after drawing
+
+        // Move currentXFloat ahead by one bar
+        currentXFloat = nextXFloat;
     }
 
+    this.display.flush();
+    this.swapIndices = [];
+}
+
+
     update() {
-        if (++this.counter < (this.state === "flash" ? this.flashDelay : this.delay)) return;
+        if (++this.counter < (this.state === "flash" ? this.flashDelay : this.delay)) {
+            return;
+        }
         this.counter = 0;
 
         switch (this.state) {
@@ -128,8 +149,8 @@ return class heapSortVisualiser {
             case "flash":
                 this.flashOn = !this.flashOn;
                 this.flashCount++;
-                if (this.flashCount > 20) { // Optionally stop after a number of flashes
-                    this.state = "done";                
+                if (this.flashCount > 20) {
+                    this.state = "done";
                 }
                 break;
         }
