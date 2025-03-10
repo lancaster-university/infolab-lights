@@ -26,7 +26,7 @@ return class heapSortVisualiser {
         this.flashDelay = 10;  // Slower delay specifically for flashing
 
         // Action delay
-        this.delay = 5;        // Delay between updates
+        this.delay = 1;        // Delay between updates
         this.counter = 0;      // Counter to manage delay
 
         this.#clear();
@@ -98,7 +98,7 @@ return class heapSortVisualiser {
         // Determine the color
         let color = [255, 255, 255]; 
         if (this.state === "flash" && i >= this.heapSize) {
-            color = this.flashOn ? [0, 255, 0] : [255, 255, 255];
+            color = this.flashOn ? [0, 255, 0] : [0, 255, 0];
         } else if (i >= this.heapSize) {
             color = [0, 255, 0];
         } else if (this.swapIndices.includes(i)) {
