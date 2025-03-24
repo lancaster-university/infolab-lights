@@ -59,7 +59,9 @@ be rejected.
 | [@moolordking](https://github.com/moolordking) | [LavaLamp](web/priv/js_effects/LavaLamp.js)             |  Gentle moving shapes, akin to a Lava Lamp.   |
 | [@calmKyle](https://github.com/calmKyle)                   | [Heap Sort Visualiser](web/priv/js_effects/heapSortVisualiser.js)          |  Heap sort algorithms visualiser                                                                                             |
 | [@calmKyle](https://github.com/calmKyle)                   | [Gossip Distribution Visualiser](web/priv/js_effects/gossipNetworkVisualiser.js)          |  Gossip Distribution visualiser                                                                                             |
+| [@tommmb](https://github.com/tommmb)                   | [plasma](web/priv/js_effects/plasma.js)          |  Combines multiple sine waves to create flowing patterns with rainbow colour effects 
 
+tommmb
 ## Image Overrides 
 
 Open a pull request with an edit to [web/config/config.exs](https://github.com/lancaster-university/infolab-lights/blob/master/web/config/config.exs) to add an override for your needs, and place the image in `.png` format (or animated `.gif`) in `/web/priv/`. 
