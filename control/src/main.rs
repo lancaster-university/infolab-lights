@@ -33,15 +33,18 @@ fn main() -> Result<(), Box<dyn Error>> {
     let (frame_recv, mut frame_send) =
         single_value_channel::channel_starting_with(image::DynamicImage::new_rgb8(120, 80));
 
-    std::thread::spawn(move || sender_thread(frame_recv, scene));
+    let sender_handle = std::thread::spawn(move || sender_thread(frame_recv, scene));
 
-    loop {
-        let r = inner(&opt, &mut frame_send);
-
-        println!("Inner loop failed: {:#?}", r);
-
-        std::thread::sleep(Duration::from_secs(5));
+    // Single attempt to connect and process messages
+    let result = inner(&opt, &mut frame_send);
+    
+    // If the connection drops or fails, print the error and exit
+    if let Err(e) = result {
+        eprintln!("WebSocket connection failed: {:#?}", e);
     }
+    
+    // Exit the program instead of retrying
+    std::process::exit(1)
 }
 
 fn sender_thread(
@@ -87,5 +90,6 @@ fn inner(
         frame_chan.update(frame)?;
     }
 
-    Ok(())
+    // If we exit the loop (connection closed), return an error
+    Err("WebSocket connection closed".into())
 }
