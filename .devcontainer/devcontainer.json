@@ -1,0 +1,25 @@
+{
+	"name": "Rust and Elixir Development",
+	"dockerComposeFile": "docker-compose.yml",
+	"service": "dev",
+	"workspaceFolder": "/workspace",
+	"customizations": {
+	  "vscode": {
+		"extensions": [
+		  "rust-lang.rust-analyzer",
+		  "jakebecker.elixir-ls",
+		  "ms-azuretools.vscode-docker"
+		]
+	  }
+	},
+	"remoteUser": "vscode",
+	"remoteEnv": {
+		"PATH": "${containerEnv:PATH}:/home/vscode/.cargo/bin"
+	},
+	"mounts": [
+        "source=${localEnv:HOME}/.ssh,target=/home/vscode/.ssh,type=bind,consistency=cached",
+        "source=${localEnv:HOME}/.ssh,target=${localEnv:HOME}/.ssh,type=bind,consistency=cached",
+        "source=${localEnv:HOME}/.gitconfig.d,target=/home/vscode/.gitconfig.d,type=bind,consistency=cached"
+    ],
+	"updateContentCommand": "[ -d ~/.cargo ] || curl https://sh.rustup.rs -sSf | sh -s -- -y"
+}

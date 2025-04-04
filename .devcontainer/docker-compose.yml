@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ..:/workspace:cached
+    command: sleep infinity
+    network_mode: service:docker
+
+  docker:
+    image: docker:dind
+    privileged: true
+    command: ["--host=tcp://0.0.0.0:2375"]
+    ports:
+      - "2375:2375"
