@@ -1,7 +1,7 @@
 # Infolab-Lights
 
-![Rust](https://github.com/lancaster-university/infolab-lights/workflows/Rust/badge.svg)
-![Elixir CI](https://github.com/lancaster-university/infolab-lights/workflows/Elixir%20CI/badge.svg)
+[![Rust](https://github.com/lancaster-university/infolab-lights/actions/workflows/rust.yml/badge.svg)](https://github.com/lancaster-university/infolab-lights/actions/workflows/rust.yml)
+[![WebUI CI](https://github.com/lancaster-university/infolab-lights/actions/workflows/elixir.yml/badge.svg)](https://github.com/lancaster-university/infolab-lights/actions/workflows/elixir.yml)
 
 Welcome to the software that powers the LED light display on the front of the
 Infolab.
