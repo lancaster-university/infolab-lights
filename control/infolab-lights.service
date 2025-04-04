@@ -4,8 +4,8 @@ After=network.target
 
 [Service]
 Type=simple
-ExecStart=/path/to/your/control --scene /path/to/your/scene.xml --pixels wss://your-pixel-source.example.com
-WorkingDirectory=/path/to/your/working/directory
+ExecStart=/opt/infolab-lights/control --scene /opt/infolab-lights/InfoLab.xml --pixels wss://infolab21-lights.lancaster.ac.uk/screen_stream/websocket
+WorkingDirectory=/opt/infolab-lights
 Restart=always
 RestartSec=5
 StartLimitIntervalSec=0
@@ -13,4 +13,4 @@ StartLimitIntervalSec=0
 SuccessExitStatus=1
 
 [Install]
-WantedBy=multi-user.target 
+WantedBy=multi-user.target

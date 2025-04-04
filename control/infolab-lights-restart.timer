@@ -1,0 +1,9 @@
+[Unit]
+Description=Run infolab-lights-restart.service 5 minutes after boot
+
+[Timer]
+OnBootSec=5min
+Unit=infolab-lights-restart.service
+
+[Install]
+WantedBy=multi-user.target

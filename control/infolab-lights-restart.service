@@ -1,0 +1,6 @@
+[Unit]
+Description=Restart Infolab Lights Service
+
+[Service]
+Type=oneshot
+ExecStart=/bin/systemctl restart infolab-lights.service
