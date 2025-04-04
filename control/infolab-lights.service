@@ -1,0 +1,16 @@
+[Unit]
+Description=InfoLab Lights Control Service
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/path/to/your/control --scene /path/to/your/scene.xml --pixels wss://your-pixel-source.example.com
+WorkingDirectory=/path/to/your/working/directory
+Restart=always
+RestartSec=5
+StartLimitIntervalSec=0
+# This makes systemd ignore the exit code 1
+SuccessExitStatus=1
+
+[Install]
+WantedBy=multi-user.target 
