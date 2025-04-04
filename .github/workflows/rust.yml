@@ -21,6 +21,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
       - name: Build
         run: cargo build --verbose
       - name: Run tests
@@ -34,27 +36,21 @@ jobs:
     strategy:
       matrix:
         target:
-          - x86_64-linux-gnu   # amd64
-          - aarch64-linux-gnu  # arm64
+          - x86_64-unknown-linux-gnu   # amd64
+          - aarch64-unknown-linux-gnu  # arm64
     steps:
       - uses: actions/checkout@v4
       
-      - name: Install Rust toolchain
-        uses: actions-rs/toolchain@v1
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
         with:
-          profile: minimal
-          toolchain: stable
-          target: ${{ matrix.target }}
-          override: true
+          targets: ${{ matrix.target }}
       
-      - name: Install cross-compilation tools
-        uses: taiki-e/setup-cross-toolchain-action@v1
-        with:
-          target: ${{ matrix.target }}
+      - name: Install cross
+        run: cargo install cross --git https://github.com/cross-rs/cross
       
       - name: Build binary
-        run: |
-          cargo build --release --target ${{ matrix.target }}
+        run: cross build --release --target ${{ matrix.target }}
           
       - name: Prepare binary
         run: |
@@ -79,12 +75,12 @@ jobs:
         
       - name: Get the version
         id: get_version
-        run: echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/}
+        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
         
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
-          name: Release ${{ steps.get_version.outputs.VERSION }}
+          name: Release ${{ env.VERSION }}
           draft: false
           prerelease: false
           files: |
