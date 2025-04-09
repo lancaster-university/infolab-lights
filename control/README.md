@@ -55,6 +55,51 @@ This goes somewhere connected to the LED network
    sudo systemctl status infolab-lights.service
    ```
 
+## Health Monitoring Setup (Optional)
+
+This component adds external monitoring of UDP network traffic to detect and recover from silent failures.
+
+1. Download the health monitoring files:
+   ```bash
+   # Download the monitoring script
+   sudo wget -O /opt/infolab-lights/check-lights-traffic.sh https://raw.githubusercontent.com/lancaster-university/infolab-lights/master/control/check-lights-traffic.sh
+   sudo chmod +x /opt/infolab-lights/check-lights-traffic.sh
+   
+   # Download systemd service and timer files
+   sudo wget -O /etc/systemd/system/check-lights-traffic.service https://raw.githubusercontent.com/lancaster-university/infolab-lights/master/control/check-lights-traffic.service
+   sudo wget -O /etc/systemd/system/check-lights-traffic.timer https://raw.githubusercontent.com/lancaster-university/infolab-lights/master/control/check-lights-traffic.timer
+   ```
+
+2. Install tcpdump (required for network monitoring):
+   ```bash
+   sudo apt-get update
+   sudo apt-get install -y tcpdump
+   ```
+
+3. Create log file:
+   ```bash
+   sudo touch /var/log/infolab-lights-health.log
+   sudo chmod 644 /var/log/infolab-lights-health.log
+   ```
+
+4. Enable and start the monitor:
+   ```bash
+   sudo systemctl daemon-reload
+   sudo systemctl enable check-lights-traffic.timer
+   sudo systemctl start check-lights-traffic.timer
+   ```
+
+5. Test the monitoring:
+   ```bash
+   # Run a manual check
+   sudo systemctl start check-lights-traffic.service
+   
+   # View logs
+   sudo tail -f /var/log/infolab-lights-health.log
+   ```
+
+The health monitor checks for UDP traffic to the 169.254.1.x subnet every 10 minutes. If no traffic is detected for 30 seconds, it automatically restarts the infolab-lights service. The monitoring script runs with root privileges to allow packet capture and service control.
+
 ## Optionally: building from source
 
 ```bash

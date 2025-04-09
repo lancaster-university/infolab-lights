@@ -24,5 +24,6 @@ image = "0.23.14"
 retain_mut = "0.1.4"
 spin_sleep = "1.0.0"
 single_value_channel = "1.2.2"
+systemd = "0.10.0"
 
 [features]

@@ -1,0 +1,14 @@
+[Unit]
+Description=Check InfoLab Lights UDP Traffic Timer
+After=network.target
+
+[Timer]
+# Run every 10 minutes
+OnBootSec=60
+OnUnitActiveSec=600
+# Set random delay to avoid running at exactly the same time as other timers
+RandomizedDelaySec=30
+Unit=check-lights-traffic.service
+
+[Install]
+WantedBy=timers.target 

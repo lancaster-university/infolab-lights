@@ -1,0 +1,15 @@
+[Unit]
+Description=Check InfoLab Lights UDP Traffic Service
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/opt/infolab-lights/check-lights-traffic.sh
+# Run as root to have proper permissions for tcpdump and service control
+User=root
+Group=root
+# Keep some security settings but allow root privileges
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target 
