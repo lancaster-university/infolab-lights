@@ -80,7 +80,7 @@ jobs:
           file: web/Dockerfile
           build-args: |
             APP_VSN=${{ steps.Version.outputs.version }}
-          push: true
+          push: ${{ github.event_name != 'pull_request' }}
           platforms: linux/amd64
           tags: ${{ steps.metadata.outputs.tags }}
           labels: ${{ steps.metadata.outputs.labels }}
