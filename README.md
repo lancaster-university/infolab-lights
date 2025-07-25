@@ -61,6 +61,8 @@ be rejected.
 | [@calmKyle](https://github.com/calmKyle)                   | [Gossip Distribution Visualiser](web/priv/js_effects/gossipNetworkVisualiser.js)          |  Gossip Distribution visualiser                                                                                             |
 | [@tommmb](https://github.com/tommmb)                   | [plasma](web/priv/js_effects/plasma.js)          |  Combines multiple sine waves to create flowing patterns with rainbow colour effects 
 | [@lancs-acs](https://github.com/lancs-acs)                   | [eyes](web/priv/js_effects/eyes.js)          |  Watch out for their gaze! 👀 
+| [@lancs-acs](https://github.com/lancs-acs)                   | [clock](web/priv/js_effects/clock.js)          |  What's the time Mr Wolf?
+
 ## Image Overrides 
 
 Open a pull request with an edit to [web/config/config.exs](https://github.com/lancaster-university/infolab-lights/blob/master/web/config/config.exs) to add an override for your needs, and place the image in `.png` format (or animated `.gif`) in `/web/priv/`. 
