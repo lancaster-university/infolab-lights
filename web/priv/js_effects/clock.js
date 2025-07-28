@@ -46,7 +46,7 @@ return class MyEffect {
       0x11, 0x22, 0x44, 0x80  // /
     ];
 
-    this.charSet = this.charSet2;
+    this.charSet = (Math.random( ) < 0.5) ? this.charSet1 : this.charSet2;
     
     this.timePxlWidth  =  6;
     this.timePxlHeight =  6;
@@ -56,60 +56,63 @@ return class MyEffect {
     
     this.display = display;
     
-    this.#clear();
+    this.#clear( );
   }
 
-  #clear() {
-    for (let x = 0; x < this.display.width; x++)
-      for (let y = 0; y < this.display.height; y++)
-        this.display.setPixel(x, y, [0, 0, 0]);
+  #clear( ) {
+    for ( let x = 0; x < this.display.width; x++ )
+      for ( let y = 0; y < this.display.height; y++ )
+        this.display.setPixel( x, y, this.black );
 
     this.display.flush();
   }
 
-  row(val, x, y, width, offset, colour) {
-    for( let i = 16; i > 0; i>>=1 ) {
-      let pxl = (val & i>>1) > 0;
+  row( val, x, y, width, offset, colour ) {
+    for( let i = 16; i > 0; i >>= 1 ) {
+      let pxl = ( val & i >> 1 ) > 0;
       for ( let span = 0; span < width; span++ )
-        this.display.setPixel(x++, y + offset, pxl ? colour : this.black)
+        this.display.setPixel( x++, y + offset, pxl ? colour : this.black )
     }
   }
 
-  digit(xPos, n, width, height, offset, colour) {
+  digit( xPos, n, width, height, offset, colour ) {
     xPos *= width * 5;
     let index = n * 4;
-    for (let y = 1; y < 5; y++) {
+    for ( let y = 1; y < 5; y++ ) {
       let bitmap = this.charSet[ index++ ];
-      for (let dy = 0; dy < height*2; dy++)
-        this.row((dy < height) ? bitmap>>4 : bitmap&15,
-                 xPos, y*height*2+dy, width, offset, colour);
+      for ( let dy = 0; dy < height * 2; dy++ )
+        this.row( ( dy < height ) ? bitmap >> 4 : bitmap & 15,
+                 xPos, y * height * 2 + dy, width, offset, colour );
     }
   }
 
-  tdigit(xPos, n, colour) {
-    this.digit(xPos, n, this.timePxlWidth, this.timePxlHeight, 0, colour);
+  tdigit( xPos, n, colour ) {
+    this.digit( xPos, n, this.timePxlWidth, this.timePxlHeight, 0, colour );
   }
 
-  ddigit(xPos, n) {
-    this.digit(xPos, n,
-               this.datePxlWidth, this.datePxlHeight, this.dateOffset, this.white);
+  ddigit( xPos, n ) {
+    this.digit( xPos, n,
+               this.datePxlWidth, this.datePxlHeight,
+               this.dateOffset, this.white );
   }
   
-  update() {
-    let date = new Date();
-    let hours = date.getHours();
-    let mins  = date.getMinutes();
-    let secs  = date.getSeconds()
+  update( ) {
+    let date    = new Date( );
+    let hours   = date.getHours( );
+    let mins    = date.getMinutes( );
+    let secs    = date.getSeconds( );
     let hcolour = this.colours[ Math.floor(secs / 10) ];
     let lcolour = this.colours[ secs % 10 ];
-    this.tdigit(0, Math.floor(hours / 10), this.white );
-    this.tdigit(1, hours % 10, this.white );
-    this.tdigit(2, Math.floor(mins / 10), hcolour );
-    this.tdigit(3, mins % 10, lcolour );
+    
+    this.tdigit( 0, Math.floor(hours / 10), this.white );
+    this.tdigit( 1, hours % 10, this.white );
+    this.tdigit( 2, Math.floor(mins / 10), hcolour );
+    this.tdigit( 3, mins % 10, lcolour );
 
-    let day = date.getDay();
-    let month = date.getMonth() + 1;
-    let year = date.getFullYear();
+    let day   = date.getDay( );
+    let month = date.getMonth( ) + 1;
+    let year  = date.getFullYear( );
+    
     this.ddigit( 1, Math.floor(day / 10) );
     this.ddigit( 2, day % 10 );
     this.ddigit( 3, 10 );
@@ -121,6 +124,6 @@ return class MyEffect {
     this.ddigit( 9, Math.floor(year / 10) % 10 );
     this.ddigit(10, year % 10 );
     
-    this.display.flush();
+    this.display.flush( );
   }
 }
