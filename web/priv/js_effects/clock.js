@@ -100,7 +100,7 @@ return class MyEffect {
     let date    = new Date( );
     let hours   = date.getHours( );
     let mins    = date.getMinutes( );
-    let secs    = date.getSeconds( )
+    let secs    = date.getSeconds( );
     let hcolour = this.colours[ Math.floor(secs / 10) ];
     let lcolour = this.colours[ secs % 10 ];
     
