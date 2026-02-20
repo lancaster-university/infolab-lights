@@ -45,7 +45,7 @@ config :infolab_light_games, Scheduler,
       {Utils.StaticLoader, :display_static, ["wales.png", {Timex.Duration, :from_hours, [1]}]}},
     {"0 */1 9 5 *",
       {Utils.StaticLoader, :display_static, ["eu.png", {Timex.Duration, :from_hours, [1]}]}},
-    {"0 */1 23-24 2 *",
+    {"0 */1 23-25 2 *",
       {Utils.StaticLoader, :display_static, ["ukraine.png", {Timex.Duration, :from_minutes, [10]}]}}
   ]
 
