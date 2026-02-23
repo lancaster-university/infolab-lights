@@ -5,7 +5,7 @@ ARG DEBIAN_VERSION=bookworm-20230612-slim
 ARG BUILDER_IMAGE="hexpm/elixir:${ELIXIR_VERSION}-erlang-${OTP_VERSION}-debian-${DEBIAN_VERSION}"
 ARG RUNNER_IMAGE="debian:${DEBIAN_VERSION}"
 
-FROM rust:1.82 as rust
+FROM rust:1.82 AS rust
 # install build dependencies
 RUN apt-get update -y && apt-get install -y build-essential git \
     && apt-get clean && rm -f /var/lib/apt/lists/*_*
@@ -14,7 +14,7 @@ WORKDIR /app
 COPY native/matrix ./
 RUN cargo rustc --release
 
-FROM ${BUILDER_IMAGE} as builder
+FROM ${BUILDER_IMAGE} AS builder
 
 RUN apt-get update -y && apt-get install -y --no-install-recommends build-essential git \
   && apt-get clean && rm -f /var/lib/apt/lists/*_*
@@ -22,7 +22,7 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends build-essent
 # install node
 # https://github.com/nodejs/docker-node/blob/230b9852645e170167a2aac1cfa246d069c23cc3/20/bookworm-slim/Dockerfile
 
-ENV NODE_VERSION 20.8.0
+ENV NODE_VERSION=20.8.0
 
 RUN ARCH= && dpkgArch="$(dpkg --print-architecture)" \
     && case "${dpkgArch##*-}" in \
@@ -57,7 +57,7 @@ RUN ARCH= && dpkgArch="$(dpkg --print-architecture)" \
     && node --version \
     && npm --version
 
-ENV YARN_VERSION 1.22.19
+ENV YARN_VERSION=1.22.19
 
 RUN set -ex \
   && savedAptMark="$(apt-mark showmanual)" \
@@ -152,10 +152,10 @@ RUN \
 
 # From this line onwards, we're in a new image, which will be the image used in production
 FROM ${RUNNER_IMAGE}
-LABEL org.opencontainers.image.source https://github.com/lancaster-university/infolab-lights
+LABEL org.opencontainers.image.source=https://github.com/lancaster-university/infolab-lights
 
-ENV LANG C.UTF-8
-ENV LC_ALL C.UTF-8
+ENV LANG=C.UTF-8 \
+    LC_ALL=C.UTF-8
 
 RUN set -eux; \
     apt-get update; \
