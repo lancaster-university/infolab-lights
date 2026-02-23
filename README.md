@@ -57,11 +57,16 @@ be rejected.
 | [@pengzxD](https://github.com/pengzxD) | [Rainbow Donut](web/priv/js_effects/RainbowDonut.js)             |  A classic donut animation with added 🏳️‍🌈✨   |
 | [@etmuzzr](https://github.com/etmuzzr) | [boids](web/priv/js_effects/boids.js)             |  Sparkley colourful boids!   |
 | [@moolordking](https://github.com/moolordking) | [LavaLamp](web/priv/js_effects/LavaLamp.js)             |  Gentle moving shapes, akin to a Lava Lamp.   |
-| [@calmKyle](https://github.com/calmKyle)                   | [Heap Sort Visualiser](web/priv/js_effects/heapSortVisualiser.js)          |  Heap sort algorithms visualiser                                                                                             |
-| [@calmKyle](https://github.com/calmKyle)                   | [Gossip Distribution Visualiser](web/priv/js_effects/gossipNetworkVisualiser.js)          |  Gossip Distribution visualiser                                                                                             |
-| [@tommmb](https://github.com/tommmb)                   | [plasma](web/priv/js_effects/plasma.js)          |  Combines multiple sine waves to create flowing patterns with rainbow colour effects 
+| [@calmKyle](https://github.com/calmKyle)                     | [Heap Sort Visualiser](web/priv/js_effects/heapSortVisualiser.js)          |  Heap sort algorithms visualiser                                                                                             |
+| [@calmKyle](https://github.com/calmKyle)                     | [Gossip Distribution Visualiser](web/priv/js_effects/gossipNetworkVisualiser.js)          |  Gossip Distribution visualiser                                                                                             |
+| [@tommmb](https://github.com/tommmb)                         | [plasma](web/priv/js_effects/plasma.js)          |  Combines multiple sine waves to create flowing patterns with rainbow colour effects 
 | [@lancs-acs](https://github.com/lancs-acs)                   | [eyes](web/priv/js_effects/eyes.js)          |  Watch out for their gaze! 👀 
 | [@lancs-acs](https://github.com/lancs-acs)                   | [clock](web/priv/js_effects/clock.js)          |  What's the time Mr Wolf?
+| [@Saha-Satyaki](https://github.com/Saha-Satyaki)             | [cosmic_aurora](web/priv/js_effects/cosmic_aurora.js) | Cosmic Aurora effect.
+| [@IMB11](https://github.com/IMB11)                           | [reflections](web/priv/js_effects/reflections.js) | Kind of like caustics on water
+| [@Xtheunseen](https://github.com/Xtheunseen)                 | [heartbeat](web/priv/js_effects/heartbeat.js) | A beating heart animation which increases and decreases in size and brightness using sine waves
+| [@DStarUK](https://github.com/DStarUK)                       | [waves](web/priv/js_effects/waves.js) | Effect called waves based on the rainbow effect by [@simmsb](https://github.com/simmsb)    
+
 
 ## Image Overrides 
 
@@ -83,4 +88,4 @@ Can't code? No problem, open an [issue](https://github.com/lancaster-university/
 | St Davids Day     | 1st March Yearly     |
 | Europe Day        | 9th May Yearly     |
 | Holocaust Awareness Week (dates vary yearly) | Week 23/01/24 - 28/01/24 |
-| Ukraine Flag      | 23 - 24 Feb |
+| Ukraine Flag      | 23 - 25 Feb |
