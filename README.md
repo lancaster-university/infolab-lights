@@ -4,7 +4,7 @@
 [![WebUI CI](https://github.com/lancaster-university/infolab-lights/actions/workflows/elixir.yml/badge.svg)](https://github.com/lancaster-university/infolab-lights/actions/workflows/elixir.yml)
 
 Welcome to the software that powers the LED light display on the front of the
-Infolab.
+Infolab!
 
 If you're here to write an effect for the display, have a play around with [The
 Playground](https://infolab21-lights.lancs.ac.uk/playground).
@@ -19,11 +19,20 @@ If you're submitting an effect, please make sure it follows these rules:
 
 1. Effects must not display explicit/ offensive content.
 2. Effects must not fetch external resources.
+3. Effects must avoid rapid flashing or intense strobe patterns. This display
+   is public-facing, and we want to minimise risk for people with
+   photosensitive epilepsy or similar sensitivities.
 
 For obvious reasons, PRs containing effects that violate these restrictions will
 be rejected.
 
+If you encounter an animation on the display that feels too intense or
+triggering for you, please [open an issue](https://github.com/lancaster-university/infolab-lights/issues) to let us know. Your feedback helps us
+keep the display enjoyable and accessible for everyone. Lancaster University students should report any issues to the [SCC Teaching Office](https://link.mazemap.com/oxtISZVs). 
+
 ## Current effects
+
+> Note: Some animations may be disabled. See the [web/priv/js_effects/](web/priv/js_effects/) directory for info. 
 
 | Author                                                     | Effect                                                                  | Description                                                                                                                  |
 | ---------------------------------------------------------- | ----------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
@@ -81,8 +90,8 @@ Can't code? No problem, open an [issue](https://github.com/lancaster-university/
 | Pride Month       | June Yearly        |
 | Halloween         | 31st October Yearly        |
 | Bonfire Night     | 5th November Yearly        |
-| LU LGBT+ Society  | Tuesday Evening    17:00 - 20:00 |
-| LU Hack Society   | Friday Evening    17:00 - 19:00 |
+| LU LGBT+ Society  | Tuesday Evening    17:00 - 22:00 |
+| LU Hack Society   | Friday Evening    17:00 - 20:00 |
 | Baby Loss Awareness Week (dates varies yearly) | Week 09/10/24 - 15/10/24 |
 | St Andrews Day    | 30th November Yearly |
 | St Davids Day     | 1st March Yearly     |
