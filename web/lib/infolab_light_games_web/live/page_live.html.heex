@@ -2,8 +2,8 @@
     <section class="container box">
         <nav role="navigation" class="navbar">
             <div class="navbar-brand">
-                <a class="navbar-item" href="https://github.com/lancaster-university/infolab-lights">
-                    Infolab Light Things
+                <a class="navbar-item" href="https://github.com/lancaster-university/infolab-lights" target="_blank" rel="noopener">
+                    Infolab Lights (GitHub Repository)
                 </a>
 
                 <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarmenu">
@@ -88,6 +88,14 @@
         </div>
 
         <div class="column is-one-fifth">
+            <%= if @coordinator_status.current_idle_animation do %>
+                <nav class="panel">
+                    <p class="panel-heading">Now Playing</p>
+                    <div class="box">
+                        <span class="level-item"><%= @coordinator_status.current_idle_animation %></span>
+                    </div>
+                </nav>
+            <% end %>
             <div id="arrowkeys">
                 <div class="arrow up-arrow" data-dir="up"><i class="fa fa-arrow-up"></i></div>
                 <br />

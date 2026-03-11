@@ -9,6 +9,7 @@ defmodule Coordinator do
 
     typedstruct enforce: true do
       field(:current_idle_animation, Coordinator.via_tuple() | none())
+      field(:current_idle_animation_name, binary() | none())
       field(:queued_idle_animation, {module(), any(), binary()} | none())
       field(:current_game, Coordinator.via_tuple() | none())
       field(:queue, Qex.t(Coordinator.via_tuple()))
@@ -20,6 +21,7 @@ defmodule Coordinator do
       __MODULE__,
       %State{
         current_idle_animation: nil,
+        current_idle_animation_name: nil,
         queued_idle_animation: nil,
         current_game: nil,
         queue: Qex.new()
@@ -51,7 +53,7 @@ defmodule Coordinator do
   def handle_cast({:idle_animation_terminated, id}, %State{} = state) do
     state =
       if state.current_idle_animation == via_tuple(id) do
-        %State{state | current_idle_animation: nil}
+        %State{state | current_idle_animation: nil, current_idle_animation_name: nil}
       else
         state
       end
@@ -236,6 +238,18 @@ defmodule Coordinator do
     end)
   end
 
+  defp idle_animation_display_name(IdleAnimations.JSImpl, {path, _type}) do
+    Path.basename(path)
+  end
+
+  defp idle_animation_display_name(module, mode) do
+    {_mod, {_mode, name}} =
+      modes_for_modules([IdleAnimations.Ant, IdleAnimations.GOL, IdleAnimations.JSImpl])
+      |> Enum.find(fn {m, {mo, _}} -> m == module and mo == mode end)
+
+    name
+  end
+
   defp start_idle_animation(%State{} = state, module, mode) do
     Logger.info("Starting idle animation #{module}:#{inspect(mode)}")
     # stop the idle animation if it exists
@@ -261,7 +275,8 @@ defmodule Coordinator do
       end
     end)
 
-    {%State{state | current_idle_animation: via_tuple(id)}, pid}
+    display_name = idle_animation_display_name(module, mode)
+    {%State{state | current_idle_animation: via_tuple(id), current_idle_animation_name: display_name}, pid}
   end
 
   defp maybe_start_idle_animation(state) do
@@ -320,6 +335,7 @@ defmodule Coordinator do
 
     %CoordinatorStatus{
       current_game: current,
+      current_idle_animation: state.current_idle_animation_name,
       queue: queue,
       queued_idle_animation: state.queued_idle_animation
     }
