@@ -25,25 +25,46 @@ struct Opt {
     pixels: Url,
 }
 
+fn test_pattern() -> image::DynamicImage {
+    let width = 120u32;
+    let height = 80u32;
+    let colors: [(u8, u8, u8); 7] = [
+        (255, 255, 255), // white
+        (255, 255,   0), // yellow
+        (  0, 255, 255), // cyan
+        (  0, 255,   0), // green
+        (255,   0, 255), // magenta
+        (255,   0,   0), // red
+        (  0,   0, 255), // blue
+    ];
+
+    let mut img = image::RgbImage::new(width, height);
+    for (x, _y, pixel) in img.enumerate_pixels_mut() {
+        let bar = (x * 7 / width) as usize;
+        let (r, g, b) = colors[bar];
+        *pixel = image::Rgb([r, g, b]);
+    }
+    image::DynamicImage::ImageRgb8(img)
+}
+
 fn main() -> Result<(), Box<dyn Error>> {
     let opt = Opt::from_args();
     let scene = std::fs::read_to_string(&opt.scene)?;
     let scene = outgoing::parse_scene(&scene);
 
     let (frame_recv, mut frame_send) =
-        single_value_channel::channel_starting_with(image::DynamicImage::new_rgb8(120, 80));
+        single_value_channel::channel_starting_with(test_pattern());
 
-    let sender_handle = std::thread::spawn(move || sender_thread(frame_recv, scene));
+    std::thread::spawn(move || sender_thread(frame_recv, scene));
 
-    // Single attempt to connect and process messages
-    let result = inner(&opt, &mut frame_send);
-    
-    // If the connection drops or fails, print the error and exit
-    if let Err(e) = result {
+    if let Err(e) = inner(&opt, &mut frame_send) {
         eprintln!("WebSocket connection failed: {:#?}", e);
+        let _ = frame_send.update(test_pattern());
+        // Give the sender thread time to push the test pattern to the display
+        // before systemd kills and restarts us
+        std::thread::sleep(Duration::from_secs(1));
     }
-    
-    // Exit the program instead of retrying
+
     std::process::exit(1)
 }
 

@@ -1,0 +1,11 @@
+services:
+  control:
+    image: ghcr.io/lancaster-university/infolab-lights-control:latest
+    # host networking is required to reach the 169.254.x.x link-local LED routers
+    network_mode: host
+    restart: always
+    volumes:
+      - ./InfoLab.xml:/etc/infolab/InfoLab.xml:ro
+    command:
+      - --scene=/etc/infolab/InfoLab.xml
+      - --pixels=wss://infolab21-lights.lancaster.ac.uk/screen_stream/websocket
