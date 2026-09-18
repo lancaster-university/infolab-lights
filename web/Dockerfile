@@ -22,7 +22,7 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends build-essent
 # install node
 # https://github.com/nodejs/docker-node/blob/230b9852645e170167a2aac1cfa246d069c23cc3/20/bookworm-slim/Dockerfile
 
-ENV NODE_VERSION=20.8.0
+ENV NODE_VERSION=20.19.0
 
 RUN ARCH= && dpkgArch="$(dpkg --print-architecture)" \
     && case "${dpkgArch##*-}" in \
