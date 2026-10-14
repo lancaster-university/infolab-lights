@@ -52,6 +52,7 @@ keep the display enjoyable and accessible for everyone. Lancaster University stu
 | [@lcjb360](https://github.com/lcjb360)                     | [Bad Chess](web/priv/js_effects/bad_chess.js)                           | Google en passant                                                                                                            |
 | [@james1236](https://github.com/james1236)                 | [Word Game](web/priv/js_effects/word_game.js)                           | Word game animation                                                                                                          |
 | [@DOmBuRnAdOwl](https://github.com/DOmBuRnAdOwl)           | [Cellular Automata](web/priv/js_effects/cellularAutomata.js)            | Wolframs rule 30 feeding into Conways Game of Life                                                                           |
+| [@moolordking](https://github.com/moolordking)             | [The Orb](web/priv/js_effects/TheOrb.js)                                | A pulsing orb that shifts colour and position across the display.                                                            |
 | [@moolordking](https://github.com/moolordking)             | [Trigonometric Sinusoidal](web/priv/js_effects/TheStrings.js)           | Trigonometric sinusoidal strings changing colour across the screen.                                                          |
 | [@PeanutbutterWarrior](https://github.com/PeanutbutterWarrior) | [DVD Logo Screensaver](web/priv/js_effects/dvd_logo.js)             | The classic DVD Logo Screensaver!                                                                                            |
 | [@tomaustn](https://github.com/tomaustn) | [Walkies](web/priv/js_effects/walkies.js)             | A labrador going for a walk, in honour of Coco :)                                                                                            |
@@ -75,6 +76,8 @@ keep the display enjoyable and accessible for everyone. Lancaster University stu
 | [@IMB11](https://github.com/IMB11)                           | [reflections](web/priv/js_effects/reflections.js) | Kind of like caustics on water
 | [@Xtheunseen](https://github.com/Xtheunseen)                 | [heartbeat](web/priv/js_effects/heartbeat.js) | A beating heart animation which increases and decreases in size and brightness using sine waves
 | [@DStarUK](https://github.com/DStarUK)                       | [waves](web/priv/js_effects/waves.js) | Effect called waves based on the rainbow effect by [@simmsb](https://github.com/simmsb)    
+| [@saragarcia6123](https://github.com/saragarcia6123)         | [Pacman](web/priv/js_effects/pacman.js) | An animation of Pacman eating a matrix of dots
+| [@SiliqonDev](https://github.com/SiliqonDev)                 | [Double Pendulum](web/priv/js_effects/double_pendulum.js) | Simulation of a chaotic double pendulum with a fading trail
 
 
 ## Image Overrides 
